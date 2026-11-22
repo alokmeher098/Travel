@@ -1900,8 +1900,8 @@ const Planner = {
           <div class="ac"><input class="input" id="sf-from" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" autocomplete="off" placeholder="e.g. Delhi" value="${Util.esc(t ? t.from : '')}" />
           <ul class="ac-list" id="ac-from" role="listbox" hidden></ul></div></div>
         <div class="grid2">
-          <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" min="${editing && t.start < today ? t.start : today}" value="${start}" /></div>
-          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" min="${start}" value="${end}" /></div>
+          <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" min="${editing && t.start < today ? t.start : today}" value="${start}" /><small class="hint">The day you leave home</small></div>
+          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" min="${start}" value="${end}" /><small class="hint">The day you reach back home</small></div>
         </div>
         ${editing ? `<p class="hint">Travellers are managed in the <b>Group</b> tab.</p>` : `
         <div class="field"><label class="f" for="sf-count">Number of travellers</label>
