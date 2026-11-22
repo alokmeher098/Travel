@@ -355,6 +355,47 @@ svg.vmark circle{fill:currentColor}
 .now-card .wx-grid b{display:block;color:var(--cream);font-size:.92rem;font-weight:500}
 .now-card .wx-btn{background:none;border:1px solid rgba(212,178,106,.5);color:var(--gold);border-radius:99px;padding:5px 12px;font:inherit;font-size:.78rem;cursor:pointer;margin-top:4px}
 @media(max-width:420px){.now-card .wx{border-left:0;padding-left:0;border-top:1px solid rgba(212,178,106,.3);padding-top:10px}}
+
+/* Weather themes for the date/time card (text stays cream on a darkened sky) */
+.now-card{position:relative;overflow:hidden;transition:background .8s ease}
+.now-card>*{position:relative;z-index:1}
+.now-card::before,.now-card::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0}
+.now-card.wx-day{background:linear-gradient(160deg,#1d5f8f 0%,#3f86b8 55%,#d9a24f 120%)}
+.now-card.wx-day::before{background:radial-gradient(circle at 88% 12%,rgba(255,214,120,.9) 0 26px,rgba(255,200,90,.35) 27px 60px,transparent 61px)}
+.now-card.wx-night{background:linear-gradient(160deg,#060d1a,#132745 70%,#1d3354)}
+.now-card.wx-night::before{background:
+  radial-gradient(circle at 86% 16%,#f4ecd2 0 15px,transparent 16px),
+  radial-gradient(1.4px 1.4px at 12% 22%,#fff,transparent),radial-gradient(1.2px 1.2px at 34% 12%,#fff,transparent),
+  radial-gradient(1.6px 1.6px at 58% 30%,#fff,transparent),radial-gradient(1.2px 1.2px at 72% 8%,#fff,transparent),
+  radial-gradient(1.3px 1.3px at 22% 60%,#fff,transparent),radial-gradient(1.2px 1.2px at 64% 70%,#fff,transparent),
+  radial-gradient(1.4px 1.4px at 92% 52%,#fff,transparent);animation:twinkle 4s ease-in-out infinite}
+.now-card.wx-cloud{background:linear-gradient(160deg,#3c4e62,#5d6f82 60%,#7a8796)}
+.now-card.wx-cloud::before,.now-card.wx-cloudy::after{background:
+  radial-gradient(ellipse 90px 34px at 80% 20%,rgba(255,255,255,.28),transparent 70%),
+  radial-gradient(ellipse 120px 40px at 30% 10%,rgba(255,255,255,.18),transparent 70%),
+  radial-gradient(ellipse 100px 30px at 60% 90%,rgba(255,255,255,.12),transparent 70%);animation:drift 18s linear infinite alternate}
+.now-card.wx-rain{background:linear-gradient(160deg,#1f2d3d,#34495e 60%,#4a5f73)}
+.now-card.wx-rain::before{background:repeating-linear-gradient(105deg,transparent 0 11px,rgba(190,215,240,.35) 11px 12px);background-size:24px 60px;animation:rain .55s linear infinite}
+.now-card.wx-storm{background:linear-gradient(160deg,#14101f,#2a2340 60%,#3b3157)}
+.now-card.wx-storm::before{background:repeating-linear-gradient(105deg,transparent 0 9px,rgba(200,200,255,.3) 9px 10px);background-size:20px 50px;animation:rain .4s linear infinite}
+.now-card.wx-storm::after{background:rgba(255,255,255,.55);opacity:0;animation:flash 6s infinite}
+.now-card.wx-snow{background:linear-gradient(160deg,#4d6a86,#7f9bb5 70%,#a9bfd3)}
+.now-card.wx-snow::before{background:
+  radial-gradient(2px 2px at 10% 20%,#fff,transparent),radial-gradient(2.5px 2.5px at 30% 60%,#fff,transparent),
+  radial-gradient(2px 2px at 55% 30%,#fff,transparent),radial-gradient(3px 3px at 75% 70%,#fff,transparent),
+  radial-gradient(2px 2px at 90% 15%,#fff,transparent),radial-gradient(2.5px 2.5px at 45% 85%,#fff,transparent);
+  background-size:100% 120px;animation:snow 6s linear infinite}
+.now-card.wx-snow .clock span,.now-card.wx-snow .wx .d{color:#f2f6fa}
+.now-card.wx-fog{background:linear-gradient(160deg,#4f5a63,#6f7a82 60%,#8d969c)}
+.now-card.wx-fog::before{background:repeating-linear-gradient(0deg,rgba(255,255,255,0) 0 18px,rgba(255,255,255,.07) 26px 40px);filter:blur(3px);animation:drift 14s ease-in-out infinite alternate}
+.now-card.wx-cloud .clock span,.now-card.wx-fog .clock span,.now-card.wx-cloud .wx .d,.now-card.wx-fog .wx .d{color:#eef1f4}
+.now-card .wx-grid div{background:rgba(0,0,0,.18)}
+@keyframes twinkle{50%{opacity:.6}}
+@keyframes drift{to{transform:translateX(-24px)}}
+@keyframes rain{to{background-position:-12px 60px}}
+@keyframes snow{to{background-position:0 120px}}
+@keyframes flash{0%,88%,100%{opacity:0}89%{opacity:.7}90%{opacity:0}92%{opacity:.5}93%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.now-card::before,.now-card::after{animation:none}}
 main.home{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px calc(40px + var(--safe-b))}
 .hero-letter{
   position:relative;background:var(--paper) var(--grain);border-radius:var(--r-lg);padding:30px 22px 26px;margin-top:6px;
@@ -3520,6 +3561,17 @@ const Now = {
     this._t = setInterval(() => this.tickClock(), 1000);
     this.load(false);
   },
+  /** Background theme for the card, from the weather code and day/night. */
+  theme(w) {
+    if (!w) return new Date().getHours() >= 6 && new Date().getHours() < 18 ? 'wx-day' : 'wx-night';
+    const c = w.code;
+    if (c >= 95) return 'wx-storm';
+    if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 'wx-snow';
+    if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82)) return 'wx-rain';
+    if (c === 45 || c === 48) return 'wx-fog';
+    if (w.day === 0) return c >= 2 ? 'wx-night wx-cloudy' : 'wx-night';
+    return c >= 3 ? 'wx-cloud' : c === 2 ? 'wx-day wx-cloudy' : 'wx-day';
+  },
   tickClock() {
     const c = $('#nowTime'); if (!c) return;
     const d = new Date();
@@ -3529,6 +3581,7 @@ const Now = {
   render() {
     const el = $('#nowCard'); if (!el) return;
     const d = new Date(), w = this.wx;
+    el.className = 'now-card ' + this.theme(w);
     const [ic, txt] = w ? (this.CODES[w.code] || ['🌡️', 'Weather']) : ['', ''];
     el.innerHTML = `<div class="clock"><small>Today</small><b id="nowTime">${d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</b><span id="nowDate">${d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span></div>
       <div class="wx">${w ? `<span class="ic" aria-hidden="true">${w.day === 0 && w.code <= 1 ? '🌙' : ic}</span><div><div class="t">${Math.round(w.temp)}°C</div><div class="d"><b>${Util.esc(txt)}</b><br/>${Util.esc(w.place)}</div></div>`
