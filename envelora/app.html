@@ -760,6 +760,13 @@ details.grp[open] summary::after{content:"–"}
 .timer-bar{height:6px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin:8px 0}
 .timer-bar i{display:block;height:100%;background:var(--gold);transition:width .25s linear}
 /* Arrow puzzle */
+.sn-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sn-btn{color:var(--cream)!important;border:1px solid rgba(212,178,106,.55)!important;background:transparent!important}
+.sn-hearts{font-size:1.1rem;letter-spacing:2px}
+.sn-wrap{padding:8px}
+.sn-svg{display:block;width:100%;max-width:480px;margin:0 auto;aspect-ratio:1;touch-action:manipulation;cursor:pointer;overflow:hidden}
+.sn{fill:none;stroke:#F1E6CC;stroke-width:.16;stroke-linejoin:round;stroke-linecap:round;transition:stroke .2s}
+.sn.go{stroke:#9fd89a}.sn.bad{stroke:#ff7a7a;stroke-width:.2}.sn.blocker{stroke:#D4B26A;stroke-width:.2}.sn.hint{stroke:#D4B26A;stroke-width:.24}
 .ap-grid{display:grid;gap:6px;margin:0 auto;max-width:360px;aspect-ratio:1;overflow:hidden;border-radius:12px}
 .ap-cell{border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(212,178,106,.15);display:grid;place-items:center}
 .ap-arrow{width:100%;height:100%;border-radius:10px;border:1px solid rgba(212,178,106,.6);background:linear-gradient(160deg,var(--gold-l),var(--gold));color:var(--navy);display:grid;place-items:center;font-size:1.4rem;font-weight:800;transition:transform .35s var(--ease), opacity .35s}
@@ -3224,7 +3231,7 @@ const Games = {
   cur: null, players: [], scores: [], entities: null, timers: [], turnIdx: 0, cleanup: null,
   LIST: [
     { id: 'bounce', name: 'Emoji Bounce', emoji: '🎈', desc: 'Tap the bouncing emoji before time runs out.', min: 1 },
-    { id: 'arrows', name: 'Arrow Puzzle', emoji: '🧭', desc: 'Clear the board — slide each arrow out.', min: 1 },
+    { id: 'arrows', name: 'Snake Arrows', emoji: '🐍', desc: 'Tap snakes to slither them off the board. 3 hearts, up to Nightmare.', min: 1 },
     { id: 'bottle', name: 'Truth or Dare', emoji: '🍾', desc: 'Spin the bottle, pick truth or dare.', min: 2 },
     { id: 'antakshari', name: 'Antakshari', emoji: '🎤', desc: 'Sing a song starting with the letter.', min: 2 },
     { id: 'charades', name: 'Dumb Charades', emoji: '🎭', desc: 'Act it out, team guesses — no talking!', min: 2 },
@@ -3362,40 +3369,122 @@ const GAME_IMPL = {
     intro();
   },
 
-  /* 2. ARROW PUZZLE — tap an arrow to slide it off the board if its path is clear */
+  /* 2. ARROW PUZZLE — snake arrows. Tap one: if the way ahead of its head is clear it
+     slithers off the board, body following the head. Blocked = lose a heart (3 hearts).
+     Solvable by construction: each new snake's exit path is clear of earlier snakes,
+     so removing them newest-first always works. */
   arrows(api) {
-    const N = 5, DIRS = { u: [0, -1, '↑'], d: [0, 1, '↓'], l: [-1, 0, '←'], r: [1, 0, '→'] };
-    let turn = 0;
-    const clear = (arrows, a) => { const [dx, dy] = DIRS[a.d]; let x = a.x + dx, y = a.y + dy; while (x >= 0 && y >= 0 && x < N && y < N) { if (arrows.some(o => o !== a && o.x === x && o.y === y)) return false; x += dx; y += dy; } return true; };
-    // Solvable by construction: each new arrow's path is clear of earlier arrows, so removing in reverse order always works.
-    const gen = (count = 13) => { const arr = []; let tries = 0; while (arr.length < count && tries++ < 2000) { const x = Math.floor(Math.random() * N), y = Math.floor(Math.random() * N); if (arr.some(a => a.x === x && a.y === y)) continue; const a = { x, y, d: Util.pick(Object.keys(DIRS)), id: arr.length }; if (clear(arr, a)) arr.push(a); } return arr; };
+    const LEVELS = { easy: [8, 'Easy'], hard: [12, 'Hard'], nightmare: [16, 'Nightmare'] };
+    const D = [[0, -1], [1, 0], [0, 1], [-1, 0]], NS = 'http://www.w3.org/2000/svg';
+    let turn = 0, level = 'hard';
+    const gen = N => {
+      const occ = Array.from({ length: N }, () => Array(N).fill(-1)), snakes = [];
+      let tries = 0, filled = 0;
+      const inB = (x, y) => x >= 0 && y >= 0 && x < N && y < N;
+      const rayOk = body => {
+        const h = body[body.length - 1], p = body[body.length - 2], dx = h[0] - p[0], dy = h[1] - p[1];
+        let n = 0;
+        for (let x = h[0] + dx, y = h[1] + dy; inB(x, y); x += dx, y += dy, n++) if (occ[y][x] !== -1 || body.some(c => c[0] === x && c[1] === y)) return false;
+        // Hard mode: mostly point snakes across the board, not straight off the edge.
+        return n >= 3 || Math.random() < (filled > N * N * .7 ? .6 : .15);
+      };
+      while (filled < N * N * 0.97 && tries++ < N * N * 120) {
+        const sx = Math.floor(Math.random() * N), sy = Math.floor(Math.random() * N); if (occ[sy][sx] !== -1) continue;
+        const L = 2 + Math.floor(Math.random() ** 1.5 * (N + 2)), body = [[sx, sy]]; let dir = Math.floor(Math.random() * 4);
+        while (body.length < L) {
+          const [cx, cy] = body[body.length - 1];
+          const opts = [dir, dir, dir, (dir + 1) % 4, (dir + 3) % 4].filter(d => { const x = cx + D[d][0], y = cy + D[d][1]; return inB(x, y) && occ[y][x] === -1 && !body.some(c => c[0] === x && c[1] === y); });
+          if (!opts.length) break; dir = Util.pick(opts); body.push([cx + D[dir][0], cy + D[dir][1]]);
+        }
+        if (body.length < 2) continue;
+        // Use the longest piece of the walk (either end as head) whose exit is clear.
+        let pick = null;
+        for (let k = body.length; k >= 2 && !pick; k--) { const a = body.slice(0, k), r = a.slice().reverse(); if (rayOk(a)) pick = a; else if (rayOk(r)) pick = r; }
+        if (!pick) continue;
+        pick.forEach(([x, y]) => { occ[y][x] = snakes.length; }); snakes.push({ id: snakes.length, body: pick }); filled += pick.length;
+      }
+      return { occ, snakes };
+    };
     const intro = () => {
       api.turn(turn);
-      api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="g-status">${Util.esc(api.players[turn])}'s board</div><p class="hint" style="color:rgba(241,230,204,.7)">Tap an arrow to slide it out. Blocked arrows cost points. +10 per arrow, −3 per mistake, time bonus for speed.</p><button class="btn gold xl" id="apGo">Start</button></div>`;
-      $('#apGo').onclick = run;
+      api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="g-status">${Util.esc(api.players[turn])}'s board</div>
+        <p class="hint" style="color:rgba(241,230,204,.75)">Tap a snake to send it slithering out the way its arrow points. If another snake is in the way you lose a ❤️. Clear the board before your 3 hearts run out.</p>
+        <div class="share-chips" id="snLv" style="justify-content:center;margin:10px 0 14px">${Object.entries(LEVELS).map(([k, [n, l]]) => `<button class="chip ${k === level ? 'on' : ''}" data-lv="${k}">${l} · ${n}×${n}</button>`).join('')}</div>
+        <button class="btn gold xl" id="snGo">Start</button></div>`;
+      $('#snLv').onclick = e => { const b = e.target.closest('[data-lv]'); if (!b) return; level = b.dataset.lv; $$('#snLv .chip').forEach(c => c.classList.toggle('on', c === b)); };
+      $('#snGo').onclick = run;
     };
     const run = () => {
-      const arrows = gen(); let mistakes = 0; const t0 = Date.now();
-      api.area.innerHTML = `<div class="g-status" id="apS">Arrows left: ${arrows.length}</div><div class="g-panel"><div class="ap-grid" id="apG" style="grid-template-columns:repeat(${N},1fr)"></div></div>`;
-      const G = $('#apG');
-      G.innerHTML = Array.from({ length: N * N }, (_, i) => `<div class="ap-cell" data-c="${i}"></div>`).join('');
-      arrows.forEach(a => { G.children[a.y * N + a.x].innerHTML = `<button class="ap-arrow" data-id="${a.id}" aria-label="Arrow ${a.d}">${DIRS[a.d][2]}</button>`; });
-      G.onclick = e => {
-        const b = e.target.closest('.ap-arrow'); if (!b || b.dataset.gone) return;
-        const a = arrows.find(x => x.id === +b.dataset.id);
-        if (clear(arrows, a)) {
-          b.dataset.gone = 1; b.classList.add('fly-' + a.d); arrows.splice(arrows.indexOf(a), 1); api.add(turn, 10);
-          $('#apS').textContent = `Arrows left: ${arrows.length}`;
-          if (!arrows.length) {
-            const secs = Math.round((Date.now() - t0) / 1000), bonus = Math.max(0, 40 - secs); api.add(turn, bonus);
-            api.timeout(() => {
-              api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="g-status">Cleared in ${secs}s · ${mistakes} mistake${mistakes === 1 ? '' : 's'} · +${bonus} bonus</div></div>`;
-              turn++; if (turn < api.players.length) api.timeout(intro, 1600);
-              else api.timeout(() => { const best = Math.max(...Games.scores); api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:3rem">🧭</div><div class="g-status">${Util.esc(api.players[Games.scores.indexOf(best)])} solves it best · ${best} pts</div><button class="btn gold" id="apAgain">Play again</button></div>`; $('#apAgain').onclick = () => Games.play(); }, 1400);
-            }, 400);
-          }
-        } else { mistakes++; api.add(turn, -3); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); if (navigator.vibrate) navigator.vibrate(40); }
+      const N = LEVELS[level][0], { occ, snakes } = gen(N), t0 = Date.now();
+      let hearts = 3, left = snakes.length, over = false;
+      const mk = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="4" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`;
+      api.area.innerHTML = `<div class="sn-top"><span class="g-status" id="snS" style="margin:0"></span><span id="snH" class="sn-hearts"></span></div>
+        <div class="g-panel sn-wrap"><svg class="sn-svg" id="snG" viewBox="0 0 ${N} ${N}" role="img" aria-label="Snake arrow puzzle board"><defs>${mk('snC', '#F1E6CC')}${mk('snR', '#ff7a7a')}${mk('snY', '#D4B26A')}</defs></svg></div>
+        <div class="row" style="justify-content:center;gap:8px;margin-top:10px"><button class="btn ghost sm sn-btn" id="snHint">💡 Hint (−5)</button><button class="btn ghost sm sn-btn" id="snNew">↻ New board</button></div>`;
+      const svg = $('#snG');
+      const status = () => { $('#snS').textContent = `${LEVELS[level][1]} · ${left} snake${left === 1 ? '' : 's'} left`; $('#snH').textContent = '❤️'.repeat(Math.max(0, hearts)) + '🤍'.repeat(3 - Math.max(0, hearts)); };
+      const look = (s, cls, m) => { s.el.setAttribute('class', 'sn' + (cls ? ' ' + cls : '')); s.el.setAttribute('marker-end', `url(#${m || 'snC'})`); };
+      const draw = (s, pts) => s.el.setAttribute('points', pts.map(([x, y]) => (x + .5).toFixed(2) + ',' + (y + .5).toFixed(2)).join(' '));
+      // Points of a snake of length L that has moved `off` cells along `path` (keeps exact corners).
+      const along = (path, L, off) => {
+        const at = f => { const a = Math.min(Math.floor(f), path.length - 2), t = f - a; return [path[a][0] + (path[a + 1][0] - path[a][0]) * t, path[a][1] + (path[a + 1][1] - path[a][1]) * t]; };
+        const out = [at(off)]; for (let i = Math.floor(off) + 1; i < off + L - 1; i++) out.push(path[i]); out.push(at(off + L - 1)); return out;
       };
+      const animate = (s, path, from, to, done) => {
+        const L = s.body.length, ms = Math.max(220, Math.abs(to - from) * 45), t1 = performance.now();
+        const step = now => {
+          if (!s.el.isConnected) return;
+          const k = Math.min(1, (now - t1) / ms), e = from < to ? k * k * (3 - 2 * k) : k;
+          draw(s, along(path, L, from + (to - from) * e));
+          if (k < 1) requestAnimationFrame(step); else done();
+        };
+        requestAnimationFrame(step);
+      };
+      const exitInfo = s => {
+        const h = s.body[s.body.length - 1], p = s.body[s.body.length - 2], dx = h[0] - p[0], dy = h[1] - p[1], ray = [];
+        let x = h[0] + dx, y = h[1] + dy, block = -1;
+        for (; x >= 0 && y >= 0 && x < N && y < N; x += dx, y += dy) { if (occ[y][x] !== -1 && occ[y][x] !== s.id) { block = occ[y][x]; break; } ray.push([x, y]); }
+        return { ray, block, x, y, dx, dy };
+      };
+      snakes.forEach(s => { s.el = document.createElementNS(NS, 'polyline'); look(s); draw(s, s.body); svg.appendChild(s.el); });
+      status();
+      const finish = won => {
+        over = true;
+        const secs = Math.round((Date.now() - t0) / 1000), bonus = won ? Math.max(0, N * 8 - secs) + hearts * 15 : 0;
+        if (bonus) api.add(turn, bonus);
+        api.timeout(() => {
+          api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:3rem">${won ? '🐍' : '💔'}</div><div class="g-status">${won ? `Cleared in ${secs}s · ${hearts} ❤️ left · +${bonus} bonus` : `Out of hearts · ${left} snake${left === 1 ? '' : 's'} left`}</div></div>`;
+          turn++;
+          if (turn < api.players.length) api.timeout(intro, 1800);
+          else api.timeout(() => { const best = Math.max(...Games.scores); api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:3rem">🧭</div><div class="g-status">${Util.esc(api.players[Games.scores.indexOf(best)])} solves it best · ${best} pts</div><button class="btn gold" id="apAgain">Play again</button></div>`; $('#apAgain').onclick = () => Games.play(); }, 1600);
+        }, 500);
+      };
+      svg.addEventListener('click', e => {
+        if (over) return;
+        const r = svg.getBoundingClientRect(), x = Math.floor((e.clientX - r.left) / r.width * N), y = Math.floor((e.clientY - r.top) / r.height * N);
+        if (x < 0 || y < 0 || x >= N || y >= N || occ[y][x] === -1) return;
+        const s = snakes[occ[y][x]]; if (s.moving) return;
+        const { ray, block, x: ex, y: ey, dx, dy } = exitInfo(s), L = s.body.length;
+        s.moving = true;
+        if (block === -1) {
+          s.body.forEach(([bx, by]) => { occ[by][bx] = -1; });
+          const path = s.body.concat(ray); for (let i = 0; i <= L; i++) path.push([ex + dx * i, ey + dy * i]);
+          left--; api.add(turn, 10); status(); look(s, 'go');
+          animate(s, path, 0, path.length - L, () => { s.el.remove(); if (!left && !over) finish(true); });
+        } else {
+          hearts--; api.add(turn, -3); status(); look(s, 'bad', 'snR'); const b = snakes[block]; look(b, 'blocker', 'snY');
+          if (navigator.vibrate) navigator.vibrate(60);
+          const path = s.body.concat(ray, [ray.length ? ray[ray.length - 1] : s.body[L - 1]]);
+          const back = () => { s.moving = false; look(s); if (b.el.isConnected && !b.moving) look(b); if (hearts <= 0 && !over) finish(false); };
+          animate(s, path, 0, Math.max(0, ray.length - .35), () => animate(s, path, Math.max(0, ray.length - .35), 0, back));
+        }
+      });
+      $('#snHint').onclick = () => {
+        if (over) return;
+        const s = snakes.find(x => x.el.isConnected && !x.moving && exitInfo(x).block === -1); if (!s) return;
+        api.add(turn, -5); look(s, 'hint', 'snY'); api.timeout(() => { if (!s.moving) look(s); }, 1400);
+      };
+      $('#snNew').onclick = run;
     };
     intro();
   },
