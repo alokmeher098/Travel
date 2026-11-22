@@ -1,14 +1,12 @@
 # Envelora
 
-Sealed surprise trips, Open trips and your trip companion, all in one page.
+Group trip planning across India: plan a trip day by day, seal it into a private **Clan**, then chat, split expenses and play games together.
 
-Everything lives in one file, `index.html` (HTML, CSS and vanilla JavaScript). Open it in a browser to run it.
+- `envelora/index.html`: the website that presents the app
+- `envelora/app.html`: the Envelora app (HTML, CSS and vanilla JavaScript in one file)
 
-## What's inside
-- **Sealed:** book a surprise trip from a verified travel agency. The destination stays sealed until the day you leave.
-- **Open:** plan a trip where you choose the destination.
-- **Trip companion:** plan your own trip with a day plan, packing list, expenses, group and place guide. You can then make a clan with a group chat and games.
-- **Agencies and FAQ** sections.
+Public links (GitHub Pages):
+- Website: https://alokmeher098.github.io/Travel/envelora/
+- App: https://alokmeher098.github.io/Travel/envelora/app.html
 
-## History
-The earlier single-file Envelora prototype is kept in this repository's git history, at commit `c310408`.
+The demo login code is `246810`. Payments, live location and cross-device chat are previews in this version.
