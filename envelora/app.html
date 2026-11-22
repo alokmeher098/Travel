@@ -1591,6 +1591,7 @@ function autoGuide(dest) {
   const q = s => encodeURIComponent(s + ', ' + state);
   return {
     auto: true, name, state: isState ? 'India' : state, emoji: sg.emoji, grad: sg.grad,
+    art: ({ '🏔️': 'mountain', '⛰️': 'mountain', '🌲': 'mountain', '🏞️': 'mountain', '🏰': 'palace', '🏖️': 'wave', '🏝️': 'wave', '🐠': 'wave', '🛕': 'temple', '☸️': 'temple', '🕌': 'temple', '⛪': 'temple', '🏯': 'temple', '🏛️': 'palace', '🍃': 'tea', '🌿': 'tea', '🌳': 'tea', '🌾': 'tea', '🌴': 'boat', '🦁': 'camel' })[sg.emoji] || 'train',
     tagline: isState ? `Explore the best of ${state}.` : `Your quick guide to ${name}, ${state}.`,
     attractions: [['Top sights in ' + name, 'See the most-visited spots on the map'], ...nearby],
     food: sg.food,
@@ -3520,7 +3521,7 @@ const Home = {
       $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2>${t.clanId ? '<span class="badge gold">Sealed in clan</span>' : '<span class="badge">Draft</span>'}</div>
         <article class="postcard" id="tripCard" tabindex="0" role="button" aria-label="Open trip planner">
           <div class="pc-img" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
-            <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${STAMP_ART[g ? g.art : 'train']}</div><span class="st-v">₹39</span></div></div></div></div>
+            <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">₹39</span></div></div></div></div>
           <div class="pc-body"><div class="pc-meta"><b>${Util.fmtDate(t.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(t.end, { day: 'numeric', month: 'short', year: 'numeric' })}</b> · ${days} day${days > 1 ? 's' : ''}${t.from ? ' · from ' + Util.esc(t.from) : ''}<br/>
             ${t.travellers.length} travellers · leader ${Util.esc(t.travellers[0].name)}<br/>${acts} planned activit${acts === 1 ? 'y' : 'ies'} · packing ${pk}%${until > 0 ? ` · <b>${until} day${until > 1 ? 's' : ''} to go</b>` : ''}</div>
             <span class="btn sm">${icon('arrowR', 'sm')}Open</span></div>
