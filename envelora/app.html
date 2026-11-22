@@ -339,6 +339,22 @@ svg.vmark circle{fill:currentColor}
 .menu button:hover{background:rgba(212,178,106,.15)}
 .clan-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:var(--gold);border:2px solid var(--paper)}
 
+.now-card{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px;padding:14px 16px;border-radius:var(--r);
+  background:linear-gradient(140deg,var(--navy),var(--navy-3));color:var(--cream);border:1px solid rgba(212,178,106,.45);box-shadow:var(--shadow)}
+.now-card .clock{flex:1 1 150px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.now-card .clock small{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.now-card .clock b{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.now-card .clock span{font-size:.88rem;color:#cdc3ab}
+.now-card .wx{flex:1 1 180px;min-width:0;display:flex;gap:12px;align-items:center;border-left:1px solid rgba(212,178,106,.3);padding-left:14px}
+.now-card .wx .ic{font-size:2.4rem;line-height:1}
+.now-card .wx .t{font-family:var(--serif);font-size:1.9rem;line-height:1}
+.now-card .wx .d{font-size:.85rem;color:#cdc3ab;line-height:1.35}
+.now-card .wx .d b{color:var(--cream);font-weight:500}
+.now-card .wx-grid{flex-basis:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:.74rem;color:#cdc3ab;text-align:center}
+.now-card .wx-grid div{background:rgba(255,255,255,.06);border-radius:10px;padding:6px 2px}
+.now-card .wx-grid b{display:block;color:var(--cream);font-size:.92rem;font-weight:500}
+.now-card .wx-btn{background:none;border:1px solid rgba(212,178,106,.5);color:var(--gold);border-radius:99px;padding:5px 12px;font:inherit;font-size:.78rem;cursor:pointer;margin-top:4px}
+@media(max-width:420px){.now-card .wx{border-left:0;padding-left:0;border-top:1px solid rgba(212,178,106,.3);padding-top:10px}}
 main.home{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px calc(40px + var(--safe-b))}
 .hero-letter{
   position:relative;background:var(--paper) var(--grain);border-radius:var(--r-lg);padding:30px 22px 26px;margin-top:6px;
@@ -827,6 +843,7 @@ details.grp[open] summary::after{content:"–"}
   </header>
 
   <main class="home" id="home">
+    <section class="now-card" id="nowCard" aria-label="Today's date, time and weather"></section>
     <article class="hero-letter">
       <div class="air t"></div>
       <div class="pm" aria-hidden="true">ENVELORA<br/>· SEALED ·</div>
@@ -1842,8 +1859,8 @@ const Planner = {
           <div class="ac"><input class="input" id="sf-from" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" autocomplete="off" placeholder="e.g. Delhi" value="${Util.esc(t ? t.from : '')}" />
           <ul class="ac-list" id="ac-from" role="listbox" hidden></ul></div></div>
         <div class="grid2">
-          <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" value="${start}" /></div>
-          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" value="${end}" /></div>
+          <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" min="${editing && t.start < today ? t.start : today}" value="${start}" /></div>
+          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" min="${start}" value="${end}" /></div>
         </div>
         ${editing ? `<p class="hint">Travellers are managed in the <b>Group</b> tab.</p>` : `
         <div class="field"><label class="f" for="sf-count">Number of travellers</label>
@@ -1860,6 +1877,8 @@ const Planner = {
       </form>`;
     const f = $('#setupForm');
     $$('[data-dest]', f).forEach(b => b.onclick = () => { $('#sf-dest').value = b.dataset.dest; });
+    // End date can never be before the start date; move it along if needed.
+    $('#sf-start').addEventListener('change', () => { const s = $('#sf-start').value, e = $('#sf-end'); e.min = s; if (e.value && e.value < s) e.value = s; });
     const byName = n => PLACES.find(p => p.v === n);
     Autocomplete.attach($('#sf-dest'), $('#ac-dest'), PLACES, DEST_SUGGEST.map(byName).filter(Boolean));
     Autocomplete.attach($('#sf-from'), $('#ac-from'), PLACES.filter(p => p.meta !== 'Guide available' && p.meta !== 'State'), ORIGIN_SUGGEST.map(n => PLACES.find(p => p.v === n || p.alias === n)).filter(Boolean));
@@ -1883,6 +1902,7 @@ const Planner = {
       const dest = $('#sf-dest').value.trim(), from = $('#sf-from').value.trim(), s = $('#sf-start').value, en = $('#sf-end').value;
       if (!dest) { err.textContent = 'Please choose a destination.'; $('#sf-dest').focus(); return; }
       if (!s || !en) { err.textContent = 'Please pick both trip dates.'; return; }
+      if (s < today && !(editing && s === t.start)) { err.textContent = 'Trip start can\'t be in the past. Pick today or a later date.'; return; }
       if (en < s) { err.textContent = 'End date must be on or after the start date.'; return; }
       if (Util.daysBetween(s, en) > 60) { err.textContent = 'Trips can be up to 60 days in this prototype.'; return; }
       if (editing) {
@@ -1992,6 +2012,9 @@ const Planner = {
         <div class="err-msg" id="af-err"></div>
         <button class="btn gold block" type="submit">${idx == null ? 'Add to Day ' + (this.day + 1) : 'Save changes'}</button>
       </form>`, body => {
+      const minDT = (t.start > Util.ymd(new Date()) ? t.start : Util.ymd(new Date())) + 'T00:00';
+      ['#af-checkIn', '#af-checkOut'].forEach(id => $(id, body).min = minDT);
+      $('#af-checkIn', body).addEventListener('change', e => { $('#af-checkOut', body).min = e.target.value || minDT; });
       $('#actForm', body).addEventListener('submit', e => {
         e.preventDefault();
         Object.keys(a).forEach(k => { const el = $('#af-' + k, body); if (el) a[k] = el.value.trim(); });
@@ -2919,7 +2942,7 @@ const Alerts = {
         ${upcoming.length ? upcoming.map(x => `<div class="bal"><span><b>${Util.esc(x.a.title)}</b><br/><span class="hint">Day ${x.di + 1} · ${Util.fmtDT(x.at)}</span></span><button class="btn soft sm v" data-rm="${x.a.id}" data-di="${x.di}">${icon('bell', 'sm')}Remind me</button></div>`).join('') : '<p class="hint" style="margin:0">No upcoming timed activities. Add times in the Day Plan.</p>'}</div>
       <form class="card" id="alForm" style="margin-bottom:12px" novalidate><h3>Custom reminder</h3>
         <div class="field"><label class="f">Reminder</label><input class="input" id="alT" maxlength="80" placeholder="e.g. Pack swimwear for the cruise"/></div>
-        <div class="field"><label class="f">Date & time</label><input class="input" type="datetime-local" id="alAt" value="${dtVal}"/></div>
+        <div class="field"><label class="f">Date & time</label><input class="input" type="datetime-local" id="alAt" min="${Util.ymd(new Date())}T${Util.pad(new Date().getHours())}:${Util.pad(new Date().getMinutes())}" value="${dtVal}"/></div>
         <div class="err-msg" id="alErr"></div><button class="btn gold block">${icon('plus', 'sm')}Add reminder</button></form>
       <h3>My reminders</h3>
       ${mine.length ? mine.map(r => `<div class="exp-item"><span style="font-size:1.2rem">${r.fired ? '✅' : '⏰'}</span><div class="meta"><b>${Util.esc(r.title)}</b>${Util.fmtDT(r.at)}${r.fired ? ' · delivered' : ''}</div>
@@ -3479,6 +3502,77 @@ $('#clanBtn').addEventListener('click', () => {
   });
 });
 
+
+/* =============================================================================
+   NOW — live date, clock and weather for the user's location
+   Weather: Open-Meteo (free, no key). Place name: BigDataCloud reverse geocoding.
+   Falls back to the trip destination when location is off; cached 15 min.
+   ============================================================================= */
+const Now = {
+  CODES: { 0: ['☀️', 'Clear sky'], 1: ['🌤️', 'Mostly clear'], 2: ['⛅', 'Partly cloudy'], 3: ['☁️', 'Cloudy'], 45: ['🌫️', 'Fog'], 48: ['🌫️', 'Fog'],
+    51: ['🌦️', 'Light drizzle'], 53: ['🌦️', 'Drizzle'], 55: ['🌧️', 'Heavy drizzle'], 61: ['🌦️', 'Light rain'], 63: ['🌧️', 'Rain'], 65: ['🌧️', 'Heavy rain'],
+    71: ['🌨️', 'Light snow'], 73: ['🌨️', 'Snow'], 75: ['❄️', 'Heavy snow'], 80: ['🌦️', 'Rain showers'], 81: ['🌧️', 'Rain showers'], 82: ['⛈️', 'Violent showers'],
+    95: ['⛈️', 'Thunderstorm'], 96: ['⛈️', 'Thunderstorm, hail'], 99: ['⛈️', 'Thunderstorm, hail'] },
+  KEY: 'envelora.v1.weather',
+  wx: null, msg: 'Finding your weather…',
+  start() {
+    this.render(); clearInterval(this._t);
+    this._t = setInterval(() => this.tickClock(), 1000);
+    this.load(false);
+  },
+  tickClock() {
+    const c = $('#nowTime'); if (!c) return;
+    const d = new Date();
+    c.textContent = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    if (d.getSeconds() === 0) $('#nowDate').textContent = d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  },
+  render() {
+    const el = $('#nowCard'); if (!el) return;
+    const d = new Date(), w = this.wx;
+    const [ic, txt] = w ? (this.CODES[w.code] || ['🌡️', 'Weather']) : ['', ''];
+    el.innerHTML = `<div class="clock"><small>Today</small><b id="nowTime">${d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</b><span id="nowDate">${d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span></div>
+      <div class="wx">${w ? `<span class="ic" aria-hidden="true">${w.day === 0 && w.code <= 1 ? '🌙' : ic}</span><div><div class="t">${Math.round(w.temp)}°C</div><div class="d"><b>${Util.esc(txt)}</b><br/>${Util.esc(w.place)}</div></div>`
+        : `<div class="d">${Util.esc(this.msg)}<br/><button class="wx-btn" id="wxRetry" type="button">${icon('pin', 'sm')} Use my location</button></div>`}</div>
+      ${w ? `<div class="wx-grid"><div>Feels like<b>${Math.round(w.feels)}°</b></div><div>High / Low<b>${Math.round(w.hi)}° / ${Math.round(w.lo)}°</b></div><div>Humidity<b>${w.hum}%</b></div><div>Wind<b>${Math.round(w.wind)} km/h</b></div></div>` : ''}`;
+    const r = $('#wxRetry'); if (r) r.onclick = () => this.load(true);
+  },
+  async load(force) {
+    const cached = Store.get(this.KEY);
+    if (!force && cached && Date.now() - cached.at < 15 * 60000) { this.wx = cached; return this.render(); }
+    try {
+      const pos = await this.locate();
+      const place = pos.name || await this.placeName(pos.lat, pos.lon);
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${pos.lat}&longitude=${pos.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
+      const j = await (await fetch(u)).json();
+      const c = j.current;
+      this.wx = { at: Date.now(), temp: c.temperature_2m, feels: c.apparent_temperature, hum: c.relative_humidity_2m, code: c.weather_code, wind: c.wind_speed_10m, day: c.is_day, hi: j.daily.temperature_2m_max[0], lo: j.daily.temperature_2m_min[0], place: place + (pos.fromTrip ? ' (your trip)' : '') };
+      Store.set(this.KEY, this.wx);
+    } catch (e) {
+      this.wx = null;
+      this.msg = e && e.message === 'noloc' ? 'Allow location to see the weather where you are.' : 'Weather is unavailable right now (no internet or blocked in this preview).';
+    }
+    this.render();
+  },
+  /** Device location first; otherwise the trip's destination. */
+  locate() {
+    const viaTrip = async () => {
+      const t = Trips.loadOwn(); if (!t) throw new Error('noloc');
+      const g = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&countryCode=IN&name=' + encodeURIComponent(t.destination))).json();
+      if (!g.results || !g.results.length) throw new Error('noloc');
+      return { lat: g.results[0].latitude, lon: g.results[0].longitude, name: g.results[0].name, fromTrip: true };
+    };
+    if (!navigator.geolocation) return viaTrip();
+    return new Promise((res, rej) => navigator.geolocation.getCurrentPosition(
+      p => res({ lat: p.coords.latitude.toFixed(3), lon: p.coords.longitude.toFixed(3) }),
+      () => viaTrip().then(res, rej), { timeout: 8000, maximumAge: 600000 }));
+  },
+  async placeName(lat, lon) {
+    try {
+      const j = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)).json();
+      return [j.city || j.locality, j.principalSubdivision].filter(Boolean).join(', ') || 'Your location';
+    } catch (e) { return 'Your location'; }
+  }
+};
 /* =============================================================================
    APP — auth state changes
    ============================================================================= */
@@ -3523,7 +3617,7 @@ const Intro = {
     });
   },
   finish() {
-    $('#app').hidden = false; Home.render();
+    $('#app').hidden = false; Home.render(); Now.start();
     const el = $('#intro'); el.classList.add('gone');
     setTimeout(() => { $('#introAuth').innerHTML = ''; UI.syncLock(); }, 700);
   }
