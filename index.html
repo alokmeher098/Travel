@@ -7,10 +7,11 @@
 <meta name="description" content="Book surprise and planned trips from verified travel agencies, and travel with the Envelora trip companion app.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,'Times New Roman',serif;
+  --serif:'Playfair Display',Georgia,'Times New Roman',serif;
+  --logo-serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,'Times New Roman',serif; /* logo wordmark only */
   --sans:'Jost','Helvetica Neue',Arial,sans-serif;
   /* Sealed: black and gold */
   --bg:#0B0B0B; --bg2:#161616; --ink:#F1E6CC; --muted:#CBBF9F; --accent:#D4B26A; --on-accent:#0B0B0B;
@@ -55,7 +56,7 @@ p{margin:0}
 /* Header */
 .site-head{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--head-bg);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);transition:background-color .5s ease}
 .head-in{display:flex;align-items:center;gap:20px;height:64px}
-.logo{display:flex;align-items:center;font-family:var(--serif);font-size:20px;letter-spacing:.24em;color:var(--ink);text-decoration:none;padding-left:.24em;white-space:nowrap}
+.logo{display:flex;align-items:center;font-family:var(--logo-serif);font-size:20px;letter-spacing:.24em;color:var(--ink);text-decoration:none;padding-left:.24em;white-space:nowrap}
 .brand{display:flex;flex-direction:column;gap:4px;width:max-content;flex:none}
 .brand-tag{display:block;width:0;min-width:100%;height:auto;align-self:center;color:var(--muted);overflow:visible;transition:color .5s ease}
 @media (max-width:480px){.brand-tag{min-width:80%}}
@@ -395,7 +396,7 @@ body{background:#0B0B0B}
 .reveal-card{justify-self:center;width:100%;max-width:380px;padding:44px 32px;border:1px solid var(--gold);border-radius:6px;text-align:center}
 .reveal-card.sealed{background:#0B0B0B}
 .reveal-card.open{background:#FFFDF8;border-color:#A8864A}
-.rc-logo{font-family:var(--serif);font-size:20px;letter-spacing:.32em}
+.rc-logo{font-family:var(--logo-serif);font-size:20px;letter-spacing:.32em}
 .rc-rule{display:block;width:120px;height:1px;background:currentColor;opacity:.5;margin:14px auto 0}
 .reveal-card.sealed .rc-rule{background:#D4B26A;opacity:1}
 .rc-k{margin-top:44px;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
@@ -453,7 +454,7 @@ body{background:#0B0B0B}
 .env-wrap{position:relative;width:min(360px,80vw);aspect-ratio:3/2;perspective:1100px;transition:transform .55s cubic-bezier(.4,0,.2,1),opacity .45s ease}
 .e-back{position:absolute;inset:0;background:#141414;border:1px solid #D4B26A;border-radius:4px}
 .e-letter{position:absolute;left:6%;right:6%;bottom:5%;height:88%;z-index:2;background:#F5EFE3;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9%;gap:6px;color:#0D1B2A;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
-.e-letter-logo{font-family:var(--serif);font-size:18px;letter-spacing:.3em}
+.e-letter-logo{font-family:var(--logo-serif);font-size:18px;letter-spacing:.3em}
 .e-letter-tag{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#7A5E2C}
 .e-pocket{position:absolute;inset:0;width:100%;height:100%;z-index:3}
 .e-pocket path{fill:#1A1A1A;stroke:#D4B26A;stroke-width:1.5;vector-effect:non-scaling-stroke}
@@ -474,7 +475,7 @@ body{background:#0B0B0B}
 #intro.show-card .env-wrap{transform:translateY(60px) scale(.86);opacity:0}
 .login-card{display:block;position:absolute;inset:0;margin:auto;height:max-content;max-height:calc(100% - 32px);overflow-y:auto;box-sizing:border-box;z-index:6;width:min(400px,calc(100% - 32px));padding:34px 30px 26px;border-radius:18px;background:rgba(20,18,15,.62);-webkit-backdrop-filter:blur(18px) saturate(130%);backdrop-filter:blur(18px) saturate(130%);border:1px solid rgba(212,178,106,.45);box-shadow:0 24px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);opacity:0;visibility:hidden;transform:translateY(28px) scale(.96);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s linear .6s}
 #intro.show-card .login-card{opacity:1;visibility:visible;transform:none;transition:opacity .5s ease .12s,transform .6s cubic-bezier(.2,.8,.2,1) .12s,visibility 0s}
-.lc-logo{display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;letter-spacing:.3em;padding-left:.3em}
+.lc-logo{display:flex;align-items:center;justify-content:center;font-family:var(--logo-serif);font-size:20px;letter-spacing:.3em;padding-left:.3em}
 .lc-logo svg{width:15px;height:17px;margin-right:.3em}.lc-logo path{stroke:#D4B26A}.lc-logo circle{fill:#D4B26A}
 .login-card h2{margin-top:22px;text-align:center;font-size:30px;color:#F1E6CC}
 .lc-sub{margin:8px auto 18px;max-width:28em;text-align:center;font-size:15px;color:#CBBF9F}
