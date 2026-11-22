@@ -793,6 +793,47 @@ details.grp[open] summary::after{content:"–"}
 .ld-die.ready{opacity:1;animation:ldPulse 1s ease-in-out infinite}.ld-die.spin{animation:ldSpin .42s linear}
 @keyframes ldSpin{to{transform:rotate(360deg)}}
 #ldMsg{flex:1;max-width:260px;font-size:.95rem}
+.wrap-banner{display:flex;gap:10px;align-items:center;padding:10px 14px;background:linear-gradient(120deg,#0d1b2a,#2a466a);color:var(--cream);border-bottom:1px solid var(--gold)}
+.wrap-banner>span{font-size:1.5rem}.wrap-banner div{flex:1;min-width:0}.wrap-banner b{display:block;font-weight:500;font-size:.92rem}.wrap-banner small{color:rgba(241,230,204,.75);font-size:.76rem}
+.wraps-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px}
+.wrap-tile{flex:none;width:150px;display:flex;flex-direction:column;gap:4px;padding:16px 14px;border-radius:18px;border:1px solid rgba(212,178,106,.5);background:linear-gradient(160deg,#0d1b2a,#24405e 70%,#8a6a2b);color:var(--cream);text-align:left;cursor:pointer;font:inherit;box-shadow:var(--shadow)}
+.wrap-tile span{font-size:1.8rem}.wrap-tile b{font-family:var(--serif);font-weight:400;font-size:1.2rem}.wrap-tile small{color:rgba(241,230,204,.75);font-size:.75rem}
+.wrap-view{position:fixed;inset:0;z-index:95;display:none;background:#05090f;color:#fff;overflow:hidden}
+.wrap-view.open{display:block}
+.wv-bars{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:56px;display:flex;gap:4px;z-index:3}
+.wv-bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden;position:relative}
+.wv-bars i.done{background:#fff}.wv-bars i.now::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:left;animation:wvBar 5.5s linear forwards}
+@keyframes wvBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.wv-x{position:absolute;top:calc(2px + env(safe-area-inset-top,0px));right:8px;z-index:4;width:44px;height:44px;border:0;background:none;color:#fff;font-size:22px;cursor:pointer}
+.wv-nav{position:absolute;top:60px;bottom:0;width:35%;z-index:2;background:none;border:0;cursor:pointer}.wv-nav.l{left:0}.wv-nav.r{right:0;width:65%}
+.wv-slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:70px 28px 40px;gap:10px;animation:wvIn .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes wvIn{from{opacity:0;transform:scale(.96) translateY(14px)}to{opacity:1;transform:none}}
+.wv-slide::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.18),transparent 45%),radial-gradient(circle at 85% 85%,rgba(255,255,255,.12),transparent 40%)}
+.wv-slide.g1{background:linear-gradient(160deg,#0d1b2a,#1f3a5a 55%,#b3874a)}.wv-slide.g2{background:linear-gradient(160deg,#3b1d4a,#8a2f5c 60%,#f0a25a)}
+.wv-slide.g3{background:linear-gradient(160deg,#0f3d33,#1f7a5c 60%,#d6c25a)}.wv-slide.g4{background:linear-gradient(160deg,#10224d,#2f5fd1 60%,#7fd1e0)}
+.wv-slide.g5{background:linear-gradient(160deg,#4a1d1d,#c0463b 60%,#f2c230)}.wv-slide.g6{background:linear-gradient(160deg,#1d3b1d,#3f8f3f 60%,#d4e05a)}
+.wv-slide.g7{background:linear-gradient(160deg,#2a1d4a,#6a3fd1 60%,#e05ab8)}.wv-slide.g8{background:linear-gradient(160deg,#4a3a10,#b38a2f 60%,#f5e1a0)}.wv-slide.g9{background:linear-gradient(160deg,#0d1b2a,#6a2f5c 55%,#D4B26A)}
+.wv-emoji{font-size:3.6rem;filter:drop-shadow(0 6px 16px rgba(0,0,0,.35));animation:wvPop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes wvPop{from{transform:scale(.3) rotate(-15deg);opacity:0}}
+.wv-slide small{letter-spacing:.32em;text-transform:uppercase;font-size:.72rem;color:rgba(255,255,255,.8)}
+.wv-slide h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,10vw,3.4rem);line-height:1.05;margin:4px 0;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.3)}
+.wv-slide h2.big{font-size:clamp(3.6rem,20vw,6rem);font-variant-numeric:tabular-nums}
+.wv-slide p{margin:0;font-size:1.1rem;color:rgba(255,255,255,.95);max-width:420px}.wv-slide .wv-sub{font-size:.95rem;color:rgba(255,255,255,.78)}
+.wv-collage{display:grid;gap:6px;width:min(420px,100%);margin-top:8px}
+.wv-collage img{width:100%;height:100%;object-fit:cover;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.35);animation:wvIn .6s both}
+.wv-collage img:nth-child(2){animation-delay:.1s}.wv-collage img:nth-child(3){animation-delay:.2s}.wv-collage img:nth-child(4){animation-delay:.3s}.wv-collage img:nth-child(5){animation-delay:.4s}.wv-collage img:nth-child(6){animation-delay:.5s}
+.wv-collage.n1{grid-template-columns:1fr;height:52vh}.wv-collage.n2{grid-template-columns:1fr 1fr;height:40vh}.wv-collage.n3{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:52vh}.wv-collage.n3 img:first-child{grid-row:span 2}
+.wv-collage.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:52vh}.wv-collage.n5,.wv-collage.n6{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;height:46vh}.wv-collage.n5 img:first-child{grid-row:span 2}
+.wv-places{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;width:min(380px,100%)}
+.wv-places li{padding:9px 14px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);text-align:left;font-size:.98rem}
+.wv-awards{list-style:none;margin:8px 0 0;padding:0;width:min(400px,100%);display:flex;flex-direction:column;gap:8px}
+.wv-awards li{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.14);text-align:left}
+.wv-awards li span{font-size:1.6rem}.wv-awards li div{flex:1}.wv-awards li small{letter-spacing:.12em;font-size:.65rem}.wv-awards li b{display:block;font-weight:500}.wv-awards li em{font-style:normal;color:#ffe7a8;font-size:.9rem}
+.wv-card{display:flex;flex-direction:column;gap:6px;padding:26px 22px;border-radius:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,231,168,.6);width:min(380px,100%);backdrop-filter:blur(8px)}
+.wv-card b{font-family:var(--serif);font-weight:400;font-size:2rem}.wv-card span{color:rgba(255,255,255,.88)}
+.wv-acts{display:flex;gap:10px;margin-top:16px;position:relative;z-index:3}.wv-acts .btn.soft{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.5)}
+.wv-again{margin-top:14px;background:none;border:0;color:rgba(255,255,255,.85);font:inherit;font-size:.95rem;cursor:pointer;position:relative;z-index:3;padding:8px}
+@media(prefers-reduced-motion:reduce){.wv-slide,.wv-emoji,.wv-collage img{animation:none}}
 .stp-hero{display:flex;gap:16px;align-items:center;justify-content:center;margin:6px 0}
 .stp-ring{--p:0;width:150px;height:150px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p)*360deg),rgba(13,27,42,.1) 0)}
 .stp-ring>div{width:124px;height:124px;border-radius:50%;background:var(--paper,#f5efe3);display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -3102,6 +3143,7 @@ const ClanSettings = {
           <p style="margin:0 0 4px"><b>${Util.esc(c.trip.destination)}</b>${c.trip.from ? ' from ' + Util.esc(c.trip.from) : ''}</p>
           <p class="hint" style="margin:0 0 12px">${Util.fmtDate(c.trip.start, { weekday: 'short', day: 'numeric', month: 'short' })} → ${Util.fmtDate(c.trip.end, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })} · ${days} day${days > 1 ? 's' : ''}</p>
           <button class="btn gold block" id="csTrip">${icon(can('editTrip') ? 'edit' : 'book', 'sm')}${can('editTrip') ? 'Edit trip plan' : 'View trip plan'}</button>
+          <p class="hint" style="margin:8px 0 0;font-size:.78rem">🎁 When the trip is complete, the clan closes automatically 12 hours after the last day and everyone gets their own Envelora Wrap.</p>
         </div>
 
         ${can('editInfo') ? `<div class="cs-panel"><h3>${icon('edit')}Clan info</h3>
@@ -3524,11 +3566,13 @@ const Studio = {
     $$('[data-flt]', host).forEach(b => { const cv = b.querySelector('canvas'), s = Object.assign(this.fresh(), { filter: b.dataset.flt, aspect: '1:1' }); this.draw(cv.getContext('2d'), src.el, src.w, src.h, 72, 72, s); });
   },
   async share(blob, name) {
+    if (/^envelora-(photo|video)/.test(name)) Wraps.log('edit', name.includes('video') ? 'video' : 'photo');
     const file = new File([blob], name, { type: blob.type });
     if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'From our Envelora trip' }); return; } catch (e) { if (e.name === 'AbortError') return; } }
     this.save(blob, name);
   },
   save(blob, name) {
+    if (/^envelora-(photo|video)/.test(name)) Wraps.log('edit', name.includes('video') ? 'video' : 'photo');
     const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(u), 4000); UI.toast('Saved to your downloads.');
   },
@@ -3554,7 +3598,7 @@ const Studio = {
         const [, out] = await render(), k = Math.min(1, 900 / Math.max(out.width, out.height)), sm = document.createElement('canvas'); sm.width = Math.round(out.width * k); sm.height = Math.round(out.height * k); sm.getContext('2d').drawImage(out, 0, 0, sm.width, sm.height);
         const cur = Clans.get(this.c.id); cur.photos = cur.photos || [];
         if (cur.photos.length >= 30) { UI.busy(b, false); return UI.toast('Prototype limit: 30 photos per clan.', 'err'); }
-        const p = { id: Util.uid('ph'), by: Auth.user.id, name: Auth.user.name, data: sm.toDataURL('image/jpeg', .78), ts: Date.now() };
+        const p = { id: Util.uid('ph'), edited: true, by: Auth.user.id, name: Auth.user.name, data: sm.toDataURL('image/jpeg', .78), ts: Date.now() };
         cur.photos.unshift(p);
         if (!Clans.save(cur)) { UI.busy(b, false); return; }
         Clans.post(this.c.id, { type: 'photo', photoId: p.id, text: '✨ Edited in Studio' }); UI.busy(b, false); UI.toast('Posted to the clan album and chat.');
@@ -3825,6 +3869,7 @@ const Stories = {
       const pg = Object.values(ex.query.pages)[0], secs = this.pickText(pg.extract || '');
       const pics = [pg.original && pg.original.source].concat((media.items || []).filter(i => i.type === 'image' && i.srcset && !/\.svg/i.test(i.title)).map(i => (i.srcset[i.srcset.length - 1] || i.srcset[0]).src.replace(/^\/\//, 'https://'))).filter(Boolean)
         .filter((u, i, a) => a.findIndex(x => x.split('/').pop().replace(/^\d+px-/, '') === u.split('/').pop().replace(/^\d+px-/, '')) === i).slice(0, 8);
+      Wraps.log('story', enTitle);
       this.cur = { enTitle, title, used, text: [pg.title + '. ' + (pg.description || '')].concat(secs.map(s => (s.head ? s.head + '. ' : '') + s.body)).join('\n') };
       $('#syTitle').textContent = pg.title; $('#sySub').textContent = pg.description || (used === lang ? L[1] : 'English');
       $('#syBody').innerHTML = `${this.langSelect()}
@@ -3892,7 +3937,7 @@ const Stories = {
       if (lastQ && this.dist(lastQ[0], lastQ[1], la, lo) < 120) return; lastQ = [la, lo];
       try {
         const hit = (await this.geo(la, lo, 400)).find(x => x.m < 300 && !this.seen.has(x.title)); if (!hit) return;
-        this.seen.add(hit.title); this.arrive(hit);
+        this.seen.add(hit.title); Wraps.log('visit', hit.title); this.arrive(hit);
         if (window.Alerts && Alerts.notify) Alerts.notify('You’ve reached ' + hit.title, 'Open Envelora to read or listen to its story.');
       } catch (e) { }
     }, () => { this.unwatch(); UI.toast('Location is off, so arrival alerts can’t work.', 'err'); }, { enableHighAccuracy: true, maximumAge: 30000 });
@@ -3909,6 +3954,281 @@ setTimeout(async () => {
     if ((await navigator.permissions.query({ name: 'geolocation' })).state === 'granted') Stories.watch(true);
   } catch (e) { }
 }, 3000);
+
+/* =============================================================================
+   ENVELORA WRAPS — when a trip ends, every member is warned that the clan will
+   be deleted 12 hours later. At deletion each member gets a personal "Wrap"
+   (story-style recap of their trip) saved to their account, then the clan is
+   removed. Runs whenever the app is open (checks every 30 s).
+   >>> SUPABASE INTEGRATION POINT — in production run this as a scheduled
+       function on the server so it happens even if nobody opens the app.
+   ============================================================================= */
+const Wraps = {
+  GRACE: 12 * 3600e3,
+  endTs(c) { const d = Util.parseYmd(c.trip.end); d.setHours(23, 59, 59, 999); return +d; },
+  deleteTs(c) { return this.endTs(c) + this.GRACE; },
+  key(acc) { return KEYS.acct(acc, 'wraps'); },
+  list(acc) { return Store.get(this.key(acc), []) || []; },
+  /** Activity log per account: 'story' (read), 'visit' (arrived), 'edit' (Studio export). */
+  log(k, t) { if (!Auth.user) return; const key = 'envelora.v1.actLog.' + Auth.user.id, l = Store.get(key, []) || []; if (k !== 'edit' && l.some(x => x.k === k && x.t === t && Util.ymd(x.ts) === Util.ymd(Date.now()))) return; l.push({ k, t, ts: Date.now() }); Store.set(key, l.slice(-400)); },
+  acts(acc, t) { return (Store.get('envelora.v1.actLog.' + acc, []) || []).filter(x => Util.ymd(x.ts) >= t.start && Util.ymd(x.ts) <= t.end); },
+  thumb(src, size = 360) { return new Promise(res => { const i = new Image(); i.onload = () => { const k = size / Math.max(i.width, i.height), c = document.createElement('canvas'); c.width = Math.round(i.width * Math.min(1, k)); c.height = Math.round(i.height * Math.min(1, k)); c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .72)); }; i.onerror = () => res(null); i.src = src; }); },
+  fmtLeft(ms) { const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 60e3); return h ? `${h}h ${m}m` : `${m} min`; },
+
+  /* ---------- scheduler ---------- */
+  check(now = Date.now()) {
+    if (!Auth.user) return;
+    Clans.listFor(Auth.user.id).forEach(c => {
+      if (!c || !c.trip) return;
+      const end = this.endTs(c), del = this.deleteTs(c);
+      if (now >= del) return this.finish(c);
+      if (now >= end && !c.endWarned) {
+        c.endWarned = true; Clans.save(c);
+        Clans.post(c.id, { type: 'system', text: `🏁 The trip is over! This clan will be deleted automatically on ${new Date(del).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} (12 hours after the trip ended). Save your photos and settle expenses before then. Everyone will get their own Envelora Wrap.` });
+        if (window.Alerts && Alerts.notify) Alerts.notify('Trip over · ' + c.name, 'This clan will be deleted in 12 hours. Your Envelora Wrap is coming!');
+      }
+      if (now >= del - 3600e3 && !c.lastWarned) {
+        c.lastWarned = true; Clans.save(Clans.get(c.id) ? Object.assign(Clans.get(c.id), { lastWarned: true }) : c);
+        Clans.post(c.id, { type: 'system', text: `⏳ Last hour! "${c.name}" will be deleted in ${this.fmtLeft(del - now)}. Download anything you want to keep.` });
+        if (window.Alerts && Alerts.notify) Alerts.notify('1 hour left · ' + c.name, 'The clan will be deleted soon. Save your photos now.');
+      }
+    });
+    this.banner(now);
+  },
+  /** Countdown bar at the top of the chat once the trip has ended. */
+  banner(now = Date.now()) {
+    const c = Chat.clan && Chat.clan(), host = $('#chat'); if (!host) return;
+    let b = $('#wrapBanner');
+    if (!c || !Nav.has('chat') || now < this.endTs(c)) { if (b) b.remove(); return; }
+    if (!b) { b = document.createElement('div'); b.id = 'wrapBanner'; b.className = 'wrap-banner'; const sc = $('#chScroll'); sc.parentNode.insertBefore(b, sc); }
+    b.innerHTML = `<span>🏁</span><div><b>Trip ended · clan closes in ${this.fmtLeft(Math.max(0, this.deleteTs(c) - now))}</b><small>Save photos now. Your Envelora Wrap arrives when the clan closes.</small></div>`;
+  },
+  /** Create every member's wrap, save it to their account, then delete the clan. */
+  async finish(c) {
+    if (this.busy) return; this.busy = true;
+    try {
+      c = Clans.get(c.id); if (!c) return;
+      for (const m of c.members) {
+        if (!m.accountId) continue;
+        const w = await this.build(c, m.accountId), l = this.list(m.accountId).filter(x => x.clanId !== c.id);
+        l.unshift(w); if (!Store.set(this.key(m.accountId), l.slice(0, 12))) { w.pics = []; l[0] = w; Store.set(this.key(m.accountId), l.slice(0, 12)); }
+        Clans.unlinkAccount(m.accountId, c.id);
+      }
+      this.done(c);
+    } finally { this.busy = false; }
+  },
+  done(c) {
+    const open = Chat.clanId === c.id;
+    Store.del(KEYS.clan(c.id));
+    if (Auth.user) {
+      const own = Trips.loadOwn && Trips.loadOwn(); if (own && own.clanId === c.id) { delete own.clanId; Trips.saveOwn(own); }
+      const mine = this.list(Auth.user.id).find(x => x.clanId === c.id);
+      if (mine) { UI.toast(`🎁 Your Envelora Wrap for ${c.trip.destination} is ready!`); if (window.Alerts && Alerts.notify) Alerts.notify('Your Envelora Wrap is ready 🎁', `Relive your ${c.trip.destination} trip.`); }
+    }
+    if (open) Nav.home(() => Home.render()); else if (window.Home) Home.render();
+  },
+
+  /* ---------- stats ---------- */
+  async build(c, acc) {
+    const t = c.trip, mem = c.members.find(m => m.accountId === acc) || { name: 'You' }, msgs = c.messages || [];
+    const days = Trips.dayCount(t), people = c.members.filter(m => m.accountId);
+    const tv = m => Trips.travellerFor(t, m.accountId) || t.travellers.find(x => x.name === m.name);
+    const per = people.map(m => {
+      const mine = msgs.filter(x => x.by === m.accountId), trav = tv(m);
+      const paid = trav ? (t.expenses || []).filter(e => e.paidBy === trav.id).reduce((a, e) => a + +e.amount, 0) : 0;
+      const share = trav ? (t.expenses || []).filter(e => e.shared.includes(trav.id)).reduce((a, e) => a + e.amount / e.shared.length, 0) : 0;
+      let pts = 0, wins = 0, games = 0;
+      msgs.filter(x => x.type === 'score').forEach(x => { const i = (x.scores || []).findIndex(s => s.name === m.name); if (i >= 0) { games++; pts += x.scores[i].score; if (i === 0 && x.scores[i].score > 0) wins++; } });
+      const texts = mine.filter(x => x.type === 'text').map(x => x.text || '').join(' '), emo = {};
+      (texts.match(/\p{Extended_Pictographic}/gu) || []).forEach(e => emo[e] = (emo[e] || 0) + 1);
+      const acts = this.acts(m.accountId, t), stories = acts.filter(x => x.k === 'story').length;
+      const places = [...new Set(acts.filter(x => x.k === 'visit' || x.k === 'story').map(x => x.t))];
+      const edits = acts.filter(x => x.k === 'edit').length + (c.photos || []).filter(p => p.by === m.accountId && p.edited).length;
+      return { acc: m.accountId, name: m.name, msgs: mine.filter(x => x.type !== 'system').length, photos: (c.photos || []).filter(p => p.by === m.accountId).length, alerts: mine.filter(x => x.type === 'alert').length,
+        paid: Math.round(paid), share: Math.round(share), pts, wins, games, steps: Steps.tripTotal(m.accountId, t), stories, places, visits: places.length, edits, emoji: Object.entries(emo).sort((a, b) => b[1] - a[1]).map(x => x[0])[0] || '' };
+    });
+    const me = per.find(p => p.acc === acc) || per[0] || { msgs: 0, photos: 0, paid: 0, share: 0, pts: 0, wins: 0, games: 0, steps: 0, stories: 0, places: [], visits: 0, edits: 0, alerts: 0, emoji: '' };
+    const top = k => per.slice().sort((a, b) => b[k] - a[k])[0];
+    const rank = k => 1 + per.filter(p => p[k] > me[k]).length;
+    const BADGES = [['steps', '🥾', 'The Explorer', 'You walked more than anyone. No lane went unexplored.'], ['msgs', '💬', 'The Chatterbox', 'The group chat ran on your energy.'], ['photos', '📸', 'The Shutterbug', 'Every great memory has your camera behind it.'],
+      ['paid', '💰', 'The Banker', 'You picked up the bill more than anyone. Legend.'], ['pts', '🏆', 'The Champion', 'Undefeated at the games. Mostly.'], ['visits', '🏛️', 'The Historian', 'You know the story behind every fort and lake.'], ['edits', '🎨', 'The Creator', 'Your edits turned trip photos into postcards.'], ['alerts', '📣', 'The Captain', 'Keeping everyone on time, one alert at a time.']];
+    const badge = BADGES.filter(([k]) => me[k] > 0 && rank(k) === 1).sort((a, b) => (me[b[0]] / Math.max(1, top(b[0])[b[0]])) - (me[a[0]] / Math.max(1, top(a[0])[a[0]])))[0] || ['', '✨', 'The Good Vibes', 'Every trip needs someone who just makes it better.'];
+    // Keep small copies of your photos (they vanish with the clan).
+    const own = (c.photos || []).filter(p => p.by === acc), src = (own.length ? own : (c.photos || [])).slice(0, 6), pics = [];
+    for (const p of src) { const th = await this.thumb(p.data, 720); if (th) pics.push(th); }
+    return {
+      pics, ownPics: own.length > 0,
+      id: Util.uid('wrap'), clanId: c.id, clanName: c.name, photo: c.photo || null, destination: t.destination, from: t.from || '', start: t.start, end: t.end, days, created: Date.now(),
+      name: mem.name, members: people.length, clanMsgs: msgs.filter(x => x.type !== 'system').length, clanPhotos: (c.photos || []).length, clanSpent: Math.round((t.expenses || []).reduce((a, e) => a + +e.amount, 0)),
+      me, ranks: { msgs: rank('msgs'), steps: rank('steps'), photos: rank('photos'), pts: rank('pts') }, badge: { e: badge[1], t: badge[2], d: badge[3] },
+      awards: [['💬', 'Top chatter', top('msgs')], ['🥾', 'Top walker', top('steps')], ['📸', 'Top photographer', top('photos')], ['💰', 'Paid the most', top('paid')], ['🏆', 'Game champion', top('pts')], ['🏛️', 'Explored most places', top('visits')]]
+        .filter(([, , p]) => p).map(([e, l, p]) => ({ e, l, n: p.name, v: { 'Top chatter': p.msgs + ' msgs', 'Top walker': Steps.fmt(p.steps) + ' steps', 'Top photographer': p.photos + (p.photos === 1 ? ' photo' : ' photos'), 'Paid the most': Util.inr(p.paid), 'Game champion': p.pts + ' pts', 'Explored most places': p.visits + ' places' }[l], z: { 'Top chatter': p.msgs, 'Top walker': p.steps, 'Top photographer': p.photos, 'Paid the most': p.paid, 'Game champion': p.pts, 'Explored most places': p.visits }[l] })).filter(a => a.z > 0)
+    };
+  },
+
+  /* ---------- story viewer ---------- */
+  slides(w) {
+    const m = w.me, km = (m.steps * .00075), place = Util.esc(w.destination.replace(/\s*\(.*\)$/, '')), S = [];
+    S.push(['g1', '✉️', `<small>Envelora Wrap</small><h2>${place}<br/>wrapped</h2><p>${Util.esc(w.name)} · ${Util.fmtDate(w.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(w.end, { day: 'numeric', month: 'short', year: 'numeric' })}</p><p class="wv-sub">${Util.esc(w.clanName)}</p>`]);
+    S.push(['g2', '🧳', `<small>Together</small><h2 class="big">${w.days}</h2><p>day${w.days > 1 ? 's' : ''} on the road with <b>${w.members}</b> ${w.members === 1 ? 'traveller' : 'travellers'}</p><p class="wv-sub">${w.clanMsgs} message${w.clanMsgs === 1 ? '' : 's'} · ${w.clanPhotos} photo${w.clanPhotos === 1 ? '' : 's'} shared as a clan</p>`]);
+    S.push(['g3', '🥾', m.steps ? `<small>You walked</small><h2 class="big">${Steps.fmt(m.steps)}</h2><p>steps · ${km.toFixed(1)} km</p><p class="wv-sub">That's Marine Drive ${Math.max(1, Math.round(km / 3.6))}× over${w.ranks.steps === 1 && w.members > 1 ? ' · #1 walker in the clan 👑' : ''}</p>` : `<small>Your steps</small><h2>Taking it easy</h2><p>Turn on the step counter on your next trip to see how far you go.</p>`]);
+    S.push(['g4', '💬', `<small>In the group chat</small><h2 class="big">${m.msgs}</h2><p>message${m.msgs === 1 ? '' : 's'} from you${w.members > 1 ? ` · #${w.ranks.msgs} chatter` : ''}</p>${m.emoji ? `<p class="wv-sub">Your go-to emoji: <span style="font-size:2rem">${m.emoji}</span></p>` : ''}`]);
+    if (m.photos || w.clanPhotos) S.push(['g5', '📸', `<small>Memories</small><h2 class="big">${m.photos}</h2><p>photo${m.photos === 1 ? '' : 's'} you shared</p><p class="wv-sub">out of ${w.clanPhotos} in the clan album</p>`]);
+    if ((w.pics || []).length) S.push(['g5 photo', '', `<small>${w.ownPics ? 'Your favourite frames' : 'The clan album'}</small><div class="wv-collage n${Math.min(6, w.pics.length)}">${w.pics.map(u => `<img src="${u}" alt=""/>`).join('')}</div>`]);
+    if (m.edits) S.push(['g8', '🎨', `<small>In the Studio</small><h2 class="big">${m.edits}</h2><p>photo${m.edits === 1 ? '' : 's'} &amp; video${m.edits === 1 ? '' : 's'} you edited</p><p class="wv-sub">Filters, frames and stickers, all yours.</p>`]);
+    if ((m.places || []).length) S.push(['g3', '📍', `<small>Famous places you explored</small><h2 class="big">${m.places.length}</h2><ul class="wv-places">${m.places.slice(0, 6).map(t => `<li>🏛️ ${Util.esc(t)}</li>`).join('')}${m.places.length > 6 ? `<li>+${m.places.length - 6} more</li>` : ''}</ul>`]);
+    if (w.clanSpent) S.push(['g6', '💸', `<small>The money</small><h2 class="big">${Util.inr(m.paid)}</h2><p>paid by you</p><p class="wv-sub">Your share: ${Util.inr(m.share)} · Clan total: ${Util.inr(w.clanSpent)}</p>`]);
+    if (m.games) S.push(['g7', '🎲', `<small>Game time</small><h2 class="big">${m.pts}</h2><p>points across ${m.games} game${m.games === 1 ? '' : 's'}</p><p class="wv-sub">${m.wins ? `${m.wins} win${m.wins === 1 ? '' : 's'} 🏆` : 'Next time, champ.'}</p>`]);
+    S.push(['g9', w.badge.e, `<small>Your trip personality</small><h2>${w.badge.t}</h2><p>${w.badge.d}</p>`]);
+    if (w.awards.length && w.members > 1) S.push(['g2', '🎖️', `<small>Clan awards</small><ul class="wv-awards">${w.awards.map(a => `<li><span>${a.e}</span><div><small>${a.l}</small><b>${Util.esc(a.n)}</b></div><em>${a.v}</em></li>`).join('')}</ul>`]);
+    S.push(['g1', '🎁', `<small>That's a wrap</small><div class="wv-card" id="wvCard"><b>${place}</b><span>${w.days} day${w.days === 1 ? '' : 's'} · ${(m.steps * .00075).toFixed(1)} km · ${m.photos} photo${m.photos === 1 ? '' : 's'} · ${(m.places || []).length} place${(m.places || []).length === 1 ? '' : 's'}</span><span>${w.badge.e} ${w.badge.t}</span></div><div class="wv-acts"><button class="btn gold" id="wvPdf">⬇ Download PDF</button><button class="btn soft" id="wvShare">Share image</button></div><button class="wv-again" id="wvAgain">↺ Watch again</button>`]);
+    return S;
+  },
+  show(w) {
+    let el = $('#wrapView'); if (!el) { el = document.createElement('div'); el.id = 'wrapView'; el.className = 'wrap-view'; document.body.appendChild(el); }
+    const S = this.slides(w); let i = 0, timer = null;
+    const close = () => { clearTimeout(timer); el.classList.remove('open'); el.innerHTML = ''; };
+    if (!Nav.has('wrap')) Nav.open('wrap', close);
+    el.classList.add('open');
+    const go = n => {
+      i = Math.max(0, Math.min(S.length - 1, n)); clearTimeout(timer);
+      const [g, e, html] = S[i];
+      el.innerHTML = `<div class="wv-bars">${S.map((_, k) => `<i class="${k < i ? 'done' : k === i ? 'now' : ''}"></i>`).join('')}</div><button class="wv-x" aria-label="Close">✕</button>
+        <div class="wv-slide ${g}"><div class="wv-emoji">${e}</div>${html}</div><button class="wv-nav l" aria-label="Previous"></button><button class="wv-nav r" aria-label="Next"></button>`;
+      el.querySelector('.wv-x').onclick = () => Nav.back();
+      el.querySelector('.wv-nav.l').onclick = () => go(i - 1);
+      el.querySelector('.wv-nav.r').onclick = () => i < S.length - 1 && go(i + 1);
+      const sh = $('#wvShare'); if (sh) { sh.onclick = () => this.share(w); $('#wvAgain').onclick = () => go(0); $('#wvPdf').onclick = e => this.pdf(w, e.currentTarget); el.querySelectorAll('.wv-nav').forEach(b => b.style.display = 'none'); }
+      el.querySelectorAll('.big').forEach(h => { const txt = h.textContent, n = +txt.replace(/[^\d]/g, ''), pre = txt.match(/^[^\d]*/)[0]; if (!n || n < 10) return; const t0 = performance.now(); const tick = now => { const k = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - k, 3); h.textContent = pre + Math.round(n * e).toLocaleString('en-IN'); if (k < 1 && h.isConnected) requestAnimationFrame(tick); else h.textContent = txt; }; requestAnimationFrame(tick); });
+      if (i < S.length - 1) timer = setTimeout(() => go(i + 1), S[i][0].includes('photo') ? 7000 : 5500);
+    };
+    go(0);
+  },
+  /** Share card image (1080×1920) for WhatsApp / Instagram stories. */
+  share(w) {
+    const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1920; const x = cv.getContext('2d'), m = w.me;
+    const g = x.createLinearGradient(0, 0, 1080, 1920); g.addColorStop(0, '#0d1b2a'); g.addColorStop(.6, '#24405e'); g.addColorStop(1, '#b3874a'); x.fillStyle = g; x.fillRect(0, 0, 1080, 1920);
+    x.textAlign = 'center'; x.fillStyle = '#D4B26A'; x.font = '44px Jost, sans-serif'; x.fillText('E N V E L O R A   W R A P', 540, 200);
+    x.fillStyle = '#F1E6CC'; x.font = '110px Marcellus, Georgia, serif'; x.fillText(w.destination.replace(/\s*\(.*\)$/, ''), 540, 380, 980);
+    x.font = '44px Jost, sans-serif'; x.fillText(`${Util.fmtDate(w.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(w.end, { day: 'numeric', month: 'short', year: 'numeric' })} · ${w.name}`, 540, 460, 980);
+    const rows = [['Days', w.days], ['Kilometres walked', (m.steps * .00075).toFixed(1)], ['Places explored', (m.places || []).length], ['Photos shared', m.photos], ['Photos edited', m.edits || 0], ['Messages', m.msgs]];
+    rows.forEach(([l, v], k) => { const cx = k % 2 ? 790 : 290, cy = 640 + Math.floor(k / 2) * 300; x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(cx - 220, cy - 40, 440, 240); x.fillStyle = '#D4B26A'; x.font = '96px Marcellus, Georgia, serif'; x.fillText(String(v), cx, cy + 100, 400); x.fillStyle = '#F1E6CC'; x.font = '38px Jost, sans-serif'; x.fillText(l, cx, cy + 160); });
+    x.font = '120px sans-serif'; x.fillText(w.badge.e, 540, 1620); x.fillStyle = '#F1E6CC'; x.font = '64px Marcellus, Georgia, serif'; x.fillText(w.badge.t, 540, 1720);
+    x.font = '34px Jost, sans-serif'; x.fillStyle = 'rgba(241,230,204,.75)'; x.fillText(w.clanName, 540, 1800, 980);
+    cv.toBlob(b => Studio.share(b, 'envelora-wrap.png'), 'image/png');
+  },
+  /* ---------- PDF (A4, one designed page per section; built on the phone) ---------- */
+  async pdf(w, btn) {
+    if (btn) UI.busy(btn, true, 'Making PDF…');
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const pages = [], W = 1240, H = 1754, m = w.me, place = w.destination.replace(/\s*\(.*\)$/, '');
+      const page = draw => { const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d'); draw(x); pages.push(cv); };
+      const bg = (x, a, b) => { const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, W, H); };
+      const txt = (x, t, X, Y, font, col, align = 'left', max) => { x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'alphabetic'; x.fillText(String(t), X, Y, max); };
+      const wrapTxt = (x, t, X, Y, maxW, lh, font, col, align = 'left') => { x.font = font; x.fillStyle = col; x.textAlign = align; let line = '', y = Y; String(t).split(' ').forEach(word => { const tl = line ? line + ' ' + word : word; if (x.measureText(tl).width > maxW && line) { x.fillText(line, X, y); line = word; y += lh; } else line = tl; }); if (line) x.fillText(line, X, y); return y + lh; };
+      const head = (x, label, n, total) => { x.fillStyle = '#D4B26A'; x.fillRect(90, 110, 60, 4); txt(x, label.toUpperCase(), 170, 122, '500 30px Jost, sans-serif', '#a5802f'); txt(x, `${n} / ${total}`, W - 90, 122, '28px Jost, sans-serif', '#8a8070', 'right'); };
+      const foot = x => { x.fillStyle = 'rgba(13,27,42,.12)'; x.fillRect(90, H - 130, W - 180, 2); txt(x, 'ENVELORA · Open the envelope, begin the journey', 90, H - 80, '26px Jost, sans-serif', '#8a8070'); txt(x, Util.fmtDate(Util.ymd(w.created), { day: 'numeric', month: 'short', year: 'numeric' }), W - 90, H - 80, '26px Jost, sans-serif', '#8a8070', 'right'); };
+      const TOTAL = 3 + ((w.pics || []).length ? 1 : 0);
+      // 1. Cover
+      page(x => {
+        bg(x, '#0d1b2a', '#b3874a');
+        const r = x.createRadialGradient(W * .8, H * .2, 0, W * .8, H * .2, 700); r.addColorStop(0, 'rgba(255,231,168,.25)'); r.addColorStop(1, 'rgba(255,231,168,0)'); x.fillStyle = r; x.fillRect(0, 0, W, H);
+        x.strokeStyle = 'rgba(212,178,106,.7)'; x.lineWidth = 3; x.strokeRect(60, 60, W - 120, H - 120);
+        x.strokeStyle = '#D4B26A'; x.lineWidth = 8; x.beginPath(); x.moveTo(W / 2 - 70, 230); x.lineTo(W / 2, 370); x.lineTo(W / 2 + 70, 230); x.stroke(); x.fillStyle = '#D4B26A'; x.beginPath(); x.arc(W / 2, 395, 12, 0, 7); x.fill();
+        txt(x, 'E N V E L O R A   W R A P', W / 2, 500, '500 40px Jost, sans-serif', '#D4B26A', 'center');
+        txt(x, place, W / 2, 700, '150px Marcellus, Georgia, serif', '#F1E6CC', 'center', W - 200);
+        txt(x, `${Util.fmtDate(w.start, { day: 'numeric', month: 'long' })} – ${Util.fmtDate(w.end, { day: 'numeric', month: 'long', year: 'numeric' })}`, W / 2, 800, '44px Jost, sans-serif', '#F1E6CC', 'center');
+        txt(x, w.badge.e, W / 2, 1110, '200px sans-serif', '#fff', 'center');
+        txt(x, w.badge.t, W / 2, 1230, '76px Marcellus, Georgia, serif', '#fff', 'center');
+        wrapTxt(x, w.badge.d, W / 2, 1300, W - 520, 50, '36px Jost, sans-serif', 'rgba(255,255,255,.85)', 'center');
+        txt(x, 'Made for ' + w.name, W / 2, H - 230, '500 44px Jost, sans-serif', '#fff', 'center');
+        txt(x, w.clanName + (w.from ? ' · from ' + w.from : ''), W / 2, H - 170, '34px Jost, sans-serif', 'rgba(255,255,255,.75)', 'center', W - 200);
+      });
+      // 2. Numbers
+      page(x => {
+        bg(x, '#fbf7ef', '#f1e6cc'); head(x, 'Your trip in numbers', 2, TOTAL);
+        txt(x, place + ', by the numbers', 90, 260, '78px Marcellus, Georgia, serif', '#0d1b2a', 'left', W - 180);
+        const tiles = [['🧳', w.days, w.days === 1 ? 'day on the road' : 'days on the road'], ['🥾', Steps.fmt(m.steps), 'steps walked'], ['🗺️', (m.steps * .00075).toFixed(1) + ' km', 'distance on foot'], ['📍', (m.places || []).length, 'famous places explored'],
+          ['📸', m.photos, m.photos === 1 ? 'photo shared' : 'photos shared'], ['🎨', m.edits || 0, 'photos & videos edited'], ['💬', m.msgs, m.msgs === 1 ? 'message sent' : 'messages sent'], ['🎲', m.pts, `game points · ${m.wins} win${m.wins === 1 ? '' : 's'}`], ['💸', Util.inr(m.paid), 'paid by you'], ['🧾', Util.inr(m.share), 'your share of costs']];
+        tiles.forEach(([e, v, l], i) => {
+          const cx = 90 + (i % 2) * 545, cy = 320 + Math.floor(i / 2) * 218;
+          x.fillStyle = '#fff'; x.shadowColor = 'rgba(13,27,42,.12)'; x.shadowBlur = 24; x.shadowOffsetY = 8; x.beginPath(); x.roundRect ? x.roundRect(cx, cy, 515, 196, 28) : x.rect(cx, cy, 515, 196); x.fill(); x.shadowColor = 'transparent';
+          txt(x, e, cx + 40, cy + 88, '56px sans-serif', '#000'); txt(x, v, cx + 125, cy + 92, '68px Marcellus, Georgia, serif', '#0d1b2a', 'left', 360); txt(x, l, cx + 40, cy + 156, '30px Jost, sans-serif', '#6b6455', 'left', 440);
+        });
+        const notes = [w.members > 1 && w.ranks.steps === 1 && m.steps ? '👑 #1 walker in the clan' : '', w.members > 1 && w.ranks.msgs === 1 && m.msgs ? '💬 #1 chatter in the clan' : '', m.emoji ? 'Your go-to emoji: ' + m.emoji : '', `Clan total: ${w.clanMsgs} messages · ${w.clanPhotos} photos · ${Util.inr(w.clanSpent)} spent`].filter(Boolean);
+        notes.forEach((n, i) => txt(x, n, 90, 1440 + i * 46, '30px Jost, sans-serif', '#0d1b2a', 'left', W - 180));
+        foot(x);
+      });
+      // 3. Photos
+      const imgs = await Promise.all((w.pics || []).map(u => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = u; }))).then(a => a.filter(Boolean));
+      if (imgs.length) page(x => {
+        bg(x, '#fbf7ef', '#f1e6cc'); head(x, w.ownPics ? 'Your favourite frames' : 'The clan album', 3, TOTAL);
+        txt(x, 'Memories', 90, 260, '78px Marcellus, Georgia, serif', '#0d1b2a');
+        const n = imgs.length, cols = n === 1 ? 1 : 2, rows = Math.ceil(n / cols), gw = W - 180, gh = 1240, cw = (gw - (cols - 1) * 30) / cols, ch = (gh - (rows - 1) * 30) / rows;
+        imgs.forEach((im, i) => {
+          const X = 90 + (i % cols) * (cw + 30), Y = 320 + Math.floor(i / cols) * (ch + 30), k = Math.max(cw / im.width, ch / im.height), sw = cw / k, sh = ch / k;
+          x.save(); x.beginPath(); x.roundRect ? x.roundRect(X, Y, cw, ch, 24) : x.rect(X, Y, cw, ch); x.clip(); x.drawImage(im, (im.width - sw) / 2, (im.height - sh) / 2, sw, sh, X, Y, cw, ch); x.restore();
+        });
+        foot(x);
+      });
+      // 4. Places & awards
+      page(x => {
+        bg(x, '#fbf7ef', '#f1e6cc'); head(x, 'Places & awards', TOTAL, TOTAL);
+        txt(x, 'Famous places you explored', 90, 260, '64px Marcellus, Georgia, serif', '#0d1b2a', 'left', W - 180);
+        let y = 340;
+        const pl = m.places || [];
+        if (!pl.length) { txt(x, 'Turn on Place stories next trip to collect the forts, lakes and temples you visit.', 90, y + 10, '32px Jost, sans-serif', '#6b6455', 'left', W - 180); y += 80; }
+        pl.slice(0, 8).forEach(t => { x.fillStyle = '#fff'; x.fillRect(90, y - 50, W - 180, 76); txt(x, '🏛️  ' + t, 120, y, '36px Jost, sans-serif', '#0d1b2a', 'left', W - 260); y += 92; });
+        if (pl.length > 8) { txt(x, `+ ${pl.length - 8} more`, 120, y, '32px Jost, sans-serif', '#6b6455'); y += 70; }
+        y += 60; txt(x, 'Clan awards', 90, y, '64px Marcellus, Georgia, serif', '#0d1b2a'); y += 80;
+        (w.members > 1 ? w.awards : []).forEach(a => { x.fillStyle = '#0d1b2a'; x.fillRect(90, y - 54, W - 180, 84); txt(x, a.e, 120, y + 4, '44px sans-serif', '#fff'); txt(x, a.l, 200, y - 10, '26px Jost, sans-serif', '#D4B26A'); txt(x, a.n, 200, y + 22, '500 32px Jost, sans-serif', '#F1E6CC', 'left', 600); txt(x, a.v, W - 120, y + 8, '32px Jost, sans-serif', '#ffe7a8', 'right'); y += 104; });
+        if (w.members <= 1) txt(x, 'Travel with your clan next time to unlock awards.', 90, y, '32px Jost, sans-serif', '#6b6455');
+        foot(x);
+      });
+      const blob = this.makePdf(pages.map(c => c.toDataURL('image/jpeg', .86)), W, H);
+      Studio.save(blob, `Envelora-Wrap-${place.replace(/[^\w]+/g, '-')}.pdf`);
+    } catch (e) { UI.toast('Could not make the PDF on this device.', 'err'); }
+    finally { if (btn) UI.busy(btn, false); }
+  },
+  /** Minimal PDF writer: one full-page JPEG per A4 page. */
+  makePdf(jpegs, W, H) {
+    const enc = t => new TextEncoder().encode(t), parts = [], offs = []; let len = 0;
+    const push = b => { parts.push(b); len += b.length; };
+    const obj = (n, body, bin) => { offs[n] = len; push(enc(`${n} 0 obj\n${body}`)); if (bin) { push(bin); push(enc('\nendstream')); } push(enc('\nendobj\n')); };
+    const PW = 595.28, PH = 841.89, n = jpegs.length;
+    push(enc('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'));
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, `<< /Type /Pages /Count ${n} /Kids [${jpegs.map((_, i) => `${3 + i * 3} 0 R`).join(' ')}] >>`);
+    jpegs.forEach((d, i) => {
+      const bin = Uint8Array.from(atob(d.split(',')[1]), ch => ch.charCodeAt(0)), p = 3 + i * 3, cs = `q ${PW} 0 0 ${PH} 0 0 cm /Im${i} Do Q`;
+      obj(p, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im${i} ${p + 2} 0 R >> >> /Contents ${p + 1} 0 R >>`);
+      obj(p + 1, `<< /Length ${cs.length} >>\nstream\n`, enc(cs));
+      obj(p + 2, `<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bin.length} >>\nstream\n`, bin);
+    });
+    const size = 3 + n * 3, xref = len;
+    push(enc(`xref\n0 ${size}\n0000000000 65535 f \n` + Array.from({ length: size - 1 }, (_, i) => String(offs[i + 1]).padStart(10, '0') + ' 00000 n \n').join('') + `trailer\n<< /Size ${size} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`));
+    return new Blob(parts, { type: 'application/pdf' });
+  },
+  /* ---------- home list ---------- */
+  renderHome() {
+    if (!Auth.user) return;
+    const L = this.list(Auth.user.id), anchor = $('#homeTrip'); if (!anchor) return;
+    let el = $('#homeWraps');
+    if (!L.length) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('section'); el.id = 'homeWraps'; anchor.parentNode.insertBefore(el, anchor.nextSibling); }
+    el.innerHTML = `<div class="section-t"><h2>Your Envelora Wraps</h2><span class="badge gold">${L.length}</span></div><div class="wraps-row">${L.map(w => `<button class="wrap-tile" data-w="${w.id}"><span>${w.badge.e}</span><b>${Util.esc(w.destination.replace(/\s*\(.*\)$/, ''))}</b><small>${Util.fmtDate(w.start, { month: 'short', year: 'numeric' })} · ${Util.esc(w.badge.t)}</small></button>`).join('')}</div>`;
+    el.onclick = e => { const b = e.target.closest('[data-w]'); if (b) this.show(this.list(Auth.user.id).find(x => x.id === b.dataset.w)); };
+  }
+};
+// Home is defined later in the bundle, so hook into it once everything has loaded.
+setTimeout(() => {
+  const orig = Home.render.bind(Home);
+  Home.render = function () { orig(); try { Wraps.renderHome(); } catch (e) { } };
+  Wraps.renderHome();
+  setTimeout(() => Wraps.check(), 2500);
+  setInterval(() => Wraps.check(), 30000);
+}, 0);
 
 /* =============================================================================
    GAMES — six playable prototypes with player selection, scores, restart,
