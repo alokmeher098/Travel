@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Envelora App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Envelora: plan your trip day by day, seal it into a private Clan, and travel together with a shared chat, fair expense splits, alerts and games.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: a travel letter unfolding — navy "envelope" hero with a phone, then cream paper
+   sections (steps, features, price calculator, postcards), closing on navy again.
+   One committed brand look (navy · gold · cream), not theme-switched. */
+:root{
+  --navy:#0D1B2A; --navy-2:#132840; --navy-3:#1d3652;
+  --gold:#D4B26A; --gold-d:#9c7a36; --gold-l:#ecd8a6;
+  --cream:#F1E6CC; --paper:#F5EFE3; --ink:#18222e; --muted:#5f6670; --rule:#d9c9a3;
+  --rose:#b8645c; --sage:#5f8a6c;
+  --display:'Marcellus','Georgia','Times New Roman',serif;
+  --sans:'Jost','Futura','Avenir Next',system-ui,sans-serif;
+  --r:18px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--navy)}
+a{color:inherit}
+img,svg{max-width:100%}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+.in{max-width:1080px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-d);font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,filter .2s}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible,a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.btn.gold{background:linear-gradient(135deg,var(--gold-l),var(--gold) 45%,#b48f45);color:var(--navy);box-shadow:0 10px 26px rgba(180,143,69,.35)}
+.btn.gold:hover{filter:brightness(1.06)}
+.btn.line{border-color:rgba(212,178,106,.55);color:var(--cream)}
+.btn.line.dark{border-color:var(--rule);color:var(--navy)}
+svg.vm path{fill:none;stroke:currentColor;stroke-linecap:round}
+svg.vm circle{fill:currentColor}
+.wordmark{display:inline-flex;align-items:flex-start;font-family:var(--display);letter-spacing:.3em;line-height:1;white-space:nowrap;margin-right:-.3em}
+.wordmark svg{width:.8em;height:.98em;margin:.04em .3em 0 0;color:var(--gold);flex:none}
+
+/* ---------- Top bar ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(13,27,42,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,178,106,.25)}
+.bar .in{display:flex;align-items:center;gap:16px;min-height:62px}
+.bar .wordmark{font-size:19px;color:var(--cream)}
+.bar nav{margin-left:auto;display:flex;gap:22px;align-items:center}
+.bar nav a{color:#cfc6b0;text-decoration:none;font-size:15px}
+.bar nav a:hover{color:var(--cream)}
+.bar .btn{min-height:40px;padding:0 18px;font-size:12px}
+@media(max-width:760px){.bar nav a:not(.btn){display:none}}
+
+/* ---------- Hero ---------- */
+.hero{background:radial-gradient(ellipse at 70% 20%,#1c3657 0%,var(--navy) 55%,#081220 100%);color:var(--cream);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto 0 0;height:12px;background:repeating-linear-gradient(-45deg,var(--rose) 0 14px,var(--paper) 14px 28px,var(--navy-3) 28px 42px,var(--paper) 42px 56px)}
+.hero .in{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding-block:64px 84px}
+.hero .lock{display:flex;flex-direction:column;gap:14px}
+.hero .wordmark{font-size:clamp(30px,5.4vw,46px);color:var(--cream)}
+.hero .sealed{color:var(--gold);letter-spacing:.5em;font-size:13px}
+.hero .rule{width:180px;height:1px;background:var(--gold);opacity:.7}
+.hero h1{font-size:clamp(34px,5.6vw,58px);margin-top:26px;color:#fbf4e3}
+.hero .lead{margin-top:18px;max-width:34em;color:#cdc3ab;font-size:18px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero .facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:28px;color:#b9ae94;font-size:14px}
+.hero .facts b{color:var(--gold);font-weight:500}
+.stamp-float{position:absolute;width:64px;height:78px;padding:5px;background:radial-gradient(circle,transparent 2.8px,var(--cream) 3.3px) -5px -5px/10px 10px;opacity:.16;pointer-events:none}
+@media(max-width:860px){.hero .in{grid-template-columns:1fr;padding-block:44px 70px}.phone-wrap{order:2}}
+
+/* ---------- Phone mockup ---------- */
+.phone-wrap{display:flex;justify-content:center;position:relative}
+.phone{width:min(300px,82vw);aspect-ratio:9/18.6;border-radius:42px;background:#05090f;padding:11px;box-shadow:0 40px 80px rgba(0,0,0,.55),inset 0 0 0 1.5px #2b3a4d;position:relative;max-width:100%}
+.phone::before{content:"";position:absolute;top:18px;left:50%;width:84px;height:22px;border-radius:20px;background:#05090f;transform:translateX(-50%);z-index:3}
+.screen{width:100%;height:100%;border-radius:32px;overflow:hidden;background:#efe6d2;display:flex;flex-direction:column;font-size:11px;line-height:1.35;color:var(--ink)}
+.s-head{background:var(--navy);color:var(--cream);padding:40px 12px 9px;display:flex;align-items:center;gap:8px}
+.s-head .gp{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a5802f);display:grid;place-items:center;font-size:14px;border:1.5px solid var(--gold);flex:none}
+.s-head b{font-family:var(--display);font-weight:400;font-size:14px;display:block}
+.s-head small{color:#b9ae94;font-size:9.5px}
+.s-chips{display:flex;gap:5px;padding:7px 9px;background:var(--navy-2);overflow:hidden}
+.s-chips span{flex:none;border:1px solid rgba(212,178,106,.4);color:var(--cream);border-radius:99px;padding:2px 8px;font-size:9px}
+.s-body{flex:1;padding:8px 9px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.today{background:var(--paper);border:1px solid var(--gold);border-radius:12px;overflow:hidden}
+.today .th{background:linear-gradient(135deg,var(--navy),var(--navy-3));color:var(--cream);padding:6px 9px;display:flex;justify-content:space-between;font-size:10px}
+.today .th b{font-family:var(--display);font-weight:400}
+.today .th span{color:var(--gold)}
+.today .tb{padding:7px 9px;display:flex;flex-direction:column;gap:5px}
+.nx{border:1px solid var(--gold);border-radius:9px;padding:6px 8px;background:rgba(212,178,106,.12)}
+.nx .l{font-size:8px;letter-spacing:.14em;color:var(--gold-d);text-transform:uppercase}
+.nx b{font-family:var(--display);font-weight:400;font-size:12.5px;display:block}
+.nx .g{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-top:4px;font-size:9px;color:#444}
+.nx .g i{font-style:normal;color:var(--muted);display:block;font-size:8px}
+.owe{display:flex;justify-content:space-between;background:rgba(13,27,42,.06);border-radius:7px;padding:5px 8px;font-size:9.5px}
+.owe b{color:var(--rose)}
+.m{max-width:82%;padding:5px 8px;border-radius:10px 10px 10px 3px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,.06);font-size:10px}
+.m i{display:block;font-style:normal;font-weight:600;font-size:8.5px;color:var(--sage)}
+.m.me{align-self:flex-end;background:#f3e2b5;border-radius:10px 10px 3px 10px}
+.m.sys{align-self:center;background:rgba(13,27,42,.75);color:var(--cream);font-size:8.5px;border-radius:7px;text-align:center}
+.s-comp{display:flex;gap:6px;padding:7px 9px 14px;background:#e6dbc2}
+.s-comp span{flex:1;background:#fff;border-radius:99px;padding:5px 10px;color:#999;font-size:9.5px}
+.s-comp em{width:24px;height:24px;border-radius:50%;background:var(--navy);flex:none}
+.phone-2{position:absolute;right:-6%;bottom:-6%;width:min(170px,40vw);transform:rotate(7deg);opacity:.95}
+@media(max-width:860px){.phone-2{display:none}}
+.mini{width:100%;aspect-ratio:9/16;border-radius:26px;background:#05090f;padding:7px;box-shadow:0 30px 60px rgba(0,0,0,.5);max-width:100%}
+.mini .screen{border-radius:20px;font-size:8px}
+.seal-big{width:64px;height:64px;border-radius:50%;margin:30px auto 10px;display:grid;place-items:center;color:#5c4312;background:radial-gradient(circle at 34% 30%,#f2dc9f 0%,var(--gold) 38%,#a5802f 78%,#7d5f20 100%);box-shadow:0 0 0 3px rgba(165,128,47,.5),0 6px 14px rgba(0,0,0,.4)}
+.seal-big svg{width:26px;height:30px}
+
+/* ---------- Sections ---------- */
+section.blk{padding-block:84px}
+.head{display:flex;flex-direction:column;gap:12px;max-width:640px;margin-bottom:40px}
+.head h2{font-size:clamp(30px,4.4vw,44px);color:var(--navy)}
+.head p{color:var(--muted);font-size:17px}
+
+/* Steps — a real sequence: write → seal → travel */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{background:#fffaf0;border:1px solid var(--rule);border-radius:var(--r);padding:24px 22px 26px;position:relative;display:flex;flex-direction:column;gap:10px}
+.step .no{font-family:var(--display);font-size:15px;color:var(--gold-d);letter-spacing:.16em}
+.step h3{font-size:24px;color:var(--navy)}
+.step p{color:var(--muted);font-size:15.5px}
+.step .tag{margin-top:auto;padding-top:10px;font-size:13px;color:var(--navy)}
+.step .tag b{color:var(--gold-d);font-weight:600}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+
+/* Features */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.feat{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.feat .vis{height:158px;background:linear-gradient(160deg,var(--navy),var(--navy-3));padding:18px;display:flex;align-items:flex-end;position:relative;overflow:hidden}
+.feat .txt{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px}
+.feat h3{font-size:21px;color:var(--navy)}
+.feat p{color:var(--muted);font-size:15px}
+@media(max-width:900px){.feats{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.feats{grid-template-columns:1fr}}
+/* feature mini-visuals */
+.v-day{display:flex;flex-direction:column;gap:6px;width:100%}
+.v-day div{display:flex;gap:10px;align-items:center;background:rgba(245,239,227,.95);border-radius:9px;padding:6px 10px;font-size:12px;color:var(--ink)}
+.v-day b{font-family:var(--display);font-weight:400;width:44px;color:var(--navy)}
+.v-day div.on{outline:2px solid var(--gold)}
+.v-pack{width:100%;display:flex;flex-direction:column;gap:6px;color:var(--cream);font-size:13px}
+.v-pack .bar2{height:8px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
+.v-pack .bar2 i{display:block;height:100%;width:68%;background:var(--gold)}
+.v-pack span{display:flex;gap:8px;align-items:center}
+.v-pack span::before{content:"";width:14px;height:14px;border-radius:4px;border:1.5px solid var(--gold);flex:none}
+.v-pack span.d::before{background:var(--gold)}
+.v-exp{width:100%;display:flex;flex-direction:column;gap:6px}
+.v-exp div{display:flex;justify-content:space-between;background:rgba(212,178,106,.16);border:1px solid rgba(212,178,106,.4);border-radius:9px;padding:7px 11px;color:var(--cream);font-size:12.5px}
+.v-exp b{color:var(--gold);font-weight:500}
+.v-chat{width:100%;display:flex;flex-direction:column;gap:5px}
+.v-chat span{max-width:78%;background:#fff;color:var(--ink);font-size:12px;border-radius:10px 10px 10px 3px;padding:5px 9px}
+.v-chat span.me{align-self:flex-end;background:#f3e2b5;border-radius:10px 10px 3px 10px}
+.v-chat span.sys{align-self:center;background:rgba(255,255,255,.14);color:var(--cream);font-size:10.5px}
+.v-alert{width:100%;display:flex;flex-direction:column;gap:8px}
+.v-alert div{background:var(--paper);border-left:4px solid var(--rose);border-radius:8px;padding:8px 11px;font-size:12.5px;color:var(--ink)}
+.v-alert small{display:block;color:var(--muted);font-size:11px}
+.v-games{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;width:100%}
+.v-games span{background:rgba(255,255,255,.07);border:1px solid rgba(212,178,106,.35);border-radius:10px;padding:7px 4px;text-align:center;color:var(--cream);font-size:10.5px;line-height:1.3}
+.v-games span i{display:block;font-style:normal;font-size:19px}
+
+/* Price calculator */
+.price{background:var(--navy);color:var(--cream)}
+.price .head h2{color:#fbf4e3}
+.price .head p{color:#bdb39a}
+.price .head .eyebrow{color:var(--gold)}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch}
+@media(max-width:820px){.calc{grid-template-columns:1fr}}
+.ctl{background:rgba(255,255,255,.04);border:1px solid rgba(212,178,106,.3);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:22px}
+.ctl label{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#bdb39a}
+.stepper{display:flex;align-items:center;gap:12px;margin-top:8px}
+.stepper button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(212,178,106,.55);background:transparent;color:var(--gold);font-size:22px;cursor:pointer;flex:none}
+.stepper output{flex:1;text-align:center;font-family:var(--display);font-size:38px;color:#fbf4e3;font-variant-numeric:tabular-nums}
+.ticket{background:var(--paper);color:var(--ink);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.ticket .tt{background:linear-gradient(135deg,var(--navy-2),var(--navy-3));color:var(--cream);padding:18px 22px;border-bottom:2px dashed var(--gold)}
+.ticket .tt small{color:var(--gold);letter-spacing:.2em;font-size:11px}
+.ticket .tt h3{font-size:24px;margin-top:4px}
+.ticket .ln{display:flex;justify-content:space-between;padding:11px 22px;border-bottom:1px solid #eadfc6;font-variant-numeric:tabular-nums}
+.ticket .tot{display:flex;justify-content:space-between;align-items:baseline;padding:16px 22px;background:rgba(212,178,106,.14)}
+.ticket .tot b{font-family:var(--display);font-size:40px;color:var(--navy);font-variant-numeric:tabular-nums}
+.ticket .fm{padding:10px 22px 18px;color:var(--muted);font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
+.price .notes{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:26px;color:#bdb39a;font-size:15px}
+.price .notes b{color:var(--gold);font-weight:500}
+
+/* Postcards */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+.pc{border-radius:14px;overflow:hidden;background:#fffaf0;border:1px solid var(--rule);display:flex;flex-direction:column;min-width:0}
+.pc .ph{height:104px;padding:12px 14px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;position:relative}
+.pc .ph small{font-size:11px;opacity:.85}
+.pc .ph b{font-family:var(--display);font-weight:400;font-size:22px;line-height:1.1}
+.pc .ph em{position:absolute;right:10px;top:8px;font-style:normal;font-size:26px}
+.pc p{padding:10px 14px 14px;font-size:14px;color:var(--muted)}
+
+/* Roles */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:820px){.roles{grid-template-columns:1fr}}
+.role{border:1px solid var(--rule);border-radius:var(--r);padding:22px;background:#fffaf0;display:flex;flex-direction:column;gap:10px}
+.role .rb{align-self:flex-start;font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding:3px 10px;border-radius:6px;font-weight:600}
+.role .rb.l{background:linear-gradient(135deg,var(--gold-l),var(--gold));color:var(--navy)}
+.role .rb.c{background:#2c4b72;color:#dbe7f6}
+.role .rb.m{background:#e7e0cf;color:var(--navy)}
+.role h3{font-size:22px;color:var(--navy)}
+.role ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px;display:flex;flex-direction:column;gap:4px}
+
+/* Honest note + FAQ */
+.honest{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.honest{grid-template-columns:1fr}}
+.honest > div{border-radius:var(--r);padding:22px;border:1px solid var(--rule)}
+.honest .real{background:#fffaf0}
+.honest .sim{background:#fbf1dc;border-style:dashed;border-color:#c99c4c}
+.honest h3{font-size:21px;color:var(--navy);margin-bottom:8px}
+.honest ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px;display:flex;flex-direction:column;gap:4px}
+.faq{display:flex;flex-direction:column;border-top:1px solid var(--rule);max-width:820px}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;padding:18px 36px 18px 0;font-family:var(--display);font-size:20px;color:var(--navy);position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:6px;top:14px;font-size:24px;color:var(--gold-d)}
+.faq details[open] summary::after{content:"–"}
+.faq details p{padding:0 0 18px;color:var(--muted);font-size:16px;max-width:62ch}
+
+/* Closing */
+.close{background:radial-gradient(ellipse at 50% 0%,#1c3657,var(--navy) 60%);color:var(--cream);text-align:center}
+.close .in{display:flex;flex-direction:column;align-items:center;gap:16px;padding-block:80px 60px}
+.close h2{font-size:clamp(30px,4.6vw,46px);color:#fbf4e3}
+.close p{color:#c4ba9f;max-width:32em}
+.foot{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:40px;padding-top:30px;border-top:1px solid rgba(212,178,106,.25);width:100%}
+.foot .wordmark{font-size:22px;color:var(--cream)}
+.foot .sealed{color:var(--gold);letter-spacing:.5em;font-size:11px}
+.foot .tag{color:var(--gold);letter-spacing:.26em;font-size:11px;text-transform:uppercase}
+.foot small{color:#8f8670;font-size:13px}
+
+@media (prefers-reduced-motion:no-preference){
+  .phone{animation:floaty 6s ease-in-out infinite}
+  @keyframes floaty{50%{transform:translateY(-8px)}}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="in">
+    <span class="wordmark" aria-label="Envelora">EN<svg class="vm" viewBox="0 0 44 50" aria-hidden="true"><path d="M4 6 L22 42" stroke-width="2"/><path d="M40 4 L22 42" stroke-width="3.2"/><circle cx="22" cy="45.5" r="3.6"/></svg>ELORA</span>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#price">Price</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn gold" href="app.html">Open the app</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="in">
+      <div>
+        <div class="lock">
+          <span class="wordmark" aria-hidden="true">EN<svg class="vm" viewBox="0 0 44 50"><path d="M4 6 L22 42" stroke-width="1.6"/><path d="M40 4 L22 42" stroke-width="2.8"/><circle cx="22" cy="45.5" r="3.4"/></svg>ELORA</span>
+          <span class="sealed">SEALED</span>
+          <span class="rule"></span>
+        </div>
+        <h1 id="hero-h">Plan the trip together.<br>Travel as a Clan.</h1>
+        <p class="lead">Envelora is a trip planner for friends and family travelling across India. Write the day-by-day plan, pack together and split every rupee fairly, then seal it into a private group with chat, alerts and games for the road.</p>
+        <div class="ctas">
+          <a class="btn gold" href="app.html">Open the app</a>
+          <a class="btn line" href="#how">See how it works</a>
+        </div>
+        <div class="facts"><span><b>Free</b> to plan</span><span>Clan from <b>₹39</b> per person per day</span><span>Guides for <b>8</b> destinations</span></div>
+      </div>
+
+      <div class="phone-wrap" aria-label="App screen: clan chat with the Today card">
+        <div class="phone">
+          <div class="screen">
+            <div class="s-head"><span class="gp">🏖️</span><div><b>Goa Clan</b><small>5 members · Priya, Rahul, Neha…</small></div></div>
+            <div class="s-chips"><span>☀ Today</span><span>Live location</span><span>Photos</span><span>Games</span><span>Expenses</span></div>
+            <div class="s-body">
+              <div class="today">
+                <div class="th"><b>Today</b><span>Day 2 of 4 · Sat, 13 Dec</span></div>
+                <div class="tb">
+                  <div class="nx"><span class="l">Next up · 4:30 PM</span><b>Sunset cruise, Mandovi</b>
+                    <div class="g"><div><i>Pickup</i>Hotel lobby · 4:00</div><div><i>Travel</i>Cab</div><div><i>Driver</i>Ramesh</div><div><i>Vehicle</i>White Innova · GA 03 AB 1234</div></div>
+                  </div>
+                  <div class="owe"><span>You owe Priya</span><b>₹700</b></div>
+                </div>
+              </div>
+              <div class="m sys">Rahul joined using this group's invite link.</div>
+              <div class="m"><i>Neha</i>Cab is 10 min away 🚕</div>
+              <div class="m me">Coming down now!</div>
+            </div>
+            <div class="s-comp"><span>Write a message…</span><em></em></div>
+          </div>
+        </div>
+        <div class="phone-2" aria-hidden="true">
+          <div class="mini"><div class="screen" style="background:var(--navy);color:var(--cream);text-align:center">
+            <div class="seal-big"><svg class="vm" viewBox="0 0 44 50"><path d="M4 6 L22 42" stroke-width="3"/><path d="M40 4 L22 42" stroke-width="4.6"/><circle cx="22" cy="45.5" r="4.4"/></svg></div>
+            <div style="font-family:var(--display);font-size:13px">Your clan is sealed!</div>
+            <div style="color:#bdb39a;font-size:9px;margin-top:4px">Goa Clan · 5 spots · ₹780</div>
+            <div style="margin:12px 10px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;font-size:8px">
+              <span style="background:rgba(255,255,255,.08);border-radius:7px;padding:5px 2px">WhatsApp</span><span style="background:rgba(255,255,255,.08);border-radius:7px;padding:5px 2px">SMS</span><span style="background:rgba(255,255,255,.08);border-radius:7px;padding:5px 2px">Copy link</span>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="blk" id="how" aria-labelledby="how-h">
+    <div class="in">
+      <div class="head"><span class="eyebrow">How it works</span><h2 id="how-h">From a letter to a shared journey in three steps</h2>
+        <p>You can plan without an account. You only need to log in when you're ready to bring everyone together.</p></div>
+      <div class="steps">
+        <article class="step"><span class="no">STEP 1</span><h3>Write the letter</h3>
+          <p>Pick a destination and your dates, add each traveller, then fill in every day: times, places, cab pickups, driver details, hotel check-in and the night halt.</p>
+          <span class="tag">Day plan · Packing · <b>Place guide</b></span></article>
+        <article class="step"><span class="no">STEP 2</span><h3>Seal it into a Clan</h3>
+          <p>Pay once for the whole group and get a private invite link. Share it on WhatsApp, SMS or email; each person joins with their phone number or email.</p>
+          <span class="tag"><b>₹39</b> × travellers × days</span></article>
+        <article class="step"><span class="no">STEP 3</span><h3>Travel together</h3>
+          <p>The Clan chat pins a Today card at the top with what's next, who's driving and what you owe. Set reminders, alert everyone, share photos and play games on the way.</p>
+          <span class="tag">Chat · Alerts · <b>6 games</b></span></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="blk" id="features" aria-labelledby="feat-h" style="padding-top:0">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Inside the app</span><h2 id="feat-h">Everything the group needs, in one envelope</h2></div>
+      <div class="feats">
+        <article class="feat"><div class="vis"><div class="v-day">
+            <div><b>9:00</b>Baga Beach</div><div class="on"><b>12:30</b>Fort Aguada · cab at 12:10</div><div><b>4:30</b>Mandovi cruise</div></div></div>
+          <div class="txt"><h3>Day-by-day plan</h3><p>Every activity holds the time, place, travel mode, pickup point, driver's name and phone, vehicle number and colour, and hotel times. Reorder with a tap.</p></div></article>
+        <article class="feat"><div class="vis"><div class="v-pack"><div class="bar2"><i></i></div>
+            <span class="d">Aadhaar / ID proof</span><span class="d">Power bank</span><span>Sunscreen SPF 50</span></div></div>
+          <div class="txt"><h3>Packing checklist</h3><p>A ready list for every trip, plus items for the place you're going: woollens for Manali, swimwear for Goa. Add your own and tick them off.</p></div></article>
+        <article class="feat"><div class="vis"><div class="v-exp">
+            <div>Neha owes Priya <b>₹700</b></div><div>Arjun owes Rahul <b>₹300</b></div><div>Total spent <b>₹3,500</b></div></div></div>
+          <div class="txt"><h3>Fair expense splits</h3><p>Log who paid and who shared. Envelora splits it to the paisa and shows the fewest payments that settle everyone up.</p></div></article>
+        <article class="feat"><div class="vis"><div class="v-chat">
+            <span class="sys">Priya promoted Rahul to co-leader.</span><span>Who's got the tickets?</span><span class="me">In my email 👍</span></div></div>
+          <div class="txt"><h3>Clan chat</h3><p>A private group for the trip, with the Today card pinned on top and shortcuts to live location, photos, games, expenses and alerts.</p></div></article>
+        <article class="feat"><div class="vis"><div class="v-alert">
+            <div>🔔 Cab is at the lobby, come down in 5!<small>Clan alert · Priya</small></div><div>⏰ Sunset cruise in 30 min<small>Your reminder</small></div></div></div>
+          <div class="txt"><h3>Reminders &amp; alerts</h3><p>Set "remind me" on any activity, alert the whole clan at once, and add plans to Google Calendar.</p></div></article>
+        <article class="feat"><div class="vis"><div class="v-games">
+            <span><i>🎈</i>Emoji Bounce</span><span><i>🧭</i>Arrow Puzzle</span><span><i>🍾</i>Truth or Dare</span><span><i>🎤</i>Antakshari</span><span><i>🎭</i>Charades</span><span><i>🃏</i>Postmark Cards</span></div></div>
+          <div class="txt"><h3>Games for the road</h3><p>Six games to play together on long drives, with scores you can post straight to the clan chat.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICE -->
+  <section class="blk price" id="price" aria-labelledby="price-h">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Price</span><h2 id="price-h">Pay once for the whole clan</h2>
+        <p>Planning is free. A Clan costs ₹39 per traveller for each day of the trip. Try your own group:</p></div>
+      <div class="calc">
+        <div class="ctl">
+          <div><label for="cTrav">Travellers</label>
+            <div class="stepper"><button type="button" data-t="trav" data-d="-1" aria-label="Fewer travellers">−</button><output id="cTrav" aria-live="polite">5</output><button type="button" data-t="trav" data-d="1" aria-label="More travellers">+</button></div></div>
+          <div><label for="cDays">Trip days</label>
+            <div class="stepper"><button type="button" data-t="days" data-d="-1" aria-label="Fewer days">−</button><output id="cDays" aria-live="polite">4</output><button type="button" data-t="days" data-d="1" aria-label="More days">+</button></div></div>
+        </div>
+        <div class="ticket" aria-live="polite">
+          <div class="tt"><small>CLAN PASS</small><h3>Your group</h3></div>
+          <div class="ln"><span>Travellers</span><b id="tTrav">5</b></div>
+          <div class="ln"><span>Days</span><b id="tDays">4</b></div>
+          <div class="ln"><span>Per person, per day</span><b>₹39</b></div>
+          <div class="tot"><span>Total</span><b id="tTot">₹780</b></div>
+          <div class="fm" id="tFm">5 × 4 × ₹39 = ₹780 · about ₹156 each</div>
+        </div>
+      </div>
+      <div class="notes"><span>Need more room later? <b>+1 or +2 spots</b> at ₹39 × trip days each.</span><span>The leader and co-leaders can add spots.</span></div>
+    </div>
+  </section>
+
+  <!-- PLACE GUIDES -->
+  <section class="blk" aria-labelledby="guide-h">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Place guides</span><h2 id="guide-h">Postcards from eight favourite places</h2>
+        <p>Each guide lists attractions, famous food, restaurants, shopping, activities and local tips, and you can add any attraction straight to your day plan. Search also covers about 1,400 other Indian cities, towns and getaways.</p></div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section class="blk" aria-labelledby="roles-h" style="padding-top:0">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Clan roles</span><h2 id="roles-h">Everyone has a place in the clan</h2>
+        <p>Important changes, like removing someone or handing over leadership, need a second tap to confirm.</p></div>
+      <div class="roles">
+        <article class="role"><span class="rb l">Leader</span><h3>Runs the trip</h3><ul><li>Edits the itinerary</li><li>Appoints up to two co-leaders</li><li>Can hand over leadership</li><li>Invites and removes members</li></ul></article>
+        <article class="role"><span class="rb c">Co-leader</span><h3>Helps organise</h3><ul><li>Invites new members</li><li>Removes regular members</li><li>Changes the group photo, name and description</li><li>Buys extra spots</li></ul></article>
+        <article class="role"><span class="rb m">Member</span><h3>Comes along</h3><ul><li>Views the full trip plan</li><li>Chats and plays games</li><li>Adds and views expenses</li><li>Sets personal reminders</li></ul></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HONEST NOTE -->
+  <section class="blk" aria-labelledby="hon-h" style="padding-top:0">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Early preview</span><h2 id="hon-h">What works today</h2>
+        <p>This is an early version of the app. Here is exactly what is live and what is still a preview.</p></div>
+      <div class="honest">
+        <div class="real"><h3>Works now</h3><ul><li>Trip planning, packing and expense splits</li><li>Clan roles, invite links and group chat on one device</li><li>All six games</li><li>Reminders while the app is open, plus calendar links</li></ul></div>
+        <div class="sim"><h3>Preview only</h3><ul><li>Login uses a demo code (246810); no SMS is sent</li><li>Payments are simulated; no money is charged</li><li>Live location shows sample pins, not real GPS</li><li>Chat and photos stay on this device until the online service launches</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="blk" id="faq" aria-labelledby="faq-h" style="padding-top:0">
+    <div class="in">
+      <div class="head"><span class="eyebrow">Questions</span><h2 id="faq-h">Good to know</h2></div>
+      <div class="faq">
+        <details><summary>Do I need an account to plan?</summary><p>No. You can plan the whole trip as a guest. When you log in, the trip you drafted moves into your account automatically.</p></details>
+        <details><summary>How is the Clan price worked out?</summary><p>₹39 × number of travellers × number of trip days. Five friends on a four-day trip pay ₹780 in total, about ₹156 each.</p></details>
+        <details><summary>What if more people want to join?</summary><p>When the clan is full, new people see "This clan is full. Ask your clan leader to increase capacity." The leader or a co-leader can add one or two spots at a time.</p></details>
+        <details><summary>Who can change the itinerary?</summary><p>Only the clan leader edits the plan. Everyone else can see it, and anyone can add expenses.</p></details>
+        <details><summary>Which places have guides?</summary><p>Goa, Manali, Jaipur, Udaipur, Rishikesh, Varanasi, Ooty and Shimla. You can still plan a trip anywhere in India.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="close" aria-labelledby="close-h">
+    <div class="in">
+      <span class="eyebrow" style="color:var(--gold)">Your next journey</span>
+      <h2 id="close-h">Open the envelope.<br>Begin the journey.</h2>
+      <p>Start planning in a minute. Bring the clan in when you're ready.</p>
+      <a class="btn gold" href="app.html">Open the app</a>
+      <div class="foot">
+        <span class="wordmark" aria-label="Envelora">EN<svg class="vm" viewBox="0 0 44 50" aria-hidden="true"><path d="M4 6 L22 42" stroke-width="1.6"/><path d="M40 4 L22 42" stroke-width="2.8"/><circle cx="22" cy="45.5" r="3.4"/></svg>ELORA</span>
+        <span class="sealed">SEALED</span>
+        <span class="tag">Open the envelope · Begin the journey</span>
+        <small>Made in India for group trips across India.</small>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* Price calculator: ₹39 × travellers × days */
+(function(){
+  const st = { trav: 5, days: 4 }, lim = { trav: [1, 30], days: [1, 30] };
+  const inr = n => '₹' + n.toLocaleString('en-IN');
+  const draw = () => {
+    const tot = 39 * st.trav * st.days;
+    document.getElementById('cTrav').textContent = st.trav;
+    document.getElementById('cDays').textContent = st.days;
+    document.getElementById('tTrav').textContent = st.trav;
+    document.getElementById('tDays').textContent = st.days;
+    document.getElementById('tTot').textContent = inr(tot);
+    document.getElementById('tFm').textContent = `${st.trav} × ${st.days} × ₹39 = ${inr(tot)} · about ${inr(Math.round(tot / st.trav))} each`;
+  };
+  document.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.t; st[k] = Math.min(lim[k][1], Math.max(lim[k][0], st[k] + +b.dataset.d)); draw();
+  }));
+  draw();
+})();
+
+/* Destination postcards */
+(function(){
+  const C = [
+    ['Goa','Goa','🏖️','linear-gradient(135deg,#0f6e8c,#e2a35b)','Beaches, forts and Portuguese lanes'],
+    ['Manali','Himachal Pradesh','🏔️','linear-gradient(135deg,#2f5d7c,#9fc3d6)','Snow peaks, Solang and Old Manali cafés'],
+    ['Jaipur','Rajasthan','🏰','linear-gradient(135deg,#b4523c,#e8a96b)','Amer Fort, Hawa Mahal and bazaars'],
+    ['Udaipur','Rajasthan','🛶','linear-gradient(135deg,#3a6b8f,#d9b27a)','Lake Pichola and City Palace'],
+    ['Rishikesh','Uttarakhand','🧘','linear-gradient(135deg,#1d6b6b,#9ccfb0)','Rafting, yoga and Ganga aarti'],
+    ['Varanasi','Uttar Pradesh','🪔','linear-gradient(135deg,#7a3b2e,#e3a857)','Ghats, boat rides and kachori sabzi'],
+    ['Ooty','Tamil Nadu','🚂','linear-gradient(135deg,#2e6b4a,#b7d38f)','Toy train, tea estates and Doddabetta'],
+    ['Shimla','Himachal Pradesh','🌲','linear-gradient(135deg,#3b4f7a,#c6c9d9)','The Ridge, Mall Road and Kufri']
+  ];
+  document.getElementById('cards').innerHTML = C.map(([n, s, e, g, d]) =>
+    `<article class="pc"><div class="ph" style="background:${g}"><em aria-hidden="true">${e}</em><small>${s}</small><b>${n}</b></div><p>${d}</p></article>`).join('');
+})();
+</script>
+</body>
+</html>
