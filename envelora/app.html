@@ -1602,6 +1602,42 @@ function autoGuide(dest) {
 }
 
 /* =============================================================================
+   NEARBY — famous places within 30 km of the destination, live from
+   OpenStreetMap (Overpass API, free, no key). Location from Open-Meteo
+   geocoding. Cached per destination for 7 days.
+   ============================================================================= */
+const Nearby = {
+  KEY: 'envelora.v1.nearby',
+  TYPES: [['historic', /^(fort|castle)$/, '🏰', 'Fort', 30], ['historic', /^palace$/, '🏯', 'Palace', 30], ['natural', /^beach$/, '🏖️', 'Beach', 30],
+    ['natural', /^waterfall$/, '💧', 'Waterfall', 30], ['natural', /^peak$/, '⛰️', 'Peak', 10], ['natural', /^cave_entrance$/, '🕳️', 'Cave', 15],
+    ['water', /^lake$/, '🏞️', 'Lake', 15], ['historic', /^(monument|memorial|ruins|archaeological_site)$/, '🏛️', 'Heritage', 20],
+    ['amenity', /^place_of_worship$/, '🛕', 'Temple, church or shrine', 10], ['tourism', /^museum$/, '🖼️', 'Museum', 15], ['tourism', /^viewpoint$/, '🌄', 'Viewpoint', 12],
+    ['leisure', /^nature_reserve$/, '🌳', 'Nature reserve', 15], ['tourism', /^(zoo|theme_park)$/, '🎡', 'Park', 10], ['tourism', /^attraction$/, '📍', 'Attraction', 12]],
+  cache() { return Store.get(this.KEY) || {}; },
+  async find(dest) {
+    const name = String(dest).replace(/\s*\(.*\)$/, '').split(',')[0].trim(), key = name.toLowerCase();
+    const c = this.cache(); if (c[key] && Date.now() - c[key].at < 7 * 864e5) return c[key].list;
+    const g = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&countryCode=IN&name=' + encodeURIComponent(name))).json();
+    if (!g.results || !g.results.length) throw new Error('nogeo');
+    const { latitude: la, longitude: lo } = g.results[0], A = `(around:30000,${la},${lo})["name"]`;
+    const q = `[out:json][timeout:25];(nwr${A}["historic"~"^(fort|castle|palace|monument|ruins|archaeological_site)$"];nwr${A}["natural"~"^(beach|waterfall|peak|cave_entrance)$"];nwr${A}["water"="lake"]["wikidata"];nwr${A}["tourism"~"^(attraction|viewpoint|museum|zoo|theme_park)$"];nwr${A}["leisure"="nature_reserve"];nwr${A}["amenity"="place_of_worship"]["wikidata"];);out center tags 400;`;
+    const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q) });
+    const j = await r.json(), seen = new Set();
+    const list = (j.elements || []).map(e => {
+      const t = e.tags || {}, nm = t['name:en'] || t.name, p = e.center || e;
+      const ty = this.TYPES.find(([k, re]) => re.test(t[k] || ''));
+      if (!ty || !nm || !p.lat) return null;
+      const km = this.dist(la, lo, p.lat, p.lon), fame = (t.wikidata ? 40 : 0) + (t.wikipedia ? 30 : 0) + (t.tourism ? 8 : 0);
+      return { n: nm, ic: ty[2], type: ty[3], km: Math.round(km * 10) / 10, score: fame + ty[4] - km };
+    }).filter(x => x && !seen.has(x.n.toLowerCase()) && seen.add(x.n.toLowerCase()))
+      .sort((a, b) => b.score - a.score).slice(0, 14);
+    c[key] = { at: Date.now(), list }; Store.set(this.KEY, c);
+    return list;
+  },
+  dist(a, b, c, d) { const R = 6371, r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
+};
+
+/* =============================================================================
    STATE OUTLINES — from @svg-maps/india by Victor Cazanave (CC BY 4.0),
    simplified to fit a 48×48 stamp. Ladakh and J&K are split from the combined
    shape; DNH and Daman & Diu are merged. Decorative, not for navigation.
@@ -2272,10 +2308,15 @@ const Planner = {
     host.innerHTML = `
       <div class="guide-hero" style="background:${g.grad}"><span class="big">${g.emoji}</span><p>${Util.esc(g.state)}</p><h2>${Util.esc(g.name)}</h2><p>${Util.esc(g.tagline)}</p></div>
       ${g.maps ? `<div class="card"><h3>${icon('pin')}Open in Google Maps</h3><div class="share-chips"><a class="chip" target="_blank" rel="noopener" href="${g.maps.sights}">📍 Sights</a><a class="chip" target="_blank" rel="noopener" href="${g.maps.food}">🍽️ Restaurants</a><a class="chip" target="_blank" rel="noopener" href="${g.maps.stay}">🏨 Hotels</a></div><p class="hint" style="margin:8px 0 0">Quick guide based on ${Util.esc(g.state === 'India' ? g.name : g.state)}. Check timings and prices locally.</p></div>` : ''}
+      <div class="card guide-sec" id="nearbySec"><h3>${icon('pin')}Famous places within 30 km</h3><p class="hint" style="margin:0">Finding forts, beaches, waterfalls, temples and more near ${Util.esc(g.name)}…</p></div>
       ${sec('attractions', 'Tourist attractions', 'pin')}${sec('food', 'Famous food', 'sun')}${sec('restaurants', 'Restaurants', 'star')}
       ${sec('shopping', 'Shopping', 'bag')}${sec('activities', 'Activities', 'sparkle')}
       <div class="card guide-sec"><h3>${icon('info')}Travel tips</h3><ul>${g.tips.map(x => `<li>${Util.esc(x)}</li>`).join('')}</ul></div>
       <p class="hint" style="text-align:center">State outlines from @svg-maps/india by Victor Cazanave (CC BY 4.0), simplified.</p>`;
+    Nearby.find(t.destination).then(list => {
+      const box = $('#nearbySec', host); if (!box) return;
+      box.innerHTML = `<h3>${icon('pin')}Famous places within 30 km</h3>` + (list.length ? `<ul>${list.map(x => `<li>${ed ? `<button class="btn soft sm add" data-add="${Util.esc(x.n)}" data-note="${Util.esc(x.type + ' · ' + x.km + ' km away')}">${icon('plus', 'sm')}Day ${this.day + 1}</button>` : ''}<b>${x.ic} ${Util.esc(x.n)}</b><br/><span class="hint">${Util.esc(x.type)} · ${x.km} km away</span></li>`).join('')}</ul>` : '<p class="hint" style="margin:0">No well-known places found within 30 km.</p>') + '<p class="hint" style="margin:8px 0 0">Live from OpenStreetMap. Distances are straight-line.</p>';
+    }).catch(() => { const box = $('#nearbySec', host); if (box) box.querySelector('.hint').textContent = 'Could not load nearby places right now (no internet, or blocked in this preview). The list below still works.'; });
     host.onclick = e => {
       const b = e.target.closest('[data-add]'); if (!b) return;
       t.days[this.day].items.push(this.blankAct({ title: b.dataset.add, place: g.name, notes: b.dataset.note }));
