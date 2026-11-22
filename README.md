@@ -1,18 +1,14 @@
 # Envelora
 
-Group trip planning across India: plan a trip, seal it into a private **Clan**, then chat, split expenses and play games together.
+Sealed surprise trips, Open trips and your trip companion, all in one page.
 
-Everything is in one file, `index.html` (HTML, CSS and vanilla JS, no frameworks). Open it in a browser to run it.
+Everything lives in one file, `index.html` (HTML, CSS and vanilla JavaScript). Open it in a browser to run it.
 
-## Demo notes
-- **Demo OTP:** `246810`. No SMS or email is actually sent.
-- **Payments:** preview mode runs a simulated checkout, and nothing is charged. Set `CONFIG.razorpay.keyId` (public key id only) and provide the server endpoints to enable live Razorpay.
-- **Data:** stored in this browser's localStorage under account-scoped keys (`envelora.v1.*`). Every fresh opening starts logged out.
-- **Invites:** links work in the same browser until a backend exists. To try joining, open the link in a new tab.
-- **Live location, photo cloud storage and cross-device realtime chat** are previews and are labelled as such in the UI.
+## What's inside
+- **Sealed:** book a surprise trip from a verified travel agency. The destination stays sealed until the day you leave.
+- **Open:** plan a trip where you choose the destination.
+- **Trip companion:** plan your own trip with a day plan, packing list, expenses, group and place guide. You can then make a clan with a group chat and games.
+- **Agencies and FAQ** sections.
 
-## Integration points
-Search `index.html` for `SUPABASE INTEGRATION POINT` and `RAZORPAY INTEGRATION POINT`. The planned Supabase schema (profiles, trips, trip_days, itinerary_items, clans, clan_members, messages, expenses, expense_splits, packing_items, photos, notifications, payments) is documented in a comment near the top of the script. Payment verification must happen server-side, so never ship the Razorpay secret to the browser.
-
-## Launch mode
-Packaged trips and managed trips are hidden by `body.launch-mode .launch-hidden`. Remove the `launch-mode` class from `<body>` to show them.
+## History
+The earlier single-file Envelora prototype is kept in this repository's git history, at commit `c310408`.
