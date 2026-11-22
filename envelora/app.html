@@ -695,6 +695,8 @@ details.grp[open] summary::after{content:"–"}
 .shield .sh-o{position:absolute;inset:0;background:linear-gradient(160deg,var(--gold-l),var(--gold) 45%,#8a6a2b);clip-path:polygon(50% 0,100% 12%,100% 55%,50% 100%,0 55%,0 12%)}
 .shield .sh-i{position:absolute;inset:7px;clip-path:polygon(50% 0,100% 12%,100% 55%,50% 100%,0 55%,0 12%);background:linear-gradient(160deg,var(--navy-3),var(--navy));display:grid;place-items:center;font-size:3rem;overflow:hidden}
 .shield .sh-i img{width:100%;height:100%;object-fit:cover}
+.vh-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;left:-9999px}
+.shield label.cam{cursor:pointer;display:grid;place-items:center}
 .shield .cam{position:absolute;right:-4px;bottom:16px;z-index:2}
 .cs-hero h2{color:var(--cream);font-size:1.7rem;margin:0 0 4px;position:relative}
 .cs-hero .desc{color:rgba(241,230,204,.75);font-size:.9rem;max-width:44ch;margin:0 auto 14px;position:relative}
@@ -1078,7 +1080,7 @@ details.grp[open] summary::after{content:"–"}
   <div class="sh-body" id="sheetBody"></div>
 </section>
 <div class="toast-wrap" id="toasts" aria-live="polite"></div>
-<input type="file" id="filePick" accept="image/*" hidden />
+<input type="file" id="filePick" accept="image/*" class="vh-file" />
 <script>
 'use strict';
 /* =============================================================================
@@ -3029,7 +3031,7 @@ const ClanSettings = {
     $('#csBody').innerHTML = `
       <div class="cs-hero">
         <div class="shield"><div class="sh-o"></div><div class="sh-i">${c.photo ? `<img src="${c.photo}" alt="Clan photo">` : emoji}</div>
-          ${can('editInfo') ? `<button class="icon-btn dark cam" id="csPhoto" aria-label="Change group photo" style="background:var(--navy)">${icon('camera', 'sm')}</button>` : ''}</div>
+          ${can('editInfo') ? `<label class="icon-btn dark cam" id="csPhoto" for="csPhotoIn" role="button" aria-label="Change group photo" style="background:var(--navy)">${icon('camera', 'sm')}</label><input type="file" id="csPhotoIn" accept="image/*" class="vh-file" />` : ''}</div>
         <h2>${Util.esc(c.name)}</h2>
         <p class="desc">${Util.esc(c.desc)}</p>
         <div class="cs-stats">
@@ -3091,8 +3093,11 @@ const ClanSettings = {
       const fresh = Clans.get(c.id);
       Planner.open({ clanId: c.id, readOnly: !Perm.can(fresh, u.id, 'editTrip') });
     };
-    $('#csPhoto') && ($('#csPhoto').onclick = async () => {
-      const f = await Util.pickImage(); if (!f) return;
+    // The camera icon is a <label> for a real file input, so a tap opens the picker natively
+    // (works in in-app browsers that block scripted clicks on hidden inputs).
+    $('#csPhotoIn') && ($('#csPhotoIn').onchange = async e => {
+      const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+      if (f.type && !/^image\//.test(f.type)) return UI.toast('Please choose a photo.', 'err');
       try {
         const data = await Util.imageToDataUrl(f, 320, .8);
         const cur = Clans.get(c.id); if (!Perm.can(cur, u.id, 'editInfo')) return;
