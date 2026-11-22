@@ -1048,7 +1048,7 @@ details.grp[open] summary::after{content:"–"}
      ===================================================================== -->
 <section class="overlay dark" id="clanSettings" aria-label="Clan settings">
   <div class="ov-head">
-    <button class="icon-btn dark" id="csHome" aria-label="Back to home"></button>
+    <button class="icon-btn dark" id="csHome" aria-label="Back to chat"></button>
     <div class="tt"></div>
   </div>
   <div class="ov-body" id="csBody"></div>
@@ -3154,7 +3154,7 @@ const ClanSettings = {
     this.render();
   }
 };
-$('#csHome').addEventListener('click', () => Nav.home());   // back arrow → straight to home
+$('#csHome').addEventListener('click', () => Nav.back());   // back arrow → previous screen (the clan chat)
 
 /* =============================================================================
    ALERTS — reminders, browser notifications, chime, calendar links
