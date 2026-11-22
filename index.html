@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0D1B2A" />
 <meta name="description" content="Envelora — plan group trips across India with your Clan. Letters, envelopes, postcards and memories." />
-<title>Envelora — Plan Together, Travel as a Clan</title>
+<title>Envelora — Sealed</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230D1B2A'/%3E%3Cpath d='M17 15 L32 46' stroke='%23D4B26A' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M47 13 L32 46' stroke='%23D4B26A' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='49' r='3.6' fill='%23D4B26A'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <!--
   ============================================================================
   ENVELORA — single-file frontend prototype
@@ -42,8 +43,10 @@
   --rose:#c06b63;
   --sage:#6f9278;
 
-  --serif:'Playfair Display', 'Georgia', 'Times New Roman', serif;
-  --sans:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Brand typography from the Envelora logo:
+     Didone serif wordmark (Bodoni Moda) + spaced geometric sans (Jost). */
+  --serif:'Bodoni Moda', 'Didot', 'Bodoni 72', 'Georgia', serif;
+  --sans:'Jost', 'Futura', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --r-sm:10px; --r:16px; --r-lg:24px;
   --shadow:0 10px 30px rgba(13,27,42,.12), 0 2px 6px rgba(13,27,42,.06);
@@ -93,10 +96,11 @@ body.launch-mode .launch-hidden{display:none!important}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:.5em;
   border:1px solid transparent;border-radius:999px;padding:.78em 1.25em;
-  font-weight:600;font-size:.95rem;letter-spacing:.01em;background:var(--navy);color:var(--paper);
+  font-weight:500;font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;background:var(--navy);color:var(--paper);
   transition:transform .15s var(--ease), box-shadow .2s, background .2s, opacity .2s;
-  min-height:44px;white-space:nowrap;text-decoration:none;
+  min-height:44px;white-space:nowrap;text-decoration:none;text-align:center;
 }
+.btn.block{white-space:normal;line-height:1.3}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.45;pointer-events:none}
 .btn.gold{background:linear-gradient(135deg,var(--gold-l),var(--gold) 45%,var(--gold-d));color:var(--navy);box-shadow:0 6px 18px rgba(180,143,69,.35)}
@@ -117,7 +121,7 @@ body.launch-mode .launch-hidden{display:none!important}
 .icon-btn.dark{background:rgba(255,255,255,.07);border-color:rgba(212,178,106,.35);color:var(--cream)}
 .icon-btn.plain{border:none;background:transparent}
 
-label.f{display:block;font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 .35em}
+label.f{display:block;font-size:.74rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.16em;margin:0 0 .35em}
 .field{margin-bottom:14px}
 .input,select.input,textarea.input{
   width:100%;padding:.75em .95em;border-radius:12px;border:1px solid rgba(13,27,42,.18);
@@ -172,7 +176,16 @@ textarea.input{min-height:84px;resize:vertical}
 .progress{height:8px;border-radius:99px;background:rgba(13,27,42,.08);overflow:hidden}
 .progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-d));border-radius:99px;transition:width .4s var(--ease)}
 
-/* Wax seal (re-usable) */
+/* Brand wordmark: EN + gold envelope-flap V (with seal dot) + ELORA */
+.wordmark{display:inline-flex;align-items:flex-start;font-family:var(--serif);font-weight:400;letter-spacing:.3em;line-height:1;white-space:nowrap;margin-right:-.3em}
+.wordmark .vmark{width:.8em;height:.98em;color:var(--gold);margin:.04em .3em 0 0;flex:none;overflow:visible}
+svg.vmark path{fill:none;stroke:currentColor;stroke-linecap:round}
+svg.vmark circle{fill:currentColor}
+.brand-lockup{text-align:center;margin:34px 0 6px;color:var(--navy)}
+.brand-lockup .wordmark{font-size:1.6rem}
+.brand-lockup .brand-sealed,.brand-lockup .brand-tag{color:var(--gold-d)}
+.brand-lockup .brand-rule{background:var(--gold-d);width:180px;margin:1em auto}
+/* Wax seal (re-usable), stamped with the V-flap mark */
 .seal{
   --s:86px;width:var(--s);height:var(--s);border-radius:50%;position:relative;display:grid;place-items:center;
   background:radial-gradient(circle at 34% 30%, #f2dc9f 0%, var(--gold) 38%, #a5802f 78%, #7d5f20 100%);
@@ -180,6 +193,7 @@ textarea.input{min-height:84px;resize:vertical}
   color:#5c4312;font-family:var(--serif);font-weight:700;font-size:calc(var(--s)*.46);
   text-shadow:0 1px 0 rgba(255,235,180,.7), 0 -1px 0 rgba(70,48,8,.5);
 }
+.seal svg.vmark{width:38%;height:44%;color:#5c4312;filter:drop-shadow(0 1px 0 rgba(255,235,180,.7)) drop-shadow(0 -1px 0 rgba(70,48,8,.35));margin-top:6%}
 .seal::before{content:"";position:absolute;inset:9%;border-radius:50%;border:1.5px dashed rgba(92,67,18,.45)}
 .seal.mini{--s:34px;box-shadow:0 0 0 2px rgba(165,128,47,.55), 0 3px 8px rgba(0,0,0,.3), inset 0 -3px 6px rgba(80,55,10,.4)}
 .seal.mini::before{inset:12%;border-width:1px}
@@ -204,7 +218,7 @@ textarea.input{min-height:84px;resize:vertical}
    ========================================================================== */
 .intro{
   position:fixed;inset:0;z-index:100;overflow:hidden;color:var(--cream);
-  background:radial-gradient(ellipse at 50% 40%, #1a3150 0%, var(--navy) 55%, #060e17 100%);
+  background:radial-gradient(ellipse at 50% 42%, #162a44 0%, var(--navy) 50%, #05080d 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
   transition:opacity .7s var(--ease), visibility .7s;
 }
@@ -214,8 +228,10 @@ textarea.input{min-height:84px;resize:vertical}
 .stamps .stamp{opacity:0;animation:stampIn .9s var(--ease) forwards}
 @keyframes stampIn{from{opacity:0;transform:translateY(20px) rotate(var(--r)) scale(.8)}to{opacity:.88;transform:translateY(0) rotate(var(--r)) scale(var(--z,1))}}
 .intro-brand{text-align:center;position:relative;z-index:2;margin-bottom:26px;transition:all .6s var(--ease)}
-.intro-brand h1{color:var(--cream);font-size:clamp(2rem,8vw,3.2rem);letter-spacing:.28em;margin:0;font-weight:600;padding-left:.28em}
-.intro-brand p{color:var(--gold);font-family:var(--serif);font-style:italic;margin:.3em 0 0;font-size:clamp(.95rem,3.6vw,1.1rem)}
+.intro-brand h1{color:var(--cream);font-size:clamp(1.9rem,8.4vw,3.4rem);margin:0}
+.brand-sealed{font-family:var(--sans);color:var(--gold);font-weight:500;letter-spacing:.5em;padding-left:.5em;font-size:clamp(.7rem,2.6vw,.9rem);margin-top:1.1em}
+.brand-rule{width:min(58vw,280px);height:1px;background:var(--gold);opacity:.8;margin:1.3em auto}
+.brand-tag{font-family:var(--sans);color:var(--gold);font-weight:400;letter-spacing:.28em;padding-left:.28em;text-transform:uppercase;font-size:clamp(.56rem,2.3vw,.78rem);margin:0}
 .intro.opened .intro-brand{transform:translateY(-10px);opacity:.0}
 .stamps{transition:opacity .8s}
 .intro.revealed .stamps{opacity:.28}
@@ -249,7 +265,7 @@ textarea.input{min-height:84px;resize:vertical}
 .env-seal-btn .seal{animation:sealGlow 2.4s ease-in-out infinite}
 @keyframes sealGlow{50%{box-shadow:0 0 0 4px rgba(165,128,47,.55), 0 0 0 12px rgba(212,178,106,.18), 0 8px 18px rgba(0,0,0,.45), inset 0 -6px 12px rgba(80,55,10,.45), inset 0 4px 10px rgba(255,240,200,.5)}}
 .env-seal-btn:hover{transform:translate(-50%,-50%) scale(1.05)}
-.tap-hint{margin-top:30px;font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(241,230,204,.7);position:relative;z-index:2;animation:blink 2s infinite}
+.tap-hint{margin-top:30px;font-size:.78rem;letter-spacing:.32em;font-weight:400;text-transform:uppercase;color:rgba(241,230,204,.7);position:relative;z-index:2;animation:blink 2s infinite}
 @keyframes blink{50%{opacity:.35}}
 /* opening sequence */
 .intro.opened .env-seal-btn{transform:translate(-50%,-50%) scale(.2) rotate(40deg);opacity:0;pointer-events:none}
@@ -305,7 +321,7 @@ textarea.input{min-height:84px;resize:vertical}
   background:rgba(245,239,227,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(212,178,106,.35);
 }
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;background:none;border:none;padding:0}
-.logo b{font-family:var(--serif);font-size:1.25rem;letter-spacing:.22em;color:var(--navy);font-weight:700}
+.logo .wordmark{font-size:1.22rem;color:var(--navy)}
 .acct-btn{border:1px solid rgba(212,178,106,.6);background:#fff;border-radius:999px;padding:3px 10px 3px 3px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:.85rem;max-width:160px}
 .acct-btn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .menu{
@@ -331,7 +347,7 @@ main.home{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px calc
 .hero-letter .salute{font-family:var(--serif);font-style:italic;color:var(--gold-d);font-size:1.05rem}
 .hero-letter h1{font-size:clamp(1.8rem,7vw,2.6rem);margin:.2em 0 .35em}
 .hero-letter p{color:#4a4a44;max-width:44ch}
-.hero-letter .pm{position:absolute;right:18px;top:22px;width:84px;height:84px;border-radius:50%;border:2px solid rgba(13,27,42,.28);display:grid;place-items:center;text-align:center;font-size:.55rem;letter-spacing:.14em;color:rgba(13,27,42,.45);font-weight:700;transform:rotate(-14deg)}
+.hero-letter .pm{position:absolute;right:18px;top:22px;width:84px;height:84px;border-radius:50%;border:2px solid rgba(13,27,42,.28);display:grid;place-items:center;text-align:center;font-size:.55rem;letter-spacing:.18em;color:rgba(13,27,42,.45);font-weight:500;transform:rotate(-14deg)}
 .hero-letter .pm::after{content:"";position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(13,27,42,.2)}
 .cta-wrap{margin-top:22px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .section-t{display:flex;align-items:center;justify-content:space-between;margin:28px 2px 12px}
@@ -714,6 +730,7 @@ details.grp[open] summary::after{content:"–"}
 .pcard .in .c1,.pcard .in .c2{position:absolute;font-size:.62rem;font-family:var(--sans)}
 .pcard .in .c1{left:4px;top:2px}.pcard .in .c2{right:4px;bottom:2px;transform:rotate(180deg)}
 .pcard .in .pm{position:absolute;inset:auto;bottom:16px;font-size:.45rem;letter-spacing:.15em;opacity:.8;font-family:var(--sans)}
+.pcard.back .in svg.vmark{width:46%;height:46%;color:var(--gold)}
 .pcard.back .in{background:repeating-linear-gradient(45deg,var(--navy) 0 6px,var(--navy-3) 6px 12px);border-color:var(--gold)}
 .pcard.wild .in{background:conic-gradient(var(--navy-3) 0 25%,var(--gold-d) 0 50%,var(--rose) 0 75%,var(--sage) 0)}
 .pcard.playable{transform:translateY(-10px)}
@@ -758,8 +775,10 @@ details.grp[open] summary::after{content:"–"}
 <section id="intro" class="intro" aria-label="Welcome to Envelora">
   <div class="stamps" id="stamps" aria-hidden="true"></div>
   <div class="intro-brand">
-    <h1>ENVELORA</h1>
-    <p>Plan together. Travel as a Clan.</p>
+    <h1 aria-label="Envelora"><span class="wordmark" data-brand></span></h1>
+    <div class="brand-sealed">SEALED</div>
+    <div class="brand-rule"></div>
+    <p class="brand-tag">Open the envelope · Begin the journey</p>
   </div>
   <div class="env-stage" id="envStage">
     <div class="envelope">
@@ -772,7 +791,7 @@ details.grp[open] summary::after{content:"–"}
       <div class="env-pocket"></div>
       <div class="env-flap"></div>
       <button class="env-seal-btn" id="sealBtn" aria-label="Break the wax seal to open">
-        <span class="seal">E</span>
+        <span class="seal" data-vmark></span>
       </button>
     </div>
   </div>
@@ -786,7 +805,7 @@ details.grp[open] summary::after{content:"–"}
 <div id="app" class="app" hidden>
   <header class="topbar">
     <button class="logo" id="logoBtn" aria-label="Envelora home">
-      <span class="seal mini">E</span><b>ENVELORA</b>
+      <span class="wordmark" data-brand></span>
     </button>
     <button class="icon-btn" id="clanBtn" aria-label="Open my clan" hidden></button>
     <button class="acct-btn" id="acctBtn" aria-haspopup="menu" aria-expanded="false"></button>
@@ -796,7 +815,7 @@ details.grp[open] summary::after{content:"–"}
   <main class="home" id="home">
     <article class="hero-letter">
       <div class="air t"></div>
-      <div class="pm" aria-hidden="true">ENVELORA<br/>POST · INDIA</div>
+      <div class="pm" aria-hidden="true">ENVELORA<br/>· SEALED ·</div>
       <div class="salute">Dear traveller,</div>
       <h1>Every great journey<br/>begins with a letter.</h1>
       <p>Write your itinerary, pack together, split every rupee fairly — then seal it into a private <b>Clan</b> where friends and family plan, chat and play all the way.</p>
@@ -826,6 +845,11 @@ details.grp[open] summary::after{content:"–"}
     </section>
     <!-- ========================================================================= -->
 
+    <div class="brand-lockup" aria-label="Envelora. Sealed. Open the envelope, begin the journey.">
+      <span class="wordmark" data-brand></span>
+      <div class="brand-sealed">SEALED</div><div class="brand-rule"></div>
+      <p class="brand-tag">Open the envelope · Begin the journey</p>
+    </div>
     <p class="foot-note">Prototype build · OTP, payments, GPS & realtime chat are <b>simulated</b> and clearly labelled.<br/>Data is stored only in this browser (localStorage).</p>
   </main>
 </div>
@@ -1092,6 +1116,13 @@ const ICON_PATHS = {
   restart: '<path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8"/><path d="M3 3v5h5"/>',
   door: '<path d="M14 3H6v18h8"/><path d="M14 3l6 2v16l-6-2zM10 12h.01"/>',
   arrowR: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+};
+/* BRAND: the logo's envelope-flap "V" with its seal dot, and the full wordmark. */
+const Brand = {
+  V: '<svg class="vmark" viewBox="0 0 44 50" aria-hidden="true"><path d="M4 6 L22 42" stroke-width="1.5"/><path d="M40 4 L22 42" stroke-width="2.6"/><circle cx="22" cy="45.5" r="3.4"/></svg>',
+  wordmark() { return 'EN' + this.V + 'ELORA'; },
+  seal(size, mini) { return `<span class="seal${mini ? ' mini' : ''}"${size ? ` style="--s:${size}px"` : ''}>${this.V}</span>`; },
+  mount(root = document) { $$('[data-brand]', root).forEach(e => e.innerHTML = this.wordmark()); $$('[data-vmark]', root).forEach(e => e.innerHTML = this.V); }
 };
 function icon(n, cls = '') { return `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[n] || ''}</svg>`; }
 
@@ -2112,7 +2143,7 @@ const Payments = {
       UI.sheet('Checkout · Preview mode', `
         <div class="notice">${icon('info', 'sm')}<span><b>SIMULATED PAYMENT.</b> No Razorpay key is configured, so no money will be charged and this is <u>not</u> a real transaction.</span></div>
         <div class="rzp">
-          <div class="rz-h"><span class="seal mini">E</span><div><b>Envelora</b><br/><small style="opacity:.75">${Util.esc(title)}</small></div><b style="margin-left:auto;font-size:1.3rem">${Util.inr(amount)}</b></div>
+          <div class="rz-h">${Brand.seal(0, true)}<div><b>Envelora</b><br/><small style="opacity:.75">${Util.esc(title)}</small></div><b style="margin-left:auto;font-size:1.3rem">${Util.inr(amount)}</b></div>
           <div style="padding:14px">
             <label class="f">Payment method (preview)</label>
             <div class="pay-methods">${['UPI', 'Debit / Credit card', 'Netbanking', 'Wallet'].map((m, i) => `<button type="button" class="pay-m ${i === 0 ? 'on' : ''}">${icon(i === 0 ? 'phone' : 'wallet', 'sm')}${m}</button>`).join('')}</div>
@@ -2312,7 +2343,7 @@ const ClanPay = {
   },
   renderSuccess(c, res) {
     $('#payBody').innerHTML = `<div class="card paper tab-pane">
-      <div class="success-burst"><span class="seal" style="--s:96px">E</span><h2>Your clan is sealed!</h2>
+      <div class="success-burst">${Brand.seal(96)}<h2>Your clan is sealed!</h2>
       <p class="hint">${Util.esc(c.name)} · capacity ${c.capacity} · you are the leader</p>
       ${res.mode === 'simulated' ? `<span class="badge sim">Simulated payment · ${Util.inr(res.amount)} · not charged</span>` : `<span class="badge live">Payment verified · ${Util.inr(res.amount)}</span>`}</div>
       <hr class="gold-rule"/>
@@ -3202,7 +3233,7 @@ const GAME_IMPL = {
       const mine = hands[0], my = turn === 0 && !over;
       api.area.innerHTML = `<div class="g-panel pc-table">
         <div class="opp-row">${names.slice(1).map((n, i) => `<div class="opp ${turn === i + 1 ? 'turn' : ''}"><b>${hands[i + 1].length}</b>${Util.esc(n)}${hands[i + 1].length === 1 ? '<br/><span style="color:var(--gold)">LAST STAMP!</span>' : ''}</div>`).join('')}</div>
-        <div class="pile-row"><button class="pcard back" id="pcDraw" aria-label="Draw a card" ${my && !drew ? '' : 'disabled'}><span class="in"><span class="v" style="font-size:1rem">E</span></span></button>${cardHtml(top)}</div>
+        <div class="pile-row"><button class="pcard back" id="pcDraw" aria-label="Draw a card" ${my && !drew ? '' : 'disabled'}><span class="in">${Brand.V}</span></button>${cardHtml(top)}</div>
         <div class="g-status" style="font-size:.98rem">Colour: <span class="cur-color" style="background:${col(color).c}"></span>${col(color).n} · ${dir === 1 ? '↻' : '↺'}<br/><span id="pcMsg">${Util.esc(msg)}</span></div>
         <div id="pcPick"></div>
         <div class="hand" id="pcHand">${mine.map(cd => cardHtml(cd, my && playable(cd) ? 'playable' : my ? 'dim' : '')).join('')}</div>
@@ -3386,8 +3417,9 @@ const Intro = {
     const arts = Object.keys(STAMP_ART), places = ['GOA', 'MANALI', 'JAIPUR', 'UDAIPUR', 'RISHIKESH', 'VARANASI', 'OOTY', 'SHIMLA', 'KERALA', 'LADAKH'];
     const tints = ['#F1E6CC', '#F5EFE3', '#e7d3a8', '#efdcc0'];
     const small = innerWidth < 600;
+    // Phones: keep stamps in the corners so they never sit behind the logo, envelope or hint.
+    if (small) spots.splice(0, spots.length, [3, 3, -14], [70, 2, 12], [2, 85, 9], [74, 86, -10], [38, 91, -6]);
     $('#stamps').innerHTML = spots.map(([x, y, r], i) => {
-      if (small && i > 6) return '';
       return `<div class="stamp" style="left:${x}%;top:${y}%;--r:${r}deg;--z:${small ? .72 : .95};--sc:${tints[i % 4]};animation-delay:${.15 + i * .12}s"><div class="st-in"><span class="st-t">${places[i]}</span><div class="st-ic">${STAMP_ART[arts[i % arts.length]]}</div><span class="st-v">₹${[5, 10, 15, 20, 25][i % 5]}</span></div></div>`;
     }).join('');
   },
@@ -3400,7 +3432,7 @@ const Intro = {
   showAuth() {
     const host = $('#introAuth'); host.innerHTML = '<div class="glass" id="introGlass"></div>';
     AuthUI.render($('#introGlass'), {
-      title: 'Welcome to Envelora', sub: 'Log in with a one-time code to plan with your Clan',
+      title: 'Welcome to Envelora', sub: 'Open the envelope · Begin the journey',
       onDone: r => { App.onAuthChange(r); this.finish(); },
       onSkip: () => this.finish()
     });
@@ -3417,6 +3449,7 @@ $('#sealBtn').addEventListener('click', () => Intro.open());
    BOOT
    ============================================================================= */
 (function boot() {
+  Brand.mount();
   $$('[data-nav-back]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = b.closest('.sheet') ? icon('close') : icon('back'); });
   Invite.parse();
   Intro.stamps();
