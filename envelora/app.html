@@ -791,36 +791,6 @@ details.grp[open] summary::after{content:"–"}
 .ld-die.ready{opacity:1;animation:ldPulse 1s ease-in-out infinite}.ld-die.spin{animation:ldSpin .42s linear}
 @keyframes ldSpin{to{transform:rotate(360deg)}}
 #ldMsg{flex:1;max-width:260px;font-size:.95rem}
-.mu-now{display:flex;gap:14px;align-items:center;margin-bottom:10px}
-.mu-art{width:64px;height:64px;flex:none;border-radius:14px;display:grid;place-items:center;font-size:30px;color:var(--gold);background:linear-gradient(140deg,var(--navy),var(--navy-3));box-shadow:var(--shadow)}
-.mu-info{min-width:0;display:flex;flex-direction:column}.mu-info b{font-family:var(--serif);font-weight:400;font-size:1.15rem;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mu-info span{font-size:.82rem;color:var(--muted)}
-.mu-seek{width:100%;accent-color:var(--gold-d,#a5802f);margin:4px 0 0}
-.mu-time{font-size:.75rem;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.mu-ctrl{display:flex;justify-content:center;align-items:center;gap:12px;margin:6px 0 10px}
-.mu-ctrl button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card,#fff);font-size:18px;cursor:pointer;color:var(--navy);display:grid;place-items:center;padding:0}
-.mu-ctrl button.big{width:64px;height:64px;font-size:24px;background:linear-gradient(140deg,var(--gold-l,#e6cd8e),var(--gold));border-color:var(--gold);color:var(--navy)}
-.mu-ctrl button.on{background:var(--navy);border-color:var(--navy)}
-.mu-note{font-size:.8rem;margin:0 0 10px}
-.mu-add{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.mu-link summary{cursor:pointer;font-size:.88rem;color:var(--navy);padding:6px 0;display:flex;gap:6px;align-items:center}
-.mu-link form{display:flex;flex-direction:column;gap:8px;margin-top:6px}
-.mu-h{margin:6px 0}
-.mu-list{list-style:none;margin:0 0 10px;padding:0}
-.mu-item{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px dashed var(--line);cursor:pointer;border-radius:10px}
-.mu-item.cur{background:rgba(212,178,106,.18)}.mu-item.cur .mu-n{color:var(--gold-d,#a5802f)}
-.mu-item.away{opacity:.6}
-.mu-n{width:20px;text-align:center;font-size:.8rem;color:var(--muted)}.mu-ic{font-size:1.2rem}
-.mu-t{flex:1;min-width:0;display:flex;flex-direction:column}.mu-t b{font-weight:500;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mu-t small{color:var(--muted);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mu-rm{border:0;background:none;color:var(--muted);padding:8px;cursor:pointer}
-.mu-mini{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:65;display:flex;align-items:center;gap:4px;max-width:min(420px,calc(100% - 24px));width:100%;padding:6px 6px 6px 12px;border-radius:99px;background:rgba(13,27,42,.95);color:var(--cream);border:1px solid rgba(212,178,106,.55);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-.mu-mini[hidden]{display:none}
-body.mu-on #chScroll{padding-bottom:72px}
-.mu-mini button{background:none;border:0;color:var(--cream);font-size:16px;min-width:40px;height:40px;border-radius:50%;cursor:pointer;padding:0}
-.mu-mini .mu-mini-open{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border-radius:99px;text-align:left;font:inherit;font-size:.88rem;padding:0 6px}
-.mu-mini .mu-mini-open span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mu-eq{display:flex;gap:2px;align-items:flex-end;height:16px;flex:none}.mu-eq i{width:3px;height:30%;background:var(--gold);border-radius:2px}
-.mu-mini.on .mu-eq i{animation:muEq .9s ease-in-out infinite}.mu-mini.on .mu-eq i:nth-child(2){animation-delay:.2s}.mu-mini.on .mu-eq i:nth-child(3){animation-delay:.4s}
-@keyframes muEq{50%{height:100%}}
 .sn-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .sn-btn{color:var(--cream)!important;border:1px solid rgba(212,178,106,.55)!important;background:transparent!important}
 .sn-hearts{font-size:1.1rem;letter-spacing:2px}
@@ -1212,7 +1182,6 @@ const Util = {
    ICONS — hand-drawn inline SVG (stroke icons)
    ----------------------------------------------------------------------------- */
 const ICON_PATHS = {
-  music: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   back: '<path d="M15 18l-6-6 6-6"/>',
   close: '<path d="M18 6L6 18M6 6l12 12"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
@@ -2818,7 +2787,7 @@ const Chat = {
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
     $('#sendBtn').innerHTML = icon('send');
-    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['games', 'game', 'Games'], ['music', 'music', 'Music'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
+    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
     this.renderMessages(false);
@@ -2900,7 +2869,6 @@ const Chat = {
     if (k === 'games') Games.open();
     if (k === 'exp') this.expenses(c);
     if (k === 'alerts') Alerts.openSheet(c.id);
-    if (k === 'music') Music.open(c);
   },
   expenses(c) {
     UI.sheet('Clan expenses', '<div id="chExp"></div>', body => {
@@ -3274,195 +3242,6 @@ const Alerts = {
   }
 };
 setInterval(() => Alerts.tick(), 15000);
-
-/* =============================================================================
-   CLAN MUSIC — a trip playlist for the clan.
-   • Songs from a phone are stored on that phone (IndexedDB) and play in-app.
-   • Links (YouTube, Spotify, JioSaavn…) open in their own app.
-   • Sound goes to whatever is connected: speaker, Bluetooth or wired earphones.
-   • Media Session API: lock screen + earphone/Bluetooth buttons (play, pause, next, previous).
-   ============================================================================= */
-const MusicDB = {
-  _db: null,
-  open() {
-    return this._db || (this._db = new Promise((res, rej) => {
-      const r = indexedDB.open('envelora-music', 1);
-      r.onupgradeneeded = () => r.result.createObjectStore('files');
-      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
-    }));
-  },
-  async run(mode, fn) { const db = await this.open(); return new Promise((res, rej) => { const tx = db.transaction('files', mode), q = fn(tx.objectStore('files')); tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); }); },
-  put(id, blob) { return this.run('readwrite', s => s.put(blob, id)); },
-  get(id) { return this.run('readonly', s => s.get(id)); },
-  del(id) { return this.run('readwrite', s => s.delete(id)); },
-  keys() { return this.run('readonly', s => s.getAllKeys()); }
-};
-
-const Music = {
-  clanId: null, cur: null, shuffle: false, repeat: 'all', local: new Set(), url: null, audio: null,
-  SERVICES: [[/youtu\.?be/, '▶️', 'YouTube'], [/spotify/, '🟢', 'Spotify'], [/jiosaavn|saavn/, '🎶', 'JioSaavn'], [/gaana/, '🎵', 'Gaana'], [/music\.apple/, '🍎', 'Apple Music'], [/wynk/, '🎧', 'Wynk'], [/soundcloud/, '☁️', 'SoundCloud']],
-  service(url) { const s = this.SERVICES.find(([re]) => re.test(url)); return s ? [s[1], s[2]] : ['🔗', 'Link']; },
-  list(c) { return (c && c.playlist) || []; },
-  clan() { return Clans.get(this.clanId); },
-  init() {
-    if (this.audio) return;
-    const a = this.audio = new Audio(); a.preload = 'auto';
-    a.addEventListener('ended', () => this.repeat === 'one' ? (a.currentTime = 0, a.play()) : this.next(true));
-    ['play', 'pause', 'timeupdate', 'loadedmetadata'].forEach(ev => a.addEventListener(ev, () => this.paint()));
-    if ('mediaSession' in navigator) {
-      const ms = navigator.mediaSession, h = (k, f) => { try { ms.setActionHandler(k, f); } catch (e) { } };
-      h('play', () => a.play()); h('pause', () => a.pause()); h('stop', () => this.stop());
-      h('nexttrack', () => this.next()); h('previoustrack', () => this.prev());
-      h('seekto', d => { if (d.seekTime != null) a.currentTime = d.seekTime; });
-      h('seekbackward', d => { a.currentTime = Math.max(0, a.currentTime - (d.seekOffset || 10)); });
-      h('seekforward', d => { a.currentTime = Math.min(a.duration || 0, a.currentTime + (d.seekOffset || 10)); });
-    }
-    MusicDB.keys().then(k => { this.local = new Set(k); this.paint(); }).catch(() => { });
-  },
-  canPlayHere(it) { return it.kind === 'file' && this.local.has(it.id); },
-  queue() { return this.list(this.clan()).filter(it => this.canPlayHere(it)); },
-  async play(id) {
-    this.init();
-    const c = this.clan(), it = this.list(c).find(x => x.id === id); if (!it) return;
-    if (it.kind === 'link') { window.open(it.url, '_blank', 'noopener'); return; }
-    const blob = await MusicDB.get(it.id).catch(() => null);
-    if (!blob) return UI.toast('This song is saved on ' + it.by + '’s phone, not this one.', 'info');
-    if (this.url) URL.revokeObjectURL(this.url);
-    this.url = URL.createObjectURL(blob); this.cur = it.id;
-    this.audio.src = this.url;
-    try { await this.audio.play(); } catch (e) { UI.toast('Tap play to start the music.', 'info'); }
-    if ('mediaSession' in navigator && window.MediaMetadata) {
-      navigator.mediaSession.metadata = new MediaMetadata({ title: it.title, artist: it.artist || 'Added by ' + it.by, album: (c ? c.name : 'Envelora') + ' · Trip playlist', artwork: [{ src: this.art(), sizes: '256x256', type: 'image/png' }] });
-    }
-    this.paint();
-  },
-  art() {
-    if (this._art) return this._art;
-    const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d');
-    const g = x.createLinearGradient(0, 0, 256, 256); g.addColorStop(0, '#0d1b2a'); g.addColorStop(1, '#24405e'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
-    x.strokeStyle = '#D4B26A'; x.lineWidth = 10; x.beginPath(); x.moveTo(70, 70); x.lineTo(128, 190); x.lineTo(186, 70); x.stroke();
-    x.fillStyle = '#D4B26A'; x.beginPath(); x.arc(128, 205, 10, 0, 7); x.fill();
-    return (this._art = cv.toDataURL('image/png'));
-  },
-  toggle() { this.init(); const a = this.audio; if (!this.cur) { const q = this.queue(); if (q.length) this.play((this.shuffle ? Util.pick(q) : q[0]).id); else UI.toast('Add songs from your phone to play them here.', 'info'); return; } a.paused ? a.play() : a.pause(); },
-  next(auto) {
-    const q = this.queue(); if (!q.length) return;
-    let i = q.findIndex(x => x.id === this.cur);
-    if (this.shuffle && q.length > 1) { let j; do j = Math.floor(Math.random() * q.length); while (j === i); i = j; }
-    else { i++; if (i >= q.length) { if (auto && this.repeat === 'off') { this.audio.pause(); this.audio.currentTime = 0; return this.paint(); } i = 0; } }
-    this.play(q[i].id);
-  },
-  prev() { const a = this.audio; if (a && a.currentTime > 4) { a.currentTime = 0; return; } const q = this.queue(); if (!q.length) return; let i = q.findIndex(x => x.id === this.cur) - 1; if (i < 0) i = q.length - 1; this.play(q[i].id); },
-  stop() { if (!this.audio) return; this.audio.pause(); this.audio.removeAttribute('src'); this.audio.load(); this.cur = null; if (this.url) URL.revokeObjectURL(this.url); this.url = null; if ('mediaSession' in navigator) navigator.mediaSession.metadata = null; this.paint(); },
-  fmt(s) { s = Math.floor(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); },
-  /** Update the mini player and the open sheet without re-rendering lists. */
-  paint() {
-    const a = this.audio, it = this.cur && this.list(this.clan()).find(x => x.id === this.cur), playing = a && !a.paused;
-    const mini = $('#muMini');
-    if (mini) {
-      mini.hidden = !it; mini.classList.toggle('on', !!playing);
-      document.body.classList.toggle('mu-on', !!it);
-      if (it) { $('#muMiniT').textContent = it.title; $('#muMiniP').textContent = playing ? '❚❚' : '▶︎'; $('#muMiniP').setAttribute('aria-label', playing ? 'Pause' : 'Play'); }
-    }
-    const now = $('#muNow'); if (!now) return;
-    $('#muTitle').textContent = it ? it.title : 'Nothing playing';
-    $('#muSub').textContent = it ? (it.artist ? it.artist + ' · ' : '') + 'added by ' + it.by : 'Pick a song below or press play';
-    $('#muPlay').textContent = playing ? '❚❚' : '▶︎'; $('#muPlay').setAttribute('aria-label', playing ? 'Pause' : 'Play');
-    const seek = $('#muSeek'); if (a && !seek.dragging) { seek.max = Math.floor(a.duration || 0) || 1; seek.value = Math.floor(a.currentTime || 0); }
-    $('#muTime').textContent = a && it ? this.fmt(a.currentTime) + ' / ' + this.fmt(a.duration) : '0:00 / 0:00';
-    $('#muShuf').classList.toggle('on', this.shuffle); $('#muRep').classList.toggle('on', this.repeat !== 'off'); $('#muRep').textContent = this.repeat === 'one' ? '🔂' : '🔁';
-    $$('.mu-item').forEach(li => li.classList.toggle('cur', li.dataset.id === this.cur));
-    if ('mediaSession' in navigator) { navigator.mediaSession.playbackState = it ? (playing ? 'playing' : 'paused') : 'none'; try { if (a && a.duration) navigator.mediaSession.setPositionState({ duration: a.duration, position: Math.min(a.currentTime, a.duration), playbackRate: a.playbackRate }); } catch (e) { } }
-  },
-  canRemove(c, it) { const r = Perm.role(c, Auth.user && Auth.user.id); return it.byId === (Auth.user && Auth.user.id) || r === 'leader' || r === 'co'; },
-  async addFiles(files) {
-    const c = this.clan(); if (!c) return; let n = 0;
-    for (const f of files) {
-      if (!/^audio\//.test(f.type) && !/\.(mp3|m4a|aac|wav|ogg|opus|flac)$/i.test(f.name)) { UI.toast(f.name + ' is not an audio file.', 'err'); continue; }
-      if (f.size > 60 * 1024 * 1024) { UI.toast(f.name + ' is over 60 MB.', 'err'); continue; }
-      const id = Util.uid('song'), base = f.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim(), parts = base.split(' - ');
-      try { await MusicDB.put(id, f); } catch (e) { UI.toast('Could not save ' + f.name + ' (phone storage full?).', 'err'); continue; }
-      this.local.add(id);
-      const fresh = this.clan(); fresh.playlist = this.list(fresh).concat({ id, kind: 'file', title: (parts.length > 1 ? parts.slice(1).join(' - ') : base).slice(0, 80), artist: parts.length > 1 ? parts[0].slice(0, 60) : '', by: Auth.user.name, byId: Auth.user.id, at: Date.now() });
-      Clans.save(fresh); n++;
-    }
-    if (n) { Clans.post(c.id, { type: 'text', text: `🎵 Added ${n} song${n > 1 ? 's' : ''} to the trip playlist` }); UI.toast(`${n} song${n > 1 ? 's' : ''} added.`); }
-    return n;
-  },
-  addLink(url, title) {
-    const c = this.clan(); if (!c) return false;
-    if (!/^https?:\/\/\S+\.\S+/.test(url)) { UI.toast('Paste a full link starting with https://', 'err'); return false; }
-    const [, svc] = this.service(url);
-    c.playlist = this.list(c).concat({ id: Util.uid('song'), kind: 'link', url, title: (title || svc + ' song').slice(0, 80), artist: svc, by: Auth.user.name, byId: Auth.user.id, at: Date.now() });
-    Clans.save(c); Clans.post(c.id, { type: 'text', text: `🎵 Added "${title || svc + ' link'}" to the trip playlist` });
-    return true;
-  },
-  async remove(id) {
-    const c = this.clan(), it = this.list(c).find(x => x.id === id); if (!it) return;
-    if (!(await UI.confirm('Remove song?', `"${it.title}" will be removed from the trip playlist.`, { ok: 'Remove' }))) return;
-    if (this.cur === id) this.stop();
-    c.playlist = this.list(c).filter(x => x.id !== id); Clans.save(c);
-    if (it.kind === 'file') { MusicDB.del(id).catch(() => { }); this.local.delete(id); }
-    this.renderList();
-  },
-  open(c) {
-    this.init(); if (this.clanId !== c.id && this.cur) this.stop(); this.clanId = c.id;
-    const out = this.audio && typeof this.audio.setSinkId === 'function' && navigator.mediaDevices && navigator.mediaDevices.selectAudioOutput;
-    UI.sheet('🎵 Trip playlist', `
-      <div class="mu-now" id="muNow"><div class="mu-art">♪</div><div class="mu-info"><b id="muTitle"></b><span id="muSub"></span></div></div>
-      <input type="range" class="mu-seek" id="muSeek" min="0" max="1" value="0" aria-label="Seek" />
-      <div class="mu-time" id="muTime"></div>
-      <div class="mu-ctrl"><button id="muShuf" aria-label="Shuffle">🔀</button><button id="muPrev" aria-label="Previous">⏮︎</button><button id="muPlay" class="big" aria-label="Play">▶︎</button><button id="muNext" aria-label="Next">⏭︎</button><button id="muRep" aria-label="Repeat">🔁</button></div>
-      <p class="hint mu-note">🎧 Plays through whatever is connected: phone speaker, Bluetooth speaker or earphones, or wired earphones. Earphone buttons and the lock screen can play, pause and skip.</p>
-      ${out ? '<button class="btn soft sm" id="muOut" style="margin-bottom:10px">🔊 Choose speaker / earphones</button>' : ''}
-      <div class="mu-add"><label class="btn gold block" for="muFile">${icon('plus', 'sm')}Add songs from this phone</label><input type="file" id="muFile" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac" multiple hidden />
-        <details class="mu-link"><summary>${icon('link', 'sm')} Add a YouTube, Spotify or JioSaavn link</summary>
-          <form id="muLinkF" autocomplete="off" novalidate><input class="input" id="muLT" maxlength="80" placeholder="Song name (e.g. Ilahi)" /><input class="input" id="muLU" inputmode="url" placeholder="https://…" /><button class="btn soft block">Add link</button></form></details></div>
-      <h3 class="mu-h">Playlist <span class="hint" id="muCount"></span></h3><ul class="mu-list" id="muList"></ul>
-      <p class="hint" style="font-size:.78rem">Songs added from a phone are saved on that phone and play there. Links open in their own app. In this preview the playlist list is shared with clan members on this device; sharing across phones needs the online backend.</p>`, body => {
-      $('#muPlay', body).onclick = () => this.toggle();
-      $('#muNext', body).onclick = () => this.next(); $('#muPrev', body).onclick = () => this.prev();
-      $('#muShuf', body).onclick = () => { this.shuffle = !this.shuffle; this.paint(); UI.toast(this.shuffle ? 'Shuffle on' : 'Shuffle off'); };
-      $('#muRep', body).onclick = () => { this.repeat = { all: 'one', one: 'off', off: 'all' }[this.repeat]; this.paint(); UI.toast({ all: 'Repeat playlist', one: 'Repeat this song', off: 'Repeat off' }[this.repeat]); };
-      const seek = $('#muSeek', body);
-      seek.oninput = () => { seek.dragging = true; $('#muTime').textContent = this.fmt(seek.value) + ' / ' + this.fmt(this.audio.duration); };
-      seek.onchange = () => { seek.dragging = false; if (this.audio && this.cur) this.audio.currentTime = +seek.value; };
-      if ($('#muOut', body)) $('#muOut', body).onclick = async () => { try { const d = await navigator.mediaDevices.selectAudioOutput(); await this.audio.setSinkId(d.deviceId); UI.toast('Playing on ' + (d.label || 'selected device')); } catch (e) { } };
-      $('#muFile', body).onchange = async e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length && await this.addFiles(fs)) this.renderList(); };
-      $('#muLinkF', body).onsubmit = e => { e.preventDefault(); if (this.addLink($('#muLU').value.trim(), $('#muLT').value.trim())) { $('#muLU').value = ''; $('#muLT').value = ''; UI.toast('Link added.'); this.renderList(); } };
-      $('#muList', body).onclick = e => {
-        const rm = e.target.closest('[data-rm]'); if (rm) return this.remove(rm.dataset.rm);
-        const li = e.target.closest('.mu-item'); if (li) this.cur === li.dataset.id ? this.toggle() : this.play(li.dataset.id);
-      };
-      this.renderList();
-    });
-  },
-  renderList() {
-    const el = $('#muList'); if (!el) return;
-    const c = this.clan(), L = this.list(c);
-    $('#muCount').textContent = L.length ? `· ${L.length} song${L.length > 1 ? 's' : ''}` : '';
-    el.innerHTML = L.length ? L.map((it, i) => {
-      const [ic, svc] = it.kind === 'link' ? this.service(it.url) : ['🎵', ''], here = it.kind === 'link' || this.canPlayHere(it);
-      return `<li class="mu-item ${here ? '' : 'away'}" data-id="${it.id}" role="button" tabindex="0"><span class="mu-n">${i + 1}</span><span class="mu-ic">${ic}</span>
-        <span class="mu-t"><b>${Util.esc(it.title)}</b><small>${it.kind === 'link' ? 'Opens in ' + svc : here ? Util.esc(it.artist || 'On this phone') : 'On ' + Util.esc(it.by) + '’s phone'} · ${Util.esc(it.by)}</small></span>
-        ${this.canRemove(c, it) ? `<button class="mu-rm" data-rm="${it.id}" aria-label="Remove ${Util.esc(it.title)}">${icon('trash', 'sm')}</button>` : ''}</li>`;
-    }).join('') : '<li class="hint" style="padding:14px 4px">No songs yet. Add songs from your phone or paste a link, and build the soundtrack for the trip together.</li>';
-    this.paint();
-  }
-};
-
-// Mini player: stays on screen while music plays, anywhere in the app.
-(() => {
-  const m = document.createElement('div');
-  m.id = 'muMini'; m.className = 'mu-mini'; m.hidden = true;
-  m.innerHTML = `<button class="mu-mini-open" id="muMiniO" aria-label="Open playlist"><span class="mu-eq"><i></i><i></i><i></i></span><span id="muMiniT"></span></button><button id="muMiniP" aria-label="Play">▶︎</button><button id="muMiniN" aria-label="Next">⏭︎</button><button id="muMiniX" aria-label="Stop music">✕</button>`;
-  document.body.appendChild(m);
-  m.addEventListener('click', e => {
-    const id = e.target.closest('button') && e.target.closest('button').id;
-    if (id === 'muMiniP') Music.toggle(); else if (id === 'muMiniN') Music.next(); else if (id === 'muMiniX') Music.stop();
-    else if (id === 'muMiniO') { const c = Music.clan(); if (c) Music.open(c); }
-  });
-})();
 
 /* =============================================================================
    GAMES — six playable prototypes with player selection, scores, restart,
