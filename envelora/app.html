@@ -2064,7 +2064,7 @@ const Planner = {
     } else {
       $('#sf-cancel').onclick = () => { this.editingSetup = false; this.render(); };
     }
-    f.addEventListener('submit', e => {
+    f.addEventListener('submit', async e => {
       e.preventDefault();
       const err = $('#sf-err'); err.textContent = '';
       const dest = $('#sf-dest').value.trim(), from = $('#sf-from').value.trim(), s = $('#sf-start').value, en = $('#sf-end').value;
@@ -2076,10 +2076,18 @@ const Planner = {
       if (editing) {
         const before = Trips.dayCount(t);
         const destChanged = t.destination.toLowerCase() !== dest.toLowerCase();
+        const planned = t.days.reduce((a, d) => a + d.items.length, 0);
+        if (destChanged && planned && !(await UI.confirm('Change destination?', `Your day plan has ${planned} activit${planned === 1 ? 'y' : 'ies'} for ${t.destination}. Changing to ${dest} will clear the day plan so you can plan the new place fresh. Packing, expenses and travellers stay.`, { ok: 'Clear & change' }))) return;
+        if (destChanged) {
+          t.days.forEach(d => { d.items = []; });
+          const old = guideFor(t.destination);
+          if (old) t.packing = t.packing.filter(p => !(p.cat === 'For ' + old.name && !p.packed));
+        }
         Object.assign(t, { destination: dest, from, start: s, end: en });
         Trips.syncDays(t);
         if (destChanged) { const g = guideFor(dest); if (g) g.packing.forEach(text => { if (!t.packing.some(p => p.text === text)) t.packing.push({ id: Util.uid('pk'), cat: 'For ' + g.name, text, packed: false }); }); }
         this.persist(); this.editingSetup = false; this.render();
+        if (destChanged && planned) UI.toast(`Destination changed to ${dest}. Day plan cleared.`);
         if (Trips.dayCount(t) !== before && t.clanId) UI.toast('Dates updated. Clan capacity is unchanged.', 'info');
         return;
       }
