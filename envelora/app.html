@@ -793,6 +793,44 @@ details.grp[open] summary::after{content:"–"}
 .ld-die.ready{opacity:1;animation:ldPulse 1s ease-in-out infinite}.ld-die.spin{animation:ldSpin .42s linear}
 @keyframes ldSpin{to{transform:rotate(360deg)}}
 #ldMsg{flex:1;max-width:260px;font-size:.95rem}
+.stp-hero{display:flex;gap:16px;align-items:center;justify-content:center;margin:6px 0}
+.stp-ring{--p:0;width:150px;height:150px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--p)*360deg),rgba(13,27,42,.1) 0)}
+.stp-ring>div{width:124px;height:124px;border-radius:50%;background:var(--paper,#f5efe3);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.stp-ring b{font-family:var(--serif);font-weight:400;font-size:1.9rem;color:var(--navy);font-variant-numeric:tabular-nums}.stp-ring span{font-size:.75rem;color:var(--muted)}
+.stp-side{display:flex;flex-direction:column;gap:8px}.stp-side small{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}.stp-side b{color:var(--navy);font-weight:500}
+.stp-total{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 4px;padding:12px 14px;border-radius:14px;background:linear-gradient(140deg,var(--navy),var(--navy-3));color:var(--cream)}.stp-total b{color:var(--gold);font-weight:500}
+.stp-sync{margin:12px 0;padding:12px;border-radius:14px;border:1px dashed var(--line)}.stp-sync label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:8px}
+.stp-h{margin:14px 0 8px;font-size:1rem}
+.stp-days{display:flex;gap:6px;align-items:flex-end;height:120px;overflow-x:auto;padding-bottom:2px}
+.stp-days>div{flex:1 0 34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;font-size:.68rem;color:var(--muted)}
+.stp-days i{width:70%;background:rgba(212,178,106,.55);border-radius:6px 6px 2px 2px}.stp-days .on i{background:var(--gold)}.stp-days b{font-weight:500;color:var(--navy)}
+.stp-board{list-style:none;margin:0 0 12px;padding:0}.stp-board li{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--line)}.stp-board li.me{background:rgba(212,178,106,.15);border-radius:10px}
+.stp-board span{width:26px;text-align:center}.stp-board b{flex:1;font-weight:500;color:var(--navy)}.stp-board em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--navy)}
+.sy-wrap{max-width:640px;margin:0 auto}
+.sy-lang{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:.95rem}.sy-lang select{flex:1;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--navy)}
+.sy-watch{display:flex;gap:10px;align-items:flex-start;margin:12px 2px;font-size:.88rem;color:var(--navy)}.sy-watch input{margin-top:3px;width:18px;height:18px;accent-color:var(--gold-d,#a5802f)}
+.sy-h{margin:14px 0 8px;font-size:1rem}
+.sy-list{display:flex;flex-direction:column;gap:8px}
+.sy-item{display:flex;gap:12px;align-items:center;text-align:left;padding:8px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer;font:inherit}
+.sy-item img,.sy-ph{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:var(--navy);font-size:1.6rem}
+.sy-item b{display:block;color:var(--navy);font-weight:500}.sy-item small{color:var(--muted);font-size:.8rem}
+.sy-gallery{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:4px -4px 12px;padding:0 4px}
+.sy-gallery img{flex:none;width:82%;max-width:420px;height:230px;object-fit:cover;border-radius:16px;scroll-snap-align:start;background:#ddd}
+.sy-tts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.sy-rate{display:flex;align-items:center;gap:6px;flex:1;min-width:150px}.sy-rate input{flex:1;accent-color:var(--gold-d,#a5802f)}
+.sy-text{line-height:1.75;color:var(--ink,#1b2430);font-size:1.02rem}.sy-text h3{margin:6px 0 8px}.sy-text h4{margin:16px 0 6px;color:var(--navy);font-family:var(--serif);font-weight:400;font-size:1.12rem}.sy-text p{margin:0 0 10px}
+.sy-arrive{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:85;width:min(440px,calc(100% - 24px));display:grid;grid-template-columns:56px 1fr auto;grid-template-areas:"img t x" "b b b";gap:8px 12px;align-items:center;padding:12px;border-radius:18px;background:var(--navy);color:var(--cream);border:1px solid var(--gold);box-shadow:0 14px 40px rgba(0,0,0,.45);animation:fade .3s}
+.sy-arrive[hidden]{display:none}.sy-arrive img,.sy-arrive .sy-ph{grid-area:img;width:56px;height:56px;border-radius:12px;object-fit:cover}
+.sy-ar-t{grid-area:t;min-width:0}.sy-ar-t small{display:block;color:var(--gold);font-size:.75rem}.sy-ar-t b{font-family:var(--serif);font-weight:400;font-size:1.15rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sy-ar-b{grid-area:b;display:flex;gap:8px}.sy-ar-b .btn{flex:1}.sy-arrive .btn.soft{background:rgba(255,255,255,.1);color:var(--cream);border:1px solid rgba(212,178,106,.55)}
+.sy-ar-x{grid-area:x;background:none;border:0;color:var(--cream);font-size:18px;width:36px;height:36px;cursor:pointer}
+.sy-credit{font-size:.75rem;margin-top:14px}
+.ip-word{font-family:var(--serif);font-size:2.4rem;color:var(--gold);margin:18px 0;padding:18px;border:2px dashed rgba(212,178,106,.6);border-radius:18px}
+.ip-timer{font-family:var(--serif);font-size:3rem;color:var(--gold);margin:10px 0 16px;font-variant-numeric:tabular-nums}
+.ip-vote{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:12px 0 16px}
+.ip-vote button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:14px;border:1px solid rgba(212,178,106,.35);background:rgba(255,255,255,.05);color:var(--cream);cursor:pointer;font:inherit}
+.ip-vote button.on{border-color:var(--gold);background:rgba(212,178,106,.25);box-shadow:0 0 0 2px var(--gold)}
+.ip-words{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.ip-words div{padding:12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,178,106,.35)}
+.ip-words small{display:block;color:rgba(241,230,204,.7);font-size:.75rem}.ip-words b{color:var(--gold);font-family:var(--serif);font-weight:400;font-size:1.3rem}
 .st-wrap{max-width:560px;margin:0 auto}
 .st-pick{display:grid;gap:12px}
 .st-big{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 16px;border-radius:18px;border:1px solid rgba(212,178,106,.45);background:linear-gradient(160deg,var(--navy-2),var(--navy-3));cursor:pointer;text-align:center}
@@ -1066,6 +1104,13 @@ details.grp[open] summary::after{content:"–"}
 <!-- =====================================================================
      OVERLAY: GAMES
      ===================================================================== -->
+<section class="overlay" id="story" aria-label="Place stories">
+  <div class="ov-head">
+    <button class="icon-btn" data-nav-back aria-label="Back"></button>
+    <div class="tt"><h2 id="syTitle">Place stories</h2><small id="sySub"></small></div>
+  </div>
+  <div class="ov-body"><div id="syBody" class="sy-wrap"></div></div>
+</section>
 <section class="overlay dark" id="studio" aria-label="Photo and video studio">
   <div class="ov-head">
     <button class="icon-btn dark" data-nav-back aria-label="Back"></button>
@@ -2832,7 +2877,7 @@ const Chat = {
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
     $('#sendBtn').innerHTML = icon('send');
-    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
+    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
     this.renderMessages(false);
@@ -2913,6 +2958,8 @@ const Chat = {
     if (k === 'photos') this.photos(c);
     if (k === 'games') Games.open();
     if (k === 'studio') Studio.open(c);
+    if (k === 'steps') Steps.open(c);
+    if (k === 'stories') Stories.open(c);
     if (k === 'exp') this.expenses(c);
     if (k === 'alerts') Alerts.openSheet(c.id);
   },
@@ -3593,6 +3640,277 @@ const Studio = {
 };
 
 /* =============================================================================
+   TRIP EXTRAS for clan members (the paid part of the app):
+   • Steps    — pedometer from the phone's motion sensor while the app is open.
+   • Stories  — history of nearby monuments, forts, lakes… from Wikipedia, with
+                photos, 13 languages and read-aloud (phone's text-to-speech).
+   ============================================================================= */
+
+/* ---------- STEPS ---------- */
+const Steps = {
+  on: false, avg: 9.8, sm: 9.8, armed: true, last: 0, pending: 0, GOAL: 8000,
+  key(uid) { return 'envelora.v1.steps.' + uid; },
+  data(uid) { return Store.get(this.key(uid), {}) || {}; },
+  today(uid) { return this.data(uid)[Util.ymd(new Date())] || 0; },
+  tripTotal(uid, t) { const d = this.data(uid); let n = 0; for (let x = t.start; x <= t.end; x = Util.addDays(x, 1)) n += d[x] || 0; return n; },
+  async start() {
+    if (this.on) return true;
+    if (!('DeviceMotionEvent' in window)) { UI.toast('This phone/browser has no motion sensor access.', 'err'); return false; }
+    // iPhone asks for motion access; on Android this may not exist or may resolve without a prompt.
+    let denied = false;
+    if (typeof DeviceMotionEvent.requestPermission === 'function') { try { denied = (await DeviceMotionEvent.requestPermission()) === 'denied'; } catch (e) { } }
+    if (denied) { UI.toast('Motion access was not allowed. Turn on Motion & Orientation access in your browser settings.', 'err'); return false; }
+    this.got = false;
+    this.h = this.h || (e => { this.got = true; this.sample(e); });
+    setTimeout(() => { if (this.on && !this.got) UI.toast('No motion data from this phone yet. Walk a few steps; if it stays at 0, allow Motion sensors for this site.', 'info'); }, 4000);
+    addEventListener('devicemotion', this.h); this.on = true; Store.set('envelora.v1.stepsOn', 1);
+    return true;
+  },
+  stop() { if (this.h) removeEventListener('devicemotion', this.h); this.on = false; this.flush(); Store.set('envelora.v1.stepsOn', 0); },
+  /** Simple peak detector on smoothed acceleration magnitude (with hysteresis). */
+  sample(e) {
+    const a = e.accelerationIncludingGravity; if (!a || a.x == null) return;
+    const m = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z), now = Date.now();
+    this.sm = this.sm * .75 + m * .25; this.avg = this.avg * .98 + m * .02;
+    const d = this.sm - this.avg;
+    if (this.armed && d > 1.15 && now - this.last > 280) { this.armed = false; this.last = now; this.step(); }
+    else if (d < .35) this.armed = true;
+  },
+  step(n = 1) {
+    if (!Auth.user) return;
+    this.pending += n; if (this.pending >= 5) this.flush();
+    const el = $('#stpToday'); if (el) this.paint();
+  },
+  flush() {
+    if (!this.pending || !Auth.user) return;
+    const d = this.data(Auth.user.id), k = Util.ymd(new Date()); d[k] = (d[k] || 0) + this.pending; this.pending = 0; Store.set(this.key(Auth.user.id), d);
+  },
+  fmt(n) { return Math.round(n).toLocaleString('en-IN'); },
+  paint() {
+    const u = Auth.user; if (!u || !$('#stpToday')) return;
+    const today = this.today(u.id) + this.pending, pct = Math.min(1, today / this.GOAL);
+    $('#stpToday').textContent = this.fmt(today);
+    $('#stpRing').style.setProperty('--p', pct);
+    $('#stpKm').textContent = (today * .00075).toFixed(2) + ' km';
+    $('#stpKcal').textContent = this.fmt(today * .04) + ' kcal';
+    $('#stpState').textContent = this.on ? 'Counting · keep the app open' : 'Paused';
+    $('#stpBtn').textContent = this.on ? '❚❚ Pause counting' : '▶ Start counting';
+  },
+  open(c) {
+    const u = Auth.user, t = c.trip; this.flush();
+    const days = []; for (let x = t.start; x <= t.end; x = Util.addDays(x, 1)) days.push(x);
+    const mine = this.data(u.id), max = Math.max(1, ...days.map(x => mine[x] || 0));
+    const board = c.members.map(m => ({ name: m.name, me: m.accountId === u.id, n: m.accountId ? this.tripTotal(m.accountId, t) : 0 })).sort((a, b) => b.n - a.n);
+    UI.sheet('🚶 Trip steps', `
+      <div class="stp-hero"><div class="stp-ring" id="stpRing"><div><b id="stpToday">0</b><span>steps today</span></div></div>
+        <div class="stp-side"><div><small>Distance</small><b id="stpKm"></b></div><div><small>Burned</small><b id="stpKcal"></b></div><div><small>Goal</small><b>${this.fmt(this.GOAL)}</b></div></div></div>
+      <p class="hint" id="stpState" style="text-align:center;margin:6px 0"></p>
+      <button class="btn gold block" id="stpBtn"></button>
+      <div class="stp-total"><span>Whole trip so far</span><b>${this.fmt(this.tripTotal(u.id, t))} steps · ${(this.tripTotal(u.id, t) * .00075).toFixed(1)} km</b></div>
+      <h3 class="stp-h">Day by day</h3>
+      <div class="stp-days">${days.map((x, i) => `<div class="${x === Util.ymd(new Date()) ? 'on' : ''}"><i style="height:${Math.max(3, (mine[x] || 0) / max * 100)}%"></i><b>${mine[x] ? (mine[x] >= 1000 ? (mine[x] / 1000).toFixed(1) + 'k' : mine[x]) : '–'}</b><span>D${i + 1}</span></div>`).join('')}</div>
+      <h3 class="stp-h">Clan leaderboard</h3>
+      <ol class="stp-board">${board.map((b, i) => `<li class="${b.me ? 'me' : ''}"><span>${['🥇', '🥈', '🥉'][i] || i + 1}</span><b>${Util.esc(b.name)}${b.me ? ' (you)' : ''}</b><em>${this.fmt(b.n)}</em></li>`).join('')}</ol>
+      <form class="stp-sync" id="stpSync" autocomplete="off"><label for="stpIn">Walked with the app closed? Enter today's total from your phone's health app (Google Fit, Samsung Health, Apple Health):</label>
+        <div class="row" style="gap:8px"><input class="input" id="stpIn" type="number" inputmode="numeric" min="0" max="100000" placeholder="e.g. 9500"/><button class="btn soft" style="flex:none">Update</button></div></form>
+      <button class="btn soft block" id="stpPost">${icon('send', 'sm')}Share today's steps in the chat</button>
+      <p class="hint" style="font-size:.78rem;margin-top:10px">Steps are counted by your phone's motion sensor while Envelora is open (screen can be dimmed, phone in your pocket). When the app is closed your browser can't count, so use your phone's health app numbers above. Automatic background counting will come with the installable app (Google Health Connect / Apple Health). The leaderboard shows members who use this device; it syncs across phones once the online backend is connected.</p>`, body => {
+      $('#stpBtn', body).onclick = async () => { if (this.on) this.stop(); else if (await this.start()) UI.toast('Step counting on. Keep the app open while you walk.'); this.paint(); };
+      $('#stpSync', body).onsubmit = e => {
+        e.preventDefault(); const n = Math.round(+$('#stpIn', body).value);
+        if (!(n > 0) || n > 100000) return UI.toast('Enter a step count between 1 and 1,00,000.', 'err');
+        this.flush(); const d = this.data(u.id), k = Util.ymd(new Date());
+        if (n <= (d[k] || 0)) return UI.toast(`Today already has ${this.fmt(d[k])} steps. Enter a bigger number from your health app.`, 'info');
+        d[k] = n; Store.set(this.key(u.id), d); UI.toast(`Today set to ${this.fmt(n)} steps.`); this.open(Clans.get(c.id));
+      };
+      $('#stpPost', body).onclick = () => { this.flush(); const n = this.today(u.id); Clans.post(c.id, { type: 'text', text: `🚶 Walked ${this.fmt(n)} steps today (${(n * .00075).toFixed(1)} km)` }); UI.toast('Posted to the clan chat.'); Chat.renderMessages && Chat.renderMessages(); };
+      this.paint();
+    });
+  }
+};
+// Resume counting after a reload when the browser allows it without a tap (Android).
+if (Store.get('envelora.v1.stepsOn') && typeof (window.DeviceMotionEvent || {}).requestPermission !== 'function') setTimeout(() => Steps.start(), 1500);
+addEventListener('pagehide', () => Steps.flush());
+document.addEventListener('visibilitychange', () => { if (document.hidden) Steps.flush(); });
+
+/* ---------- PLACE STORIES ---------- */
+const Stories = {
+  LANGS: [['en', 'English', 'en-IN'], ['hi', 'हिन्दी Hindi', 'hi-IN'], ['bn', 'বাংলা Bengali', 'bn-IN'], ['mr', 'मराठी Marathi', 'mr-IN'], ['te', 'తెలుగు Telugu', 'te-IN'], ['ta', 'தமிழ் Tamil', 'ta-IN'],
+    ['gu', 'ગુજરાતી Gujarati', 'gu-IN'], ['kn', 'ಕನ್ನಡ Kannada', 'kn-IN'], ['ml', 'മലയാളം Malayalam', 'ml-IN'], ['pa', 'ਪੰਜਾਬੀ Punjabi', 'pa-IN'], ['or', 'ଓଡ଼ିଆ Odia', 'or-IN'], ['as', 'অসমীয়া Assamese', 'as-IN'], ['ur', 'اردو Urdu', 'ur-IN']],
+  UI_TXT: { en: ['Listen', 'Pause', 'Stop', 'History & story'], hi: ['सुनें', 'रोकें', 'बंद करें', 'इतिहास और कहानी'], bn: ['শুনুন', 'থামান', 'বন্ধ', 'ইতিহাস ও কাহিনি'], mr: ['ऐका', 'थांबा', 'बंद', 'इतिहास आणि कथा'], te: ['వినండి', 'ఆపు', 'ముగించు', 'చరిత్ర'], ta: ['கேளுங்கள்', 'இடைநிறுத்து', 'நிறுத்து', 'வரலாறு'], gu: ['સાંભળો', 'થોભો', 'બંધ', 'ઇતિહાસ'], kn: ['ಕೇಳಿ', 'ವಿರಾಮ', 'ನಿಲ್ಲಿಸಿ', 'ಇತಿಹಾಸ'], ml: ['കേൾക്കൂ', 'നിർത്തൂ', 'അവസാനിപ്പിക്കൂ', 'ചരിത്രം'], pa: ['ਸੁਣੋ', 'ਰੋਕੋ', 'ਬੰਦ', 'ਇਤਿਹਾਸ'], or: ['ଶୁଣନ୍ତୁ', 'ଅଟକାନ୍ତୁ', 'ବନ୍ଦ', 'ଇତିହାସ'], as: ['শুনক', 'ৰখক', 'বন্ধ', 'ইতিহাস'], ur: ['سنیں', 'روکیں', 'بند', 'تاریخ'] },
+  KEY: 'envelora.v1.storyLang', LANDMARK: /fort|palace|temple|mandir|masjid|mosque|church|cathedral|basilica|gurudwara|gurdwara|monastery|gompa|stupa|lake|beach|waterfall|falls|cave|museum|monument|memorial|tomb|mausoleum|minar|gate|garden|park|sanctuary|national park|dam|hill|peak|island|ghat|step ?well|baori|haveli|ruins|heritage|mahal|qila|darwaza|bridge|lighthouse|valley|river/i,
+  lang() { return Store.get(this.KEY) || 'en'; },
+  t(i) { return (this.UI_TXT[this.lang()] || this.UI_TXT.en)[i]; },
+  api(lang, params) { return fetch(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&` + new URLSearchParams(params)).then(r => r.json()); },
+  open(c) {
+    this.c = c; this.stopSpeech();
+    UI.openOverlay('story', () => this.stopSpeech());
+    $('#syTitle').textContent = 'Place stories'; $('#sySub').textContent = 'History of the places around you';
+    this.home();
+  },
+  langSelect() { return `<label class="sy-lang">🌐 <select id="syLang" aria-label="Language">${this.LANGS.map(([k, l]) => `<option value="${k}" ${k === this.lang() ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`; },
+  bindLang(cb) { $('#syLang').onchange = e => { Store.set(this.KEY, e.target.value); this.stopSpeech(); cb(); }; },
+  home() {
+    this.stopSpeech();
+    const g = guideFor(this.c.trip.destination), tops = g ? g.attractions.slice(0, 6).map(a => a[0]).filter(n => !/^Top sights in /.test(n)) : [];
+    $('#syBody').innerHTML = `${this.langSelect()}
+      <button class="btn gold block" id="syNear">📍 Find famous places near me</button>
+      <label class="sy-watch"><input type="checkbox" id="syWatch" ${this.watchId != null ? 'checked' : ''}/> Tell me when I reach a monument, fort, lake or other famous place</label>
+      <form class="row" id="sySearchF" style="gap:8px;margin:12px 0" autocomplete="off"><input class="input" id="sySearch" placeholder="Search any place, e.g. Hawa Mahal"/><button class="btn soft" style="flex:none">Search</button></form>
+      ${tops.length ? `<h3 class="sy-h">On your ${Util.esc(this.c.trip.destination)} trip</h3><div class="share-chips" id="syTops">${tops.map(n => `<button class="chip" data-q="${Util.esc(n.replace(/\s*\(.*\)/, ''))}">${Util.esc(n)}</button>`).join('')}</div>` : ''}
+      <div id="syList"></div>
+      <p class="hint sy-credit">Stories and photos come from Wikipedia (CC BY-SA). Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
+    this.bindLang(() => this.home());
+    $('#syNear').onclick = () => this.near();
+    $('#syWatch').onchange = e => e.target.checked ? this.watch() : this.unwatch();
+    $('#sySearchF').onsubmit = e => { e.preventDefault(); const q = $('#sySearch').value.trim(); if (q) this.search(q); };
+    const tp = $('#syTops'); if (tp) tp.onclick = e => { const b = e.target.closest('[data-q]'); if (b) this.search(b.dataset.q, true); };
+  },
+  pos() { return new Promise((res, rej) => { if (!navigator.geolocation) return rej(new Error('nogeo')); navigator.geolocation.getCurrentPosition(p => res(p.coords), rej, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }); }); },
+  dist(a, b, c, d) { const R = 6371e3, r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); },
+  async geo(lat, lon, radius = 10000) {
+    const j = await this.api('en', { action: 'query', generator: 'geosearch', ggscoord: lat + '|' + lon, ggsradius: radius, ggslimit: 40, prop: 'pageimages|coordinates|description', piprop: 'thumbnail', pithumbsize: 160 });
+    return Object.values((j.query && j.query.pages) || {}).filter(p => p.coordinates).map(p => ({ title: p.title, desc: p.description || '', thumb: p.thumbnail && p.thumbnail.source, m: this.dist(lat, lon, p.coordinates[0].lat, p.coordinates[0].lon) }))
+      .filter(p => this.LANDMARK.test(p.title + ' ' + p.desc)).sort((a, b) => a.m - b.m);
+  },
+  async near() {
+    const L = $('#syList'); L.innerHTML = '<p class="hint">Finding where you are…</p>';
+    try {
+      const c = await this.pos(); L.innerHTML = '<p class="hint">Looking for famous places within 10 km…</p>';
+      this.list(await this.geo(c.latitude, c.longitude), 'Famous places near you');
+    } catch (e) { L.innerHTML = `<p class="hint">${e && e.code === 1 ? 'Location is off. Allow location for Envelora, or search a place above.' : 'Could not load places right now (no internet, or blocked in this preview).'}</p>`; }
+  },
+  async search(q, open) {
+    const L = $('#syList'); L.innerHTML = '<p class="hint">Searching…</p>';
+    try {
+      const j = await this.api('en', { action: 'query', generator: 'search', gsrsearch: q + ' India', gsrlimit: 10, prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: 160 });
+      const ps = Object.values((j.query && j.query.pages) || {}).sort((a, b) => a.index - b.index).map(p => ({ title: p.title, desc: p.description || '', thumb: p.thumbnail && p.thumbnail.source }));
+      if (open && ps.length) return this.story(ps[0].title);
+      this.list(ps, 'Results');
+    } catch (e) { L.innerHTML = '<p class="hint">Could not search right now (no internet, or blocked in this preview).</p>'; }
+  },
+  list(ps, head) {
+    const L = $('#syList');
+    L.innerHTML = ps.length ? `<h3 class="sy-h">${head}</h3><div class="sy-list">${ps.map(p => `<button class="sy-item" data-t="${Util.esc(p.title)}">${p.thumb ? `<img src="${p.thumb}" alt="" loading="lazy"/>` : '<span class="sy-ph">🏛️</span>'}<span><b>${Util.esc(p.title)}</b><small>${Util.esc(p.desc)}${p.m != null ? ` · ${p.m < 1000 ? Math.round(p.m) + ' m' : (p.m / 1000).toFixed(1) + ' km'}` : ''}</small></span></button>`).join('')}</div>`
+      : '<p class="hint">No famous places found here. Try searching by name.</p>';
+    L.onclick = e => { const b = e.target.closest('[data-t]'); if (b) this.story(b.dataset.t); };
+  },
+  /** Plain-text sections of the article; keeps intro + history-like sections. */
+  pickText(raw) {
+    const parts = raw.split(/\n(?===+[^=])/), skip = /see also|references|external links|notes|further reading|gallery|bibliography|sources|citations|संदर्भ|बाहरी कड़ियाँ|इन्हें भी देखें|மேற்கோள்கள்|তথ্যসূত্র/i;
+    const out = []; let len = 0;
+    for (const p of parts) {
+      const m = p.match(/^==+\s*(.*?)\s*==+\s*\n?([\s\S]*)$/), head = m ? m[1] : '', body = (m ? m[2] : p).replace(/\n{2,}/g, '\n').trim();
+      if (!body || (head && skip.test(head))) continue;
+      out.push({ head, body: body.slice(0, 1800) }); len += body.length; if (len > 5000 || out.length >= 6) break;
+    }
+    return out;
+  },
+  async story(enTitle) {
+    this.stopSpeech();
+    const lang = this.lang(), L = this.LANGS.find(x => x[0] === lang);
+    $('#syTitle').textContent = enTitle; $('#sySub').textContent = 'Loading story…';
+    $('#syBody').innerHTML = '<p class="hint">Opening the story…</p>';
+    try {
+      let title = enTitle, used = 'en';
+      if (lang !== 'en') {
+        const ll = await this.api('en', { action: 'query', prop: 'langlinks', titles: enTitle, lllang: lang, redirects: 1 });
+        const pg = Object.values(ll.query.pages)[0], link = pg.langlinks && pg.langlinks[0];
+        if (link) { title = link['*']; used = lang; }
+      }
+      const [ex, media] = await Promise.all([
+        this.api(used, { action: 'query', prop: 'extracts|description|pageimages', explaintext: 1, exsectionformat: 'wiki', titles: title, redirects: 1, piprop: 'original' }),
+        fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(enTitle.replace(/ /g, '_'))}`).then(r => r.ok ? r.json() : { items: [] }).catch(() => ({ items: [] }))
+      ]);
+      const pg = Object.values(ex.query.pages)[0], secs = this.pickText(pg.extract || '');
+      const pics = [pg.original && pg.original.source].concat((media.items || []).filter(i => i.type === 'image' && i.srcset && !/\.svg/i.test(i.title)).map(i => (i.srcset[i.srcset.length - 1] || i.srcset[0]).src.replace(/^\/\//, 'https://'))).filter(Boolean)
+        .filter((u, i, a) => a.findIndex(x => x.split('/').pop().replace(/^\d+px-/, '') === u.split('/').pop().replace(/^\d+px-/, '')) === i).slice(0, 8);
+      this.cur = { enTitle, title, used, text: [pg.title + '. ' + (pg.description || '')].concat(secs.map(s => (s.head ? s.head + '. ' : '') + s.body)).join('\n') };
+      $('#syTitle').textContent = pg.title; $('#sySub').textContent = pg.description || (used === lang ? L[1] : 'English');
+      $('#syBody').innerHTML = `${this.langSelect()}
+        ${used !== lang ? `<div class="notice">${icon('info', 'sm')}<span>This story isn't written in ${Util.esc(L[1].split(' ').pop())} yet, so it's shown in English.</span></div>` : ''}
+        ${pics.length ? `<div class="sy-gallery">${pics.map(u => `<img src="${u}" alt="${Util.esc(pg.title)}" loading="lazy"/>`).join('')}</div>` : ''}
+        <div class="sy-tts"><button class="btn gold" id="syPlay">🔊 ${this.t(0)}</button><button class="btn soft" id="syStop">■ ${this.t(2)}</button>
+          <label class="sy-rate">🐢<input type="range" id="syRate" min="0.6" max="1.4" step="0.1" value="${Store.get('envelora.v1.ttsRate') || 1}" aria-label="Reading speed"/>🐇</label></div>
+        <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
+        <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="https://${used}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}">Read full article</a></div>
+        <p class="hint sy-credit">Text and photos: Wikipedia contributors, CC BY-SA 4.0.</p>`;
+      this.bindLang(() => this.story(enTitle));
+      $('#syPlay').onclick = () => this.togglePlay();
+      $('#syStop').onclick = () => this.stopSpeech();
+      $('#syRate').onchange = e => { Store.set('envelora.v1.ttsRate', +e.target.value); if (this.speaking) { this.stopSpeech(); this.togglePlay(); } };
+      $('#syBack').onclick = () => { $('#syTitle').textContent = 'Place stories'; $('#sySub').textContent = 'History of the places around you'; this.home(); };
+    } catch (e) {
+      $('#sySub').textContent = '';
+      $('#syBody').innerHTML = `<p class="hint">Could not load this story right now (no internet, or blocked in this preview).</p><button class="btn ghost sm" id="syBack">← All places</button>`;
+      $('#syBack').onclick = () => this.home();
+    }
+  },
+  /* ---- read aloud ---- */
+  voiceFor(code) { const vs = speechSynthesis.getVoices(), base = code.split('-')[0]; return vs.find(v => v.lang.replace('_', '-') === code) || vs.find(v => v.lang.toLowerCase().startsWith(base)); },
+  togglePlay() {
+    if (!('speechSynthesis' in window)) return UI.toast('Read-aloud is not supported on this browser.', 'err');
+    const ss = speechSynthesis, btn = $('#syPlay');
+    if (this.speaking && !ss.paused) { ss.pause(); btn.textContent = '🔊 ' + this.t(0); return; }
+    if (this.speaking && ss.paused) { ss.resume(); btn.textContent = '❚❚ ' + this.t(1); return; }
+    const L = this.LANGS.find(x => x[0] === this.cur.used), v = this.voiceFor(L[2]);
+    if (!v && this.cur.used !== 'en') UI.toast(`No ${L[1].split(' ').pop()} voice found on this phone. Add it in Settings → Text-to-speech, or it may read with another voice.`, 'info');
+    // Split into short sentences: long utterances get cut off on Android.
+    const chunks = this.cur.text.split(/(?<=[.!?।॥\n])\s+/).flatMap(s => s.length > 220 ? s.match(/.{1,220}(\s|$)/g) : [s]).map(s => s.trim()).filter(Boolean);
+    ss.cancel(); this.speaking = true; btn.textContent = '❚❚ ' + this.t(1);
+    const rate = Store.get('envelora.v1.ttsRate') || 1;
+    chunks.forEach((txt, i) => {
+      const u = new SpeechSynthesisUtterance(txt); u.lang = L[2]; if (v) u.voice = v; u.rate = rate;
+      if (i === chunks.length - 1) u.onend = () => { this.speaking = false; const b = $('#syPlay'); if (b) b.textContent = '🔊 ' + this.t(0); };
+      ss.speak(u);
+    });
+  },
+  stopSpeech() { if ('speechSynthesis' in window) speechSynthesis.cancel(); this.speaking = false; const b = $('#syPlay'); if (b) b.textContent = '🔊 ' + this.t(0); },
+  /* ---- arrival alerts while the app is open ---- */
+  /** Card shown anywhere in the app when you reach a famous place. */
+  arrive(hit) {
+    let el = $('#syArrive');
+    if (!el) { el = document.createElement('div'); el.id = 'syArrive'; el.className = 'sy-arrive'; el.setAttribute('role', 'alert'); document.body.appendChild(el); }
+    el.innerHTML = `${hit.thumb ? `<img src="${hit.thumb}" alt=""/>` : '<span class="sy-ph">🏛️</span>'}<div class="sy-ar-t"><small>📍 You've reached</small><b>${Util.esc(hit.title)}</b></div>
+      <div class="sy-ar-b"><button class="btn soft sm" data-a="read">📖 Read story</button><button class="btn gold sm" data-a="listen">🔊 Listen</button></div><button class="sy-ar-x" data-a="x" aria-label="Dismiss">✕</button>`;
+    el.hidden = false; if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+    el.onclick = e => { const a = e.target.closest('[data-a]'); if (!a) return; el.hidden = true; if (a.dataset.a !== 'x') this.openFor(hit.title, a.dataset.a === 'listen'); };
+  },
+  async openFor(title, listen) {
+    const c = (Nav.has('story') && this.c) || (Chat.clan && Chat.clan()) || (Auth.user && Clans.listFor(Auth.user.id)[0]); if (!c) return;
+    if (!Nav.has('story')) { this.c = c; UI.openOverlay('story', () => this.stopSpeech()); }
+    await this.story(title);
+    if (listen && this.cur && this.cur.enTitle === title) this.togglePlay();
+  },
+  watch(silent) {
+    if (!navigator.geolocation) return UI.toast('Location is not available on this device.', 'err');
+    if (this.watchId != null) return;
+    Store.set('envelora.v1.arrivalOn', 1);
+    this.seen = this.seen || new Set(); let lastQ = null;
+    this.watchId = navigator.geolocation.watchPosition(async p => {
+      const { latitude: la, longitude: lo } = p.coords;
+      if (lastQ && this.dist(lastQ[0], lastQ[1], la, lo) < 120) return; lastQ = [la, lo];
+      try {
+        const hit = (await this.geo(la, lo, 400)).find(x => x.m < 300 && !this.seen.has(x.title)); if (!hit) return;
+        this.seen.add(hit.title); this.arrive(hit);
+        if (window.Alerts && Alerts.notify) Alerts.notify('You’ve reached ' + hit.title, 'Open Envelora to read or listen to its story.');
+      } catch (e) { }
+    }, () => { this.unwatch(); UI.toast('Location is off, so arrival alerts can’t work.', 'err'); }, { enableHighAccuracy: true, maximumAge: 30000 });
+    if (!silent) UI.toast('Arrival alerts on. You’ll get a card to read or listen when you reach a famous place.');
+  },
+  unwatch() { if (this.watchId != null) navigator.geolocation.clearWatch(this.watchId); this.watchId = null; Store.set('envelora.v1.arrivalOn', 0); }
+};
+
+// Keep arrival alerts running across app restarts for clan members who turned them on
+// (only when location permission is already granted, so no surprise prompt).
+setTimeout(async () => {
+  try {
+    if (!Store.get('envelora.v1.arrivalOn') || !Auth.user || !Clans.listFor(Auth.user.id).length || !navigator.permissions) return;
+    if ((await navigator.permissions.query({ name: 'geolocation' })).state === 'granted') Stories.watch(true);
+  } catch (e) { }
+}, 3000);
+
+/* =============================================================================
    GAMES — six playable prototypes with player selection, scores, restart,
    and "post score to clan chat".
    ============================================================================= */
@@ -3648,7 +3966,7 @@ const Games = {
   targetClan() { return Chat.clan() || (Auth.user && Clans.listFor(Auth.user.id)[0]) || null; },
   renderList() {
     this.stop();
-    $('#gTitle').textContent = 'Clan Games'; $('#gSub').textContent = 'Eight games for the road';
+    $('#gTitle').textContent = 'Clan Games'; $('#gSub').textContent = 'Nine games for the road';
     const c = this.targetClan();
     $('#gBody').innerHTML = `<div class="g-wrap" style="max-width:760px">
       <p style="color:rgba(241,230,204,.75);text-align:center;margin-bottom:16px">${c ? `Scores can be posted to <b style="color:var(--gold)">${Util.esc(c.name)}</b>` : 'Play now — create a clan to post scores to your group chat.'}</p>
@@ -4405,6 +4723,99 @@ Object.assign(GAME_IMPL, {
     intro();
   }
 });
+
+/* =============================================================================
+   IMPOSTER — pass-and-play word game. Everyone gets the same secret word except
+   the imposter(s), who get a similar but different word. Describe, vote, reveal.
+   ============================================================================= */
+const IMPOSTER_WORDS = {
+  'Indian food': [['Samosa', 'Kachori'], ['Biryani', 'Pulao'], ['Dosa', 'Uttapam'], ['Gulab Jamun', 'Rasgulla'], ['Pav Bhaji', 'Vada Pav'], ['Jalebi', 'Imarti'], ['Paneer Tikka', 'Chicken Tikka'], ['Chole Bhature', 'Puri Sabzi'], ['Idli', 'Dhokla'], ['Lassi', 'Chaas'], ['Momos', 'Dumplings'], ['Pani Puri', 'Bhel Puri'], ['Kulfi', 'Ice cream'], ['Masala Chai', 'Filter Coffee'], ['Butter Chicken', 'Kadhai Chicken']],
+  'Places in India': [['Goa', 'Kerala'], ['Taj Mahal', 'Red Fort'], ['Manali', 'Shimla'], ['Jaipur', 'Udaipur'], ['Mumbai', 'Delhi'], ['Rishikesh', 'Haridwar'], ['Ladakh', 'Spiti'], ['Darjeeling', 'Gangtok'], ['Varanasi', 'Prayagraj'], ['Ooty', 'Kodaikanal'], ['Andaman', 'Lakshadweep'], ['Hampi', 'Khajuraho'], ['Gateway of India', 'India Gate'], ['Marine Drive', 'Juhu Beach'], ['Golden Temple', 'Akshardham']],
+  'Travel': [['Train', 'Bus'], ['Flight', 'Helicopter'], ['Hotel', 'Homestay'], ['Backpack', 'Suitcase'], ['Passport', 'Aadhaar card'], ['Beach', 'Lake'], ['Mountain', 'Hill'], ['Tent', 'Hut'], ['Auto-rickshaw', 'Taxi'], ['Map', 'Compass'], ['Sunscreen', 'Moisturiser'], ['Camera', 'Binoculars'], ['Boat', 'Ship'], ['Fort', 'Palace'], ['Waterfall', 'River']],
+  'Bollywood': [['Sholay', 'Deewar'], ['DDLJ', 'Kuch Kuch Hota Hai'], ['3 Idiots', 'PK'], ['Dangal', 'Sultan'], ['Lagaan', 'Chak De India'], ['Zindagi Na Milegi Dobara', 'Dil Chahta Hai'], ['Shah Rukh Khan', 'Salman Khan'], ['Deepika Padukone', 'Alia Bhatt'], ['Amitabh Bachchan', 'Rajinikanth'], ['Queen', 'Piku'], ['Yeh Jawaani Hai Deewani', 'Wake Up Sid'], ['Kabir Singh', 'Animal']],
+  'Cricket & sports': [['Virat Kohli', 'Rohit Sharma'], ['Sachin Tendulkar', 'MS Dhoni'], ['Cricket', 'Baseball'], ['Football', 'Hockey'], ['Kabaddi', 'Kho-kho'], ['Badminton', 'Tennis'], ['Sixer', 'Boundary'], ['IPL', 'World Cup'], ['Chess', 'Carrom'], ['Ludo', 'Snakes and Ladders']],
+  'Everyday things': [['Umbrella', 'Raincoat'], ['Pillow', 'Blanket'], ['Phone', 'Tablet'], ['Mirror', 'Window'], ['Pen', 'Pencil'], ['Fan', 'AC'], ['Toothbrush', 'Comb'], ['Watch', 'Bracelet'], ['Spoon', 'Fork'], ['Shoes', 'Sandals'], ['Book', 'Newspaper'], ['Chair', 'Sofa']],
+  'Animals & nature': [['Tiger', 'Lion'], ['Elephant', 'Rhino'], ['Peacock', 'Parrot'], ['Monkey', 'Langur'], ['Cow', 'Buffalo'], ['Camel', 'Horse'], ['Dolphin', 'Shark'], ['Snake', 'Lizard'], ['Mango', 'Papaya'], ['Rose', 'Lotus'], ['Rain', 'Snow'], ['Sunrise', 'Sunset']],
+  'Festivals': [['Diwali', 'Holi'], ['Eid', 'Christmas'], ['Ganesh Chaturthi', 'Durga Puja'], ['Navratri', 'Garba night'], ['Raksha Bandhan', 'Bhai Dooj'], ['Pongal', 'Makar Sankranti'], ['Onam', 'Bihu'], ['Wedding', 'Birthday party'], ['Baraat', 'Sangeet'], ['Lohri', 'Baisakhi']]
+};
+
+Games.LIST.push({ id: 'imposter', name: 'Imposter', emoji: '🕵️', desc: 'Everyone gets the same word except the imposter. Find them!', min: 3 });
+
+GAME_IMPL.imposter = function (api) {
+  const P = api.players, N = P.length;
+  let cat = 'Any', imps = N >= 7 ? 2 : 1, round = 0;
+  const intro = () => {
+    api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:3rem">🕵️</div>
+      <p class="hint" style="color:rgba(241,230,204,.8)">Pass the phone. Each player secretly sees their word. Everyone has the <b style="color:var(--gold)">same word</b> except the imposter, who gets a <b style="color:var(--gold)">similar but different</b> one. Nobody knows who the imposter is, not even the imposter!</p>
+      <h3 style="color:var(--cream);margin:12px 0 6px;font-size:1rem">Category</h3>
+      <div class="share-chips" id="ipCat" style="justify-content:center">${['Any'].concat(Object.keys(IMPOSTER_WORDS)).map(c => `<button class="chip ${c === cat ? 'on' : ''}" data-c="${c}">${c}</button>`).join('')}</div>
+      <h3 style="color:var(--cream);margin:12px 0 6px;font-size:1rem">Imposters</h3>
+      <div class="share-chips" id="ipImp" style="justify-content:center">${[1, 2].map(n => `<button class="chip ${n === imps ? 'on' : ''}" data-n="${n}" ${n === 2 && N < 5 ? 'disabled' : ''}>${n}</button>`).join('')}</div>
+      <button class="btn gold xl" id="ipGo" style="margin-top:14px">Deal the words</button></div>`;
+    $('#ipCat').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; intro(); } };
+    $('#ipImp').onclick = e => { const b = e.target.closest('[data-n]'); if (b && !b.disabled) { imps = +b.dataset.n; intro(); } };
+    $('#ipGo').onclick = deal;
+  };
+  const deal = () => {
+    round++;
+    const c = cat === 'Any' ? Util.pick(Object.keys(IMPOSTER_WORDS)) : cat;
+    const pair = Deck.draw('imp-' + c, IMPOSTER_WORDS[c]), flip = Math.random() < .5;
+    const crewW = flip ? pair[1] : pair[0], impW = flip ? pair[0] : pair[1];
+    const who = Util.shuffle(P.map((_, i) => i)).slice(0, imps);
+    const order = Util.shuffle(P.map((_, i) => i));
+    let k = 0;
+    const pass = () => {
+      if (k >= N) return talk();
+      const i = order[k]; api.turn(i);
+      api.area.innerHTML = `<div class="g-panel ip-card" style="text-align:center"><p class="hint" style="color:rgba(241,230,204,.7)">Player ${k + 1} of ${N} · ${Util.esc(c)}</p>
+        <div class="big-letter" style="font-size:2.6rem">📱</div><h3 style="color:var(--cream)">Pass the phone to<br/><b style="color:var(--gold);font-size:1.5rem">${Util.esc(P[i])}</b></h3>
+        <p class="hint" style="color:rgba(241,230,204,.7)">Only ${Util.esc(P[i])} should look.</p><button class="btn gold xl" id="ipShow">Show my word</button></div>`;
+      $('#ipShow').onclick = () => {
+        api.area.innerHTML = `<div class="g-panel ip-card" style="text-align:center"><p class="hint" style="color:rgba(241,230,204,.7)">${Util.esc(P[i])}, your word is</p>
+          <div class="ip-word">${Util.esc(who.includes(i) ? impW : crewW)}</div><p class="hint" style="color:rgba(241,230,204,.7)">Remember it. Don't say it out loud!</p>
+          <button class="btn gold xl" id="ipHide">Got it, hide it</button></div>`;
+        $('#ipHide').onclick = () => { k++; pass(); };
+      };
+    };
+    const talk = () => {
+      const first = order[Math.floor(Math.random() * N)];
+      api.turn(first);
+      let left = 90 * 1;
+      api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:2.6rem">🗣️</div>
+        <h3 style="color:var(--cream)">Describe your word</h3>
+        <p class="hint" style="color:rgba(241,230,204,.8)">Going around from <b style="color:var(--gold)">${Util.esc(P[first])}</b>, each player says <b>one word or short clue</b> about their word. Don't make it too obvious, or the imposter will catch on! Do 2 rounds, then vote.</p>
+        <div class="ip-timer" id="ipT">1:30</div><button class="btn gold xl" id="ipVote">Time to vote</button></div>`;
+      const iv = api.interval(() => { left--; const el = $('#ipT'); if (!el) return clearInterval(iv); el.textContent = Math.floor(Math.max(0, left) / 60) + ':' + String(Math.max(0, left) % 60).padStart(2, '0'); if (left <= 0) { clearInterval(iv); el.textContent = "Time's up!"; if (navigator.vibrate) navigator.vibrate(200); } }, 1000);
+      $('#ipVote').onclick = () => { clearInterval(iv); vote(); };
+    };
+    const vote = () => {
+      const picked = new Set();
+      const draw = () => {
+        api.area.innerHTML = `<div class="g-panel" style="text-align:center"><h3 style="color:var(--cream)">Who is the imposter?</h3>
+          <p class="hint" style="color:rgba(241,230,204,.8)">Talk it over, then tap the ${imps === 1 ? 'player' : `${imps} players`} the group votes out.</p>
+          <div class="ip-vote">${P.map((p, i) => `<button class="${picked.has(i) ? 'on' : ''}" data-v="${i}">${Util.avatar ? Util.avatar(p, 'sm') : ''}<span>${Util.esc(p)}</span></button>`).join('')}</div>
+          <button class="btn gold xl" id="ipReveal" ${picked.size === imps ? '' : 'disabled'}>Reveal</button></div>`;
+        $$('[data-v]').forEach(b => b.onclick = () => { const i = +b.dataset.v; if (picked.has(i)) picked.delete(i); else if (picked.size < imps) picked.add(i); draw(); });
+        $('#ipReveal').onclick = () => reveal([...picked]);
+      };
+      draw();
+    };
+    const reveal = votes => {
+      const caught = who.filter(i => votes.includes(i)), escaped = who.filter(i => !votes.includes(i));
+      const crewWin = escaped.length === 0;
+      P.forEach((_, i) => { if (who.includes(i)) { if (!votes.includes(i)) api.add(i, 30); } else if (crewWin) api.add(i, 10); });
+      api.area.innerHTML = `<div class="g-panel" style="text-align:center"><div class="big-letter" style="font-size:3rem">${crewWin ? '🎉' : '😈'}</div>
+        <h3 style="color:var(--cream)">${crewWin ? 'Imposter caught!' : escaped.length === imps ? 'The imposter got away!' : 'One imposter got away!'}</h3>
+        <p style="color:var(--cream)">${who.length > 1 ? 'Imposters' : 'Imposter'}: <b style="color:var(--gold)">${who.map(i => Util.esc(P[i])).join(' & ')}</b></p>
+        <div class="ip-words"><div><small>Everyone's word</small><b>${Util.esc(crewW)}</b></div><div><small>Imposter's word</small><b>${Util.esc(impW)}</b></div></div>
+        <p class="hint" style="color:rgba(241,230,204,.75)">${crewWin ? 'Crew +10 each.' : 'Imposter +30 for staying hidden.'}</p>
+        <div class="row" style="justify-content:center;gap:8px"><button class="btn gold" id="ipNext">Next round</button><button class="btn ghost-light" id="ipSet">Change category</button></div></div>`;
+      $('#ipNext').onclick = deal; $('#ipSet').onclick = intro;
+    };
+    pass();
+  };
+  intro();
+};
 
 /* =============================================================================
    HOME + HEADER + ACCOUNT MENU
