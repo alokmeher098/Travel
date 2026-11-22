@@ -132,6 +132,9 @@ textarea.input{min-height:84px;resize:vertical}
 .input.err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(168,68,58,.15)}
 .row{display:flex;gap:10px}
 .row>*{flex:1;min-width:0}
+.row>.icon-btn{flex:none}
+.grid2>*{min-width:0}
+input.input[type=date],input.input[type=datetime-local],input.input[type=time]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;display:block}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .hint{font-size:.8rem;color:var(--muted)}
 .err-msg{font-size:.8rem;color:var(--danger);min-height:1.1em;margin-top:4px}
@@ -468,6 +471,14 @@ main.home{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px calc
 .act .acts{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
 .act .acts .icon-btn{width:34px;height:34px}
 .act.next{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,178,106,.35)}
+.ac{position:relative}
+.ac-list{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;margin:0;padding:6px;list-style:none;
+  background:var(--paper) var(--grain);border:1px solid var(--gold);border-radius:14px;box-shadow:var(--shadow-lg);max-height:min(52vh,320px);overflow:auto;animation:pop .18s var(--ease)}
+.ac-list li{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:1rem;color:var(--ink);min-height:44px}
+.ac-list li svg{color:var(--gold-d)}
+.ac-list li b{color:var(--navy);font-weight:600}
+.ac-list li small{margin-left:auto;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+.ac-list li:hover,.ac-list li.on{background:rgba(212,178,106,.2)}
 details.grp{border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:12px;background:rgba(255,255,255,.4)}
 details.grp summary{padding:10px 0;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;list-style:none}
 details.grp summary::-webkit-details-marker{display:none}
@@ -1271,6 +1282,40 @@ const UI = {
     else { btn.disabled = false; if (btn._txt != null) btn.innerHTML = btn._txt; }
   }
 };
+/* Autocomplete — custom suggestion list (replaces <datalist>, which renders badly in
+   some Android browsers / in-app webviews). Tap, mouse and keyboard friendly. */
+const Autocomplete = {
+  attach(input, list, items, metaFn) {
+    let shown = [], active = -1;
+    const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); active = -1; };
+    const pick = v => { input.value = v; close(); input.dispatchEvent(new Event('change', { bubbles: true })); };
+    const draw = () => {
+      const q = input.value.trim().toLowerCase();
+      const starts = items.filter(i => i.toLowerCase().startsWith(q));
+      const has = items.filter(i => !i.toLowerCase().startsWith(q) && i.toLowerCase().includes(q));
+      shown = [...starts, ...has].slice(0, 7);
+      if (!shown.length || (shown.length === 1 && shown[0].toLowerCase() === q)) return close();
+      list.innerHTML = shown.map((v, i) => {
+        const m = metaFn ? metaFn(v) : '';
+        const hi = q ? Util.esc(v).replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'i'), '<b>$1</b>') : Util.esc(v);
+        return `<li role="option" id="${list.id}-${i}" class="${i === active ? 'on' : ''}" data-v="${Util.esc(v)}">${icon('pin', 'sm')}<span>${hi}</span>${m ? `<small>${Util.esc(m)}</small>` : ''}</li>`;
+      }).join('');
+      list.hidden = false; input.setAttribute('aria-expanded', 'true');
+    };
+    input.addEventListener('input', () => { active = -1; draw(); });
+    input.addEventListener('focus', draw);
+    input.addEventListener('blur', () => setTimeout(close, 120));
+    input.addEventListener('keydown', e => {
+      if (list.hidden) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); active = (active + (e.key === 'ArrowDown' ? 1 : -1) + shown.length) % shown.length; draw(); input.setAttribute('aria-activedescendant', list.id + '-' + active); }
+      else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(shown[active]); }
+      else if (e.key === 'Escape') close();
+    });
+    // pointerdown + preventDefault keeps focus in the input so the tap always registers
+    list.addEventListener('pointerdown', e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); pick(li.dataset.v); });
+  }
+};
+
 // Any element with [data-nav-back] closes the top screen.
 document.addEventListener('click', e => { if (e.target.closest('[data-nav-back]')) Nav.back(); });
 $('#scrim').addEventListener('click', () => UI.closeSheet());
@@ -1752,13 +1797,13 @@ const Planner = {
         <div class="lt">${editing ? 'Amend your letter' : 'Dear traveller, where shall we go?'}</div>
         <h3>${editing ? 'Trip details' : 'Your journey'}</h3>
         <div class="field"><label class="f" for="sf-dest">Destination</label>
-          <input class="input" id="sf-dest" list="dl-dest" placeholder="e.g. Goa, Manali, Jaipur" value="${Util.esc(t ? t.destination : '')}" required />
-          <datalist id="dl-dest">${DEST_SUGGEST.map(d => `<option value="${d}">`).join('')}</datalist>
+          <div class="ac"><input class="input" id="sf-dest" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-dest" autocomplete="off" placeholder="e.g. Goa, Manali, Jaipur" value="${Util.esc(t ? t.destination : '')}" required />
+          <ul class="ac-list" id="ac-dest" role="listbox" hidden></ul></div>
           <div class="share-chips" style="margin-top:8px">${Object.values(DESTINATIONS).map(d => `<button type="button" class="chip" data-dest="${d.name}">${d.emoji} ${d.name}</button>`).join('')}</div>
         </div>
         <div class="field"><label class="f" for="sf-from">Starting from</label>
-          <input class="input" id="sf-from" list="dl-from" placeholder="e.g. Delhi" value="${Util.esc(t ? t.from : '')}" />
-          <datalist id="dl-from">${ORIGIN_SUGGEST.map(d => `<option value="${d}">`).join('')}</datalist></div>
+          <div class="ac"><input class="input" id="sf-from" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" autocomplete="off" placeholder="e.g. Delhi" value="${Util.esc(t ? t.from : '')}" />
+          <ul class="ac-list" id="ac-from" role="listbox" hidden></ul></div></div>
         <div class="grid2">
           <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" value="${start}" /></div>
           <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" value="${end}" /></div>
@@ -1778,6 +1823,8 @@ const Planner = {
       </form>`;
     const f = $('#setupForm');
     $$('[data-dest]', f).forEach(b => b.onclick = () => { $('#sf-dest').value = b.dataset.dest; });
+    Autocomplete.attach($('#sf-dest'), $('#ac-dest'), DEST_SUGGEST, d => guideFor(d) ? 'Guide available' : '');
+    Autocomplete.attach($('#sf-from'), $('#ac-from'), [...new Set([...ORIGIN_SUGGEST, ...DEST_SUGGEST])]);
     if (!editing) {
       const cur = names.slice();
       const drawNames = () => {
