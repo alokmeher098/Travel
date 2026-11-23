@@ -519,8 +519,8 @@ main.home{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px calc
 .day-chip .ct{font-size:.66rem;color:var(--gold-d);font-weight:700}
 .day-chip.on .ct{color:var(--gold-l)}
 .act{position:relative;padding:14px 14px 12px 62px;border-radius:var(--r);background:rgba(255,255,255,.7);border:1px solid rgba(212,178,106,.4);box-shadow:0 3px 10px rgba(13,27,42,.05);margin-bottom:10px;animation:paneIn .3s var(--ease)}
-.act .tm{position:absolute;left:10px;top:14px;width:44px;text-align:center;font-weight:700;font-size:.82rem;color:var(--navy);font-family:var(--serif)}
-.act .tm::after{content:"";position:absolute;left:50%;top:24px;width:2px;height:calc(100% + 10px);background:linear-gradient(var(--gold),transparent);transform:translateX(-50%)}
+.act .tm{position:absolute;left:8px;top:14px;width:48px;text-align:center;font-weight:700;font-size:.8rem;line-height:1.25;white-space:nowrap;color:var(--navy);font-family:var(--serif)}
+.act .tm::after{content:"";position:absolute;left:50%;top:calc(100% + 6px);width:2px;height:40px;background:linear-gradient(var(--gold),transparent);transform:translateX(-50%)}
 .act h4{font-size:1.02rem;margin:0 0 2px}
 .act .pl{font-size:.84rem;color:var(--muted);display:flex;align-items:center;gap:4px}
 .act .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -2301,8 +2301,10 @@ const Planner = {
       const i = +b.dataset.i, items = d.items;
       const a = b.dataset.act;
       if (a === 'edit') this.activityForm(i);
-      if (a === 'up' && i > 0) { [items[i - 1], items[i]] = [items[i], items[i - 1]]; this.persist(); this.renderDay(host); }
-      if (a === 'down' && i < items.length - 1) { [items[i + 1], items[i]] = [items[i], items[i + 1]]; this.persist(); this.renderDay(host); }
+      // Moving swaps the two activities but keeps the time slots in place, so times always run in order.
+      const move = j => { const x = items[i], y = items[j]; if (x.time && y.time) [x.time, y.time] = [y.time, x.time]; items[i] = y; items[j] = x; this.persist(); this.renderDay(host); };
+      if (a === 'up' && i > 0) move(i - 1);
+      if (a === 'down' && i < items.length - 1) move(i + 1);
       if (a === 'del') UI.confirm('Delete this activity?', `"${items[i].title}" will be removed from Day ${this.day + 1}.`, { ok: 'Delete' }).then(ok => { if (ok) { items.splice(i, 1); this.persist(); this.renderDay(host); UI.toast('Activity deleted.'); } });
       if (a === 'remind') Alerts.remindActivity(t, this.day, items[i].id);
     };
