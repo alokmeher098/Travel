@@ -221,7 +221,7 @@ svg.vmark circle{fill:currentColor}
    ========================================================================== */
 .intro{
   position:fixed;inset:0;z-index:100;overflow:hidden;color:var(--cream);
-  background:radial-gradient(ellipse at 50% 42%, #162a44 0%, var(--navy) 50%, #05080d 100%);
+  background:#000000;
   display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
   transition:opacity .7s var(--ease), visibility .7s;
 }
@@ -1041,6 +1041,31 @@ details.grp[open] summary::after{content:"–"}
 .cap-row .icon-btn{flex:none}
 .cap-row .input{flex:1;min-width:0;text-align:center;font-size:1.1rem;letter-spacing:.08em}
 .sy-about{margin:4px 0 12px;padding:12px 14px;border-radius:14px;background:#fff7e3;border:1px solid var(--gold)}.sy-about b{display:block;color:var(--navy);font-family:var(--serif);font-size:1.05rem}.sy-about small{display:block;color:var(--muted);font-size:.76rem;margin:2px 0 6px}.sy-about p{margin:6px 0 0;line-height:1.5}
+/* ---- Opening logo animation: V turns left → EN, turns right → ELORA, straightens and shines ---- */
+.splash{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.intro.revealed .splash{opacity:0;transform:translateY(-18vh) scale(.7);pointer-events:none;transition-duration:.35s,.5s}
+.sp-word{transform:translateX(var(--shift,0));transition:transform .4s cubic-bezier(.65,0,.35,1);display:flex;align-items:center;font-family:var(--serif);color:var(--cream);font-size:clamp(2rem,10.5vw,4rem);line-height:1;letter-spacing:0}
+.sp-ch{display:inline-block;width:.86em;text-align:center;opacity:0;transform:translateX(var(--dx,0)) scale(.15) rotate(var(--rot,0deg));transition:transform .3s cubic-bezier(.2,.9,.25,1.2),opacity .2s ease;transition-delay:var(--d,0s)}
+.splash.en .sp-l,.splash.elora .sp-r{opacity:1;transform:none}
+.splash.elora .sp-word{transform:none}
+.sp-v{position:relative;display:inline-grid;place-items:center;width:1em;height:1.12em;margin:0 .1em;opacity:0;transform:scale(.3) rotate(0deg);transition:transform .25s cubic-bezier(.65,0,.35,1),opacity .2s ease,filter .3s ease}
+.sp-vin{display:block;width:.86em;height:1.04em;color:var(--gold)}
+.sp-vin .vmark{width:100%;height:100%;margin:0;overflow:visible}
+.splash.in .sp-v{opacity:1;transform:scale(1) rotate(0deg)}
+.splash.left .sp-v{transform:scale(1) rotate(-90deg)}
+.splash.right .sp-v{transform:scale(1) rotate(90deg);transition-duration:.3s}
+.splash.up .sp-v{transform:scale(1.08) rotate(0deg)}
+.splash.shine .sp-v{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 10px rgba(212,178,106,.95)) drop-shadow(0 0 26px rgba(212,178,106,.55))}
+.sp-shine{position:absolute;inset:-20%;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000,#000);border-radius:30%}
+.sp-shine::before{content:"";position:absolute;top:-30%;bottom:-30%;width:45%;left:-80%;background:linear-gradient(100deg,transparent,rgba(255,248,225,.95),transparent);transform:skewX(-18deg);mix-blend-mode:screen}
+.splash.shine .sp-shine::before{animation:spShine .4s ease 0s 1 forwards}
+@keyframes spShine{to{left:140%}}
+.sp-rule{width:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:width .35s var(--ease)}
+.splash.shine .sp-rule{width:min(260px,60vw)}
+.sp-tag{margin:0;padding:0 16px;text-align:center;color:var(--cream);font-family:var(--serif);font-style:italic;font-size:clamp(.95rem,4.2vw,1.2rem);letter-spacing:.04em;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease}
+.splash.up .sp-tag,.splash.shine .sp-tag{opacity:.92;transform:none}
+.sp-skip{position:absolute;bottom:max(22px,env(safe-area-inset-bottom));margin:0;color:var(--cream);opacity:.35;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}
+.splash.shine .sp-skip{opacity:0}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1050,28 +1075,14 @@ details.grp[open] summary::after{content:"–"}
      ===================================================================== -->
 <section id="intro" class="intro" aria-label="Welcome to Envelora">
   <div class="stamps" id="stamps" aria-hidden="true"></div>
-  <div class="intro-brand">
-    <h1 aria-label="Envelora"><span class="wordmark" data-brand></span></h1>
-    <div class="brand-sealed">SEALED</div>
-    <div class="brand-rule"></div>
-    <p class="brand-tag">Open the envelope · Begin the journey</p>
-  </div>
-  <div class="env-stage" id="envStage">
-    <div class="envelope">
-      <div class="env-back"></div>
-      <div class="env-letter" aria-hidden="true">
-        <div class="lt-h">Dear traveller,</div>
-        <div class="lt-l"></div><div class="lt-l"></div><div class="lt-l"></div>
-        <div class="lt-h" style="text-align:right;font-size:.85rem">— your next journey</div>
-      </div>
-      <div class="env-pocket"></div>
-      <div class="env-flap"></div>
-      <button class="env-seal-btn" id="sealBtn" aria-label="Break the wax seal to open">
-        <span class="seal" data-vmark></span>
-      </button>
+  <div class="splash" id="splash" role="img" aria-label="Envelora">
+    <div class="sp-word" id="spWord">
+      <span class="sp-ch sp-l">E</span><span class="sp-ch sp-l">N</span><span class="sp-v" id="spV"><span class="sp-vin" data-vmark></span><i class="sp-shine"></i></span><span class="sp-ch sp-r">E</span><span class="sp-ch sp-r">L</span><span class="sp-ch sp-r">O</span><span class="sp-ch sp-r">R</span><span class="sp-ch sp-r">A</span>
     </div>
+    <div class="sp-rule"></div>
+    <p class="sp-tag">Open the envelope · Begin the journey</p>
+    <p class="sp-skip">Tap to skip</p>
   </div>
-  <div class="tap-hint" id="tapHint">Tap the seal to open</div>
   <div class="auth-host" id="introAuth"></div>
 </section>
 
@@ -5715,11 +5726,26 @@ const Intro = {
       return `<div class="stamp" style="left:${x}%;top:${y}%;--r:${r}deg;--z:${small ? .72 : .95};--sc:${tints[i % 4]};animation-delay:${.15 + i * .12}s"><div class="st-in"><span class="st-t">${places[i]}</span><div class="st-ic">${STAMP_ART[arts[i % arts.length]]}</div><span class="st-v">₹${[5, 10, 15, 20, 25][i % 5]}</span></div></div>`;
     }).join('');
   },
+  /** Logo animation: V turns 90° left → E N come out; V turns 180° right → E L O R A come out; V straightens and shines → login. */
+  play() {
+    const sp = $('#splash'), V = $('#spV'); if (!sp) return this.open();
+    // Each letter starts at the V's centre and flies out to its place.
+    const vc = V.getBoundingClientRect(), cx = vc.left + vc.width / 2;
+    $$('.sp-ch', sp).forEach(ch => { const r = ch.getBoundingClientRect(); ch.style.setProperty('--dx', (cx - (r.left + r.width / 2)) + 'px'); });
+    // Start with the V in the middle of the screen; the word glides to centre once ELORA is out.
+    const wd = $('#spWord'); wd.style.transition = 'none'; wd.style.setProperty('--shift', (innerWidth / 2 - cx) + 'px'); wd.offsetWidth; wd.style.transition = '';
+    $$('.sp-l', sp).forEach((ch, i, a) => { ch.style.setProperty('--d', ((a.length - 1 - i) * .07) + 's'); ch.style.setProperty('--rot', '-90deg'); });
+    $$('.sp-r', sp).forEach((ch, i) => { ch.style.setProperty('--d', (i * .045) + 's'); ch.style.setProperty('--rot', '90deg'); });
+    const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1600], ['done', 2000]];
+    this.timers = steps.map(([c, t]) => setTimeout(() => c === 'done' ? this.open() : sp.classList.add(...c.split(' ')), t));
+    sp.addEventListener('click', () => this.skip(), { once: true });
+  },
+  skip() { (this.timers || []).forEach(clearTimeout); const sp = $('#splash'); sp && sp.classList.add('in', 'en', 'elora', 'shine'); this.open(); },
   open() {
     const el = $('#intro'); if (el.classList.contains('opened')) return;
-    el.classList.add('opened');
-    setTimeout(() => el.classList.add('rising'), 700);
-    setTimeout(() => { el.classList.add('revealed'); Invite.pending ? Invite.renderCard($('#introAuth')) : this.showAuth(); }, 1600);
+    el.classList.add('opened', 'rising');
+    setTimeout(() => { el.classList.add('revealed'); Invite.pending ? Invite.renderCard($('#introAuth')) : this.showAuth(); }, 150);
   },
   showAuth() {
     const host = $('#introAuth'); host.innerHTML = '<div class="glass" id="introGlass"></div>';
@@ -5735,7 +5761,6 @@ const Intro = {
     setTimeout(() => { $('#introAuth').innerHTML = ''; UI.syncLock(); }, 700);
   }
 };
-$('#sealBtn').addEventListener('click', () => Intro.open());
 
 /* =============================================================================
    BOOT
@@ -5745,6 +5770,7 @@ $('#sealBtn').addEventListener('click', () => Intro.open());
   $$('[data-nav-back]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = b.closest('.sheet') ? icon('close') : icon('back'); });
   Invite.parse();
   Intro.stamps();
+  Promise.race([document.fonts ? document.fonts.ready : null, new Promise(r => setTimeout(r, 120))]).then(() => requestAnimationFrame(() => Intro.play()));
   Home.features();
   history.replaceState({ envDepth: 0 }, '');
   // Re-route if someone pastes an invite link into an already-open tab.
