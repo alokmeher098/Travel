@@ -1167,6 +1167,9 @@ details.grp[open] summary::after{content:"–"}
 .ex-c .lp .rs-fly{display:none}
 @media(prefers-reduced-motion:reduce){.lp *{animation:none!important}.lp-water,.lp-wind{display:none}}
 .pc-img .reel .lp-img{opacity:1;animation:none;will-change:auto}
+.lp.still .lp-img{filter:contrast(1.06) saturate(1.12) brightness(1.02)}
+.lp-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.32) 100%)}
+.lp.still{animation:lpIn .6s ease}@keyframes lpIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -4216,16 +4219,16 @@ const Stories = {
   UA: { 'Api-User-Agent': 'Envelora/1.0 (https://alokmeher098.github.io/Travel/envelora/)' },
   api(lang, params) { return fetch(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&` + new URLSearchParams(params), { headers: this.UA }).then(r => r.json()); },
   /** Look up author + license for image files; drop non-free (fair-use) and unlicensed files. */
-  async licensed(files) {
+  async licensed(files, width = 900) {
     if (!files.length) return [];
-    const j = await this.api('en', { action: 'query', titles: files.join('|'), prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: 900, iiextmetadatafilter: 'Artist|LicenseShortName|LicenseUrl|NonFree|Restrictions' }).catch(() => null);
+    const j = await this.api('en', { action: 'query', titles: files.join('|'), prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: width, iiextmetadatafilter: 'Artist|LicenseShortName|LicenseUrl|NonFree|Restrictions' }).catch(() => null);
     const pages = j && j.query ? Object.values(j.query.pages) : [], strip = h => { const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent.replace(/\s+/g, ' ').trim(); };
     const norm = t => (t || '').replace(/_/g, ' ');
     return files.map(f => pages.find(p => norm(p.title) === norm(f) || (j.query.normalized || []).some(n => norm(n.from) === norm(f) && n.to === p.title))).filter(p => p && p.imageinfo && p.imageinfo[0]).map(p => {
       const ii = p.imageinfo[0], m = ii.extmetadata || {}, v = k => m[k] && m[k].value;
       const lic = strip(v('LicenseShortName')), nonfree = String(v('NonFree') || '').toLowerCase() === 'true';
       if (nonfree || !lic || /fair use|non-free/i.test(lic)) return null;
-      return { src: ii.thumburl || ii.url, page: ii.descriptionurl, author: strip(v('Artist')).slice(0, 80) || 'Unknown author', lic, licUrl: v('LicenseUrl') || '' };
+      return { src: ii.thumburl || ii.url, w: ii.width || 0, h: ii.height || 0, file: p.title, page: ii.descriptionurl, author: strip(v('Artist')).slice(0, 80) || 'Unknown author', lic, licUrl: v('LicenseUrl') || '' };
     }).filter(Boolean);
   },
   open(c) {
@@ -5888,10 +5891,10 @@ const Reels = {
       Explore.defs();
       Explore.destPhoto(box.dataset.reel).then(p => {
         if (!p || !box.isConnected) return;
-        reel.innerHTML = Explore.living(box.dataset.reel, p, true, kind);
-        const lp = reel.querySelector('.lp'); lp.classList.add('play');
+        // still, DSLR-style photo (no motion)
+        reel.innerHTML = `<div class="lp still"><img class="lp-img" src="${Util.esc(p.src)}" alt="${Util.esc(p.place || box.dataset.reel)}" decoding="async"/><div class="lp-vig"></div></div>`;
         const cr = box.closest('.postcard') && box.closest('.postcard').querySelector('.reel-credit');
-        if (cr) { cr.hidden = false; cr.innerHTML = `📷 ${p.place && p.place !== box.dataset.reel ? Util.esc(p.place) + ' · ' : ''}<a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> (${Util.esc(p.lic)}), Wikimedia Commons · motion added by Envelora`; }
+        if (cr) { cr.hidden = false; cr.innerHTML = `📷 ${p.place && p.place !== box.dataset.reel ? Util.esc(p.place) + ' · ' : ''}<a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> (${Util.esc(p.lic)}), Wikimedia Commons`; }
       }).catch(() => { });
     });
   }
@@ -5956,21 +5959,32 @@ const Explore = {
   },
   /** Real photo of a destination's famous place (cached 30 days). */
   async destPhoto(dest) {
-    const key = 'd:' + dest.trim().toLowerCase(), all = Store.get('envelora.v1.tripPhotos', {}) || {};
+    const key = 'd:' + dest.trim().toLowerCase(), all = Store.get('envelora.v2.tripPhotos', {}) || {};
     if (all[key] && Date.now() - all[key].at < this.TTL) return all[key].p;
     const bad = f => !f || /\.svg$/i.test(f) || /map|flag|logo|seal|emblem|locator|coat/i.test(f);
     let file = null;
-    const lead = await Stories.api('en', { action: 'query', titles: dest, redirects: 1, prop: 'pageimages', piprop: 'name' });
-    const lp = Object.values((lead.query && lead.query.pages) || {})[0];
+    // the place's own article: its photo + its map position
+    const lead = await Stories.api('en', { action: 'query', titles: dest + (/india/i.test(dest) ? '' : '|' + dest + ', India'), redirects: 1, prop: 'pageimages|coordinates', piprop: 'name' });
+    const lps = Object.values((lead.query && lead.query.pages) || {}).filter(x => !('missing' in x));
+    const lp = lps.find(x => x.coordinates) || lps[0];
     if (lp && !bad(lp.pageimage)) file = lp.pageimage;
-    // prefer a famous sight of the place when one exists
-    const sr = await Stories.api('en', { action: 'query', generator: 'search', gsrsearch: `"${dest}" (fort OR temple OR lake OR beach OR palace OR waterfall OR dam OR monument OR valley OR ghat)`, gsrlimit: 8, prop: 'pageimages', piprop: 'name' }).catch(() => null);
-    const sight = Object.values((sr && sr.query && sr.query.pages) || {}).sort((a, b) => (a.index || 0) - (b.index || 0)).find(p => p.title !== (lp && lp.title) && !bad(p.pageimage));
-    const files = [sight && sight.pageimage, file].filter(Boolean).map(f => 'File:' + f.replace(/_/g, ' '));
-    const lic = files.length ? await Stories.licensed(files) : [];
-    const p = lic[0] ? { src: lic[0].src, author: lic[0].author, lic: lic[0].lic, page: lic[0].page, place: sight && lic[0].page && decodeURIComponent(lic[0].page).replace(/_/g, ' ').includes(sight.pageimage.replace(/_/g, ' ')) ? sight.title : dest } : null;
+    // famous sights only from within ~20 km of that place (by map position, not by name)
+    let sights = [];
+    const co = lp && lp.coordinates && lp.coordinates[0];
+    if (co) {
+      const gs = await Stories.api('en', { action: 'query', generator: 'geosearch', ggscoord: co.lat + '|' + co.lon, ggsradius: 20000, ggslimit: 40, prop: 'pageimages|description', piprop: 'name' }).catch(() => null);
+      sights = Object.values((gs && gs.query && gs.query.pages) || {})
+        .filter(x => x.title !== lp.title && !bad(x.pageimage) && Stories.LANDMARK.test(x.title + ' ' + (x.description || '')) && !/station|airport|school|college|university|hospital|district|constituency|railway|road/i.test(x.title + ' ' + (x.description || '')))
+        .sort((a, b) => (a.index || 0) - (b.index || 0)).slice(0, 6);
+    }
+    const cand = sights.map(x => ({ f: 'File:' + x.pageimage.replace(/_/g, ' '), place: x.title })).concat(file ? [{ f: 'File:' + file.replace(/_/g, ' '), place: dest }] : []);
+    const lic = cand.length ? await Stories.licensed(cand.map(c => c.f), 1600) : [];
+    const score = l => (l.w >= 1600 ? 2 : l.w >= 1000 ? 1 : 0) + (l.w && l.h && l.w / l.h >= 1.25 ? 2 : 0);
+    const best = lic.map((l, k) => ({ l, k, s: score(l) })).sort((a, b) => b.s - a.s || a.k - b.k)[0];
+    const pick = best && best.l, from = pick && cand.find(c => c.f === pick.file);
+    const p = pick ? { src: pick.src, author: pick.author, lic: pick.lic, page: pick.page, place: from ? from.place : dest } : null;
     all[key] = { at: Date.now(), p }; const ks = Object.keys(all); if (ks.length > 60) ks.sort((a, b) => all[a].at - all[b].at).slice(0, ks.length - 60).forEach(k => delete all[k]);
-    Store.set('envelora.v1.tripPhotos', all);
+    Store.set('envelora.v2.tripPhotos', all);
     return p;
   },
   render() {
