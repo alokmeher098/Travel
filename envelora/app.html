@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0D1B2A" />
 <meta name="description" content="Envelora — plan group trips across India with your Clan. Letters, envelopes, postcards and memories." />
-<title>Envelora — Sealed</title>
+<title>Envelora</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230D1B2A'/%3E%3Cpath d='M17 15 L32 46' stroke='%23D4B26A' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M47 13 L32 46' stroke='%23D4B26A' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='49' r='3.6' fill='%23D4B26A'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1087,7 +1087,7 @@ details.grp[open] summary::after{content:"–"}
       <span class="sp-ch sp-l">E</span><span class="sp-ch sp-l">N</span><span class="sp-v" id="spV"><span class="sp-vin" data-vmark></span><i class="sp-shine"></i></span><span class="sp-ch sp-r">E</span><span class="sp-ch sp-r">L</span><span class="sp-ch sp-r">O</span><span class="sp-ch sp-r">R</span><span class="sp-ch sp-r">A</span>
     </div>
     <div class="sp-rule"></div>
-    <p class="sp-tag">Open the envelope · Begin the journey</p>
+    <p class="sp-tag">Begin the journey</p>
     <p class="sp-skip">Tap to skip</p>
   </div>
   <div class="auth-host" id="introAuth"></div>
@@ -1110,7 +1110,7 @@ details.grp[open] summary::after{content:"–"}
     <section class="now-card" id="nowCard" aria-label="Today's date, time and weather"></section>
     <article class="hero-letter">
       <div class="air t"></div>
-      <div class="pm" aria-hidden="true">ENVELORA<br/>· SEALED ·</div>
+      <div class="pm" aria-hidden="true">ENVELORA</div>
       <div class="salute">Dear traveller,</div>
       <h1>Every great journey<br/>begins with a letter.</h1>
       <p>Write your itinerary, pack together, split every rupee fairly — then seal it into a private <b>Clan</b> where friends and family plan, chat and play all the way.</p>
@@ -1140,10 +1140,10 @@ details.grp[open] summary::after{content:"–"}
     </section>
     <!-- ========================================================================= -->
 
-    <div class="brand-lockup" aria-label="Envelora. Sealed. Open the envelope, begin the journey.">
+    <div class="brand-lockup" aria-label="Envelora. Begin the journey.">
       <span class="wordmark" data-brand></span>
-      <div class="brand-sealed">SEALED</div><div class="brand-rule"></div>
-      <p class="brand-tag">Open the envelope · Begin the journey</p>
+      <div class="brand-rule"></div>
+      <p class="brand-tag">Begin the journey</p>
     </div>
     <p class="foot-note">Prototype build · OTP, payments, GPS & realtime chat are <b>simulated</b> and clearly labelled.<br/>Data is stored only in this browser (localStorage).</p>
   </main>
@@ -2767,7 +2767,7 @@ const Clans = {
   create({ trip, name, desc, payment }) {
     const u = Auth.user;
     const c = {
-      id: Util.uid('clan'), token: Util.token(12), name, desc: desc || `Our ${trip.destination} trip, sealed with love.`, photo: null,
+      id: Util.uid('clan'), token: Util.token(12), name, desc: desc || `Our ${trip.destination} trip, made with love.`, photo: null,
       createdAt: Date.now(), createdBy: u.id, capacity: trip.travellers.length, paidTravellers: trip.travellers.length, paidDays: Trips.dayCount(trip),
       members: [{ accountId: u.id, name: u.name, contact: Auth.contactOf(u), role: 'leader', joinedAt: Date.now() }],
       messages: [], photos: [], payments: [{ ...payment, purpose: 'Clan creation', ts: Date.now(), by: u.id }], trip: null
@@ -2893,7 +2893,7 @@ const ClanPay = {
       </div>
       <form class="card" id="cp-form" style="margin-top:16px" autocomplete="off" novalidate>
         <div class="field"><label class="f">Clan name</label><input class="input" id="cp-name" maxlength="32" value="${Util.esc(t.destination + ' Clan')}" /></div>
-        <div class="field"><label class="f">Description (optional)</label><input class="input" id="cp-desc" maxlength="90" placeholder="Our ${Util.esc(t.destination)} trip, sealed with love." /></div>
+        <div class="field"><label class="f">Description (optional)</label><input class="input" id="cp-desc" maxlength="90" placeholder="Our ${Util.esc(t.destination)} trip, made with love." /></div>
         <ul class="hint" style="padding-left:18px;margin:0 0 12px"><li>You become the clan <b>leader</b>; others join through your invite link.</li><li>Clan capacity = <b>${n}</b> paid traveller spot${n > 1 ? 's' : ''} (you can buy more later).</li></ul>
         ${Payments.isLive() ? '' : `<div class="notice">${icon('info', 'sm')}<span><b>Preview mode:</b> Razorpay isn't connected yet. You'll see a simulated checkout — no money is charged.</span></div>`}
         <div class="err-msg" id="cp-err"></div>
@@ -2918,7 +2918,7 @@ const ClanPay = {
   },
   renderSuccess(c, res) {
     $('#payBody').innerHTML = `<div class="card paper tab-pane">
-      <div class="success-burst">${Brand.seal(96)}<h2>Your clan is sealed!</h2>
+      <div class="success-burst">${Brand.seal(96)}<h2>Your clan is ready!</h2>
       <p class="hint">${Util.esc(c.name)} · capacity ${c.capacity} · you are the leader</p>
       ${res.mode === 'simulated' ? `<span class="badge sim">Simulated payment · ${Util.inr(res.amount)} · not charged</span>` : `<span class="badge live">Payment verified · ${Util.inr(res.amount)}</span>`}</div>
       <hr class="gold-rule"/>
@@ -4300,7 +4300,7 @@ const Wraps = {
       const txt = (x, t, X, Y, font, col, align = 'left', max) => { x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'alphabetic'; x.fillText(String(t), X, Y, max); };
       const wrapTxt = (x, t, X, Y, maxW, lh, font, col, align = 'left') => { x.font = font; x.fillStyle = col; x.textAlign = align; let line = '', y = Y; String(t).split(' ').forEach(word => { const tl = line ? line + ' ' + word : word; if (x.measureText(tl).width > maxW && line) { x.fillText(line, X, y); line = word; y += lh; } else line = tl; }); if (line) x.fillText(line, X, y); return y + lh; };
       const head = (x, label, n, total) => { x.fillStyle = '#D4B26A'; x.fillRect(90, 110, 60, 4); txt(x, label.toUpperCase(), 170, 122, '500 30px Jost, sans-serif', '#a5802f'); txt(x, `${n} / ${total}`, W - 90, 122, '28px Jost, sans-serif', '#8a8070', 'right'); };
-      const foot = x => { x.fillStyle = 'rgba(13,27,42,.12)'; x.fillRect(90, H - 130, W - 180, 2); txt(x, 'ENVELORA · Open the envelope, begin the journey', 90, H - 80, '26px Jost, sans-serif', '#8a8070'); txt(x, Util.fmtDate(Util.ymd(w.created), { day: 'numeric', month: 'short', year: 'numeric' }), W - 90, H - 80, '26px Jost, sans-serif', '#8a8070', 'right'); };
+      const foot = x => { x.fillStyle = 'rgba(13,27,42,.12)'; x.fillRect(90, H - 130, W - 180, 2); txt(x, 'ENVELORA · Begin the journey', 90, H - 80, '26px Jost, sans-serif', '#8a8070'); txt(x, Util.fmtDate(Util.ymd(w.created), { day: 'numeric', month: 'short', year: 'numeric' }), W - 90, H - 80, '26px Jost, sans-serif', '#8a8070', 'right'); };
       const TOTAL = 3 + ((w.pics || []).length ? 1 : 0);
       // 1. Cover
       page(x => {
@@ -5520,7 +5520,7 @@ const Home = {
       const g = guideFor(t.destination), days = Trips.dayCount(t), acts = t.days.reduce((a, d) => a + d.items.length, 0);
       const pk = t.packing.length ? Math.round(t.packing.filter(p => p.packed).length / t.packing.length * 100) : 0;
       const until = Util.daysBetween(Util.ymd(new Date()), t.start);
-      $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2>${t.clanId ? '<span class="badge gold">Sealed in clan</span>' : '<span class="badge">Draft</span>'}</div>
+      $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2>${t.clanId ? '<span class="badge gold">In clan</span>' : '<span class="badge">Draft</span>'}</div>
         <article class="postcard" id="tripCard" tabindex="0" role="button" aria-label="Open trip planner">
           <div class="pc-img" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
             <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${(g && stateMapSvg(g.mapState || g.state)) || STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">₹39</span></div></div></div></div>
@@ -5757,7 +5757,7 @@ const Intro = {
   showAuth() {
     const host = $('#introAuth'); host.innerHTML = '<div class="glass" id="introGlass"></div>';
     AuthUI.render($('#introGlass'), {
-      title: 'Welcome to Envelora', sub: 'Open the envelope · Begin the journey',
+      title: 'Welcome to Envelora', sub: 'Begin the journey',
       onDone: r => { App.onAuthChange(r); this.finish(); },
       onSkip: () => this.finish()
     });
