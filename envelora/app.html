@@ -5888,13 +5888,13 @@ const Reels = {
       if (box.dataset.reelDone) return; box.dataset.reelDone = '1';
       const reel = box.querySelector('.reel'); if (!reel) return;
       const kind = this.kind(box.dataset.reel);
-      reel.innerHTML = this.scene(kind); box.classList.add('has-reel');
+      // no drawn animation: keep the card's colour until the real photo arrives
       if (typeof Explore === 'undefined') return;
       Explore.defs();
       Explore.destPhoto(box.dataset.reel).then(p => {
         if (!p || !box.isConnected) return;
         // still, DSLR-style photo (no motion)
-        reel.innerHTML = `<div class="lp still"><img class="lp-img" src="${Util.esc(p.src)}" alt="${Util.esc(p.place || box.dataset.reel)}" decoding="async"/><div class="lp-vig"></div></div>`;
+        box.classList.add('has-reel'); reel.innerHTML = `<div class="lp still"><img class="lp-img" src="${Util.esc(p.src)}" alt="${Util.esc(p.place || box.dataset.reel)}" decoding="async"/><div class="lp-vig"></div></div>`;
         // tiny ⓘ on the photo; tap shows the credit (licence attribution) without opening the trip
         box.querySelectorAll('.pc-cr').forEach(x => x.remove());
         const b = document.createElement('button'); b.className = 'pc-cr'; b.type = 'button'; b.setAttribute('aria-label', 'Photo credit'); b.textContent = 'i';
