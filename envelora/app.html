@@ -221,7 +221,7 @@ svg.vmark circle{fill:currentColor}
    ========================================================================== */
 .intro{
   position:fixed;inset:0;z-index:100;overflow:hidden;color:var(--cream);
-  background:#0D1B2A;
+  background:#0B0B0B;
   display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
   transition:opacity .7s var(--ease), visibility .7s;
 }
@@ -285,18 +285,27 @@ svg.vmark circle{fill:currentColor}
 
 /* Glass auth card */
 .glass{
-  background:linear-gradient(160deg,rgba(31,54,80,.72),rgba(13,27,42,.78));
-  border:1px solid rgba(212,178,106,.45);border-radius:var(--r-lg);padding:26px 22px;color:var(--cream);
-  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15);
+  position:relative;overflow:hidden;
+  background:linear-gradient(150deg,rgba(255,255,255,.13) 0%,rgba(255,255,255,.05) 45%,rgba(255,255,255,.08) 100%);
+  border:1px solid rgba(255,255,255,.18);border-top-color:rgba(255,255,255,.32);border-left-color:rgba(255,255,255,.26);
+  border-radius:var(--r-lg);padding:26px 22px;color:var(--cream);
+  backdrop-filter:blur(26px) saturate(160%);-webkit-backdrop-filter:blur(26px) saturate(160%);
+  box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.25), inset 0 0 0 1px rgba(212,178,106,.12);
 }
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 32%)}
+.glass>*{position:relative}
+/* soft gold and blue glows behind the card so the frosted glass shows */
+.intro::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .8s ease;background:radial-gradient(circle at 22% 28%,rgba(212,178,106,.26),transparent 42%),radial-gradient(circle at 82% 74%,rgba(52,92,150,.34),transparent 46%),radial-gradient(circle at 75% 25%,rgba(184,100,92,.14),transparent 38%)}
+.intro.revealed::before{opacity:1}
 .glass h2{color:var(--cream);font-size:1.6rem;text-align:center}
 .glass .sub{text-align:center;color:rgba(241,230,204,.75);font-size:.9rem;margin-bottom:18px}
 .glass label.f{color:rgba(241,230,204,.75)}
-.glass .input{background:rgba(13,27,42,.45);border-color:rgba(212,178,106,.35);color:var(--paper)}
+.glass .input{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);color:var(--paper)}
+.glass .input:focus{background:rgba(255,255,255,.11);border-color:var(--gold)}
 .glass .input::placeholder{color:rgba(241,230,204,.45)}
 .glass .hint{color:rgba(241,230,204,.65)}
 .glass .err-msg{color:#ffb4a8}
-.seg{display:flex;background:rgba(13,27,42,.45);border:1px solid rgba(212,178,106,.3);border-radius:999px;padding:4px;margin-bottom:16px}
+.seg{display:flex;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px;margin-bottom:16px}
 .seg button{flex:1;border:none;background:none;color:rgba(241,230,204,.75);border-radius:999px;padding:.55em;font-weight:600;font-size:.88rem;transition:all .25s}
 .seg button.on{background:var(--gold);color:var(--navy)}
 .card .seg, .sheet .seg{background:rgba(13,27,42,.06);border-color:var(--line)}
