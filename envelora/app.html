@@ -1090,7 +1090,7 @@ details.grp[open] summary::after{content:"–"}
 .trip-rail.multi>.trip-slide{flex-basis:88%}
 .rail-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}.rail-dots i{width:6px;height:6px;border-radius:50%;background:rgba(13,27,42,.2);transition:all .2s}.rail-dots i.on{width:18px;border-radius:3px;background:var(--gold)}
 .postcard .pc-img{overflow:hidden;isolation:isolate}
-.pc-img .reel{position:absolute;inset:0;z-index:-1}
+.pc-img .reel{position:absolute;inset:0;z-index:-1}.pc-img .reel .lp{position:absolute;inset:0}
 .pc-img .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;will-change:opacity,transform}
 .pc-img.has-reel::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0) 40%,rgba(0,0,0,.55))}
 .pc-img.has-reel{height:150px}
@@ -1166,6 +1166,7 @@ details.grp[open] summary::after{content:"–"}
 @keyframes lpStep{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
 .ex-c .lp .rs-fly{display:none}
 @media(prefers-reduced-motion:reduce){.lp *{animation:none!important}.lp-water,.lp-wind{display:none}}
+.pc-img .reel .lp-img{opacity:1;animation:none;will-change:auto}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1216,7 +1217,6 @@ details.grp[open] summary::after{content:"–"}
 
     <div id="homeTrip"></div>
     <div id="homeClans"></div>
-    <div id="homeExplore"></div>
 
     <div class="section-t"><h2>Inside every Envelora trip</h2></div>
     <div class="features" id="features"></div>
@@ -5882,7 +5882,17 @@ const Reels = {
     $$('[data-reel]', root).forEach(box => {
       if (box.dataset.reelDone) return; box.dataset.reelDone = '1';
       const reel = box.querySelector('.reel'); if (!reel) return;
-      reel.innerHTML = this.scene(this.kind(box.dataset.reel)); box.classList.add('has-reel');
+      const kind = this.kind(box.dataset.reel);
+      reel.innerHTML = this.scene(kind); box.classList.add('has-reel');
+      if (typeof Explore === 'undefined') return;
+      Explore.defs();
+      Explore.destPhoto(box.dataset.reel).then(p => {
+        if (!p || !box.isConnected) return;
+        reel.innerHTML = Explore.living(box.dataset.reel, p, true, kind);
+        const lp = reel.querySelector('.lp'); lp.classList.add('play');
+        const cr = box.closest('.postcard') && box.closest('.postcard').querySelector('.reel-credit');
+        if (cr) { cr.hidden = false; cr.innerHTML = `📷 ${p.place && p.place !== box.dataset.reel ? Util.esc(p.place) + ' · ' : ''}<a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> (${Util.esc(p.lic)}), Wikimedia Commons · motion added by Envelora`; }
+      }).catch(() => { });
     });
   }
 };
@@ -5928,14 +5938,14 @@ const Explore = {
     document.body.appendChild(d);
   },
   walkers(n = 3) {
-    return `<svg class="lp-walk" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<g class="lp-person" style="animation-duration:${18 + i * 5}s;animation-delay:${-i * 6}s"><g transform="translate(0 ${146 - (i % 2) * 4}) scale(${.9 - i * .08})" fill="rgba(20,20,25,.78)" stroke="rgba(20,20,25,.78)" stroke-linecap="round">
+    return `<svg class="lp-walk" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<g class="lp-person" style="animation-duration:${18 + i * 5}s;animation-delay:${-i * 6}s"><g transform="translate(0 ${146 - (i % 2) * 4}) scale(${.58 - i * .06})" fill="rgba(20,20,25,.78)" stroke="rgba(20,20,25,.78)" stroke-linecap="round">
       <circle cx="0" cy="-23" r="3.2" stroke="none"/><line x1="0" y1="-19" x2="0" y2="-8" stroke-width="2.6"/><line class="lp-arm" x1="0" y1="-17" x2="0" y2="-9" stroke-width="1.8"/>
       <line class="lp-leg a" x1="0" y1="-8" x2="0" y2="2" stroke-width="2.2"/><line class="lp-leg b" x1="0" y1="-8" x2="0" y2="2" stroke-width="2.2"/></g></g>`).join('')}</svg>`;
   },
   birds() { return `<svg class="lp-birds" viewBox="0 0 400 160" preserveAspectRatio="xMidYMin slice" aria-hidden="true"><g class="rs-fly">${[0, 1, 2].map(i => `<path d="M${i * 16} ${20 + i % 2 * 6} q 4 -5 8 0 q 4 -5 8 0" stroke="rgba(25,25,25,.7)" stroke-width="1.4" fill="none" class="rs-flap" style="animation-delay:${i * .15}s"/>`).join('')}</g></svg>`; },
   /** A living photo: real photo + motion layers. full=false for small circles (zoom only). */
-  living(name, photo, full) {
-    const it = this.item(name), kind = it ? it[3] : 'train';
+  living(name, photo, full, kindIn) {
+    const it = this.item(name), kind = kindIn || (it ? it[3] : 'train');
     if (!photo) return `<div class="lp lp-${kind} lp-scene">${Reels.scene(kind)}</div>`;
     const src = Util.esc(photo.src), water = ['wave', 'boat'].includes(kind), wind = ['tea', 'mountain', 'temple', 'wave'].includes(kind);
     return `<div class="lp lp-${kind}"><div class="lp-move" style="animation-delay:${-(name.length % 7) * 1.7}s">
@@ -5943,6 +5953,25 @@ const Explore = {
         ${full && water ? `<img class="lp-img lp-water" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
         ${full && wind ? `<img class="lp-img lp-wind" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
       </div><div class="lp-light"></div>${full ? this.birds() + (['wave', 'boat', 'palace', 'temple', 'camel'].includes(kind) ? this.walkers(kind === 'camel' ? 2 : 3) : '') : ''}</div>`;
+  },
+  /** Real photo of a destination's famous place (cached 30 days). */
+  async destPhoto(dest) {
+    const key = 'd:' + dest.trim().toLowerCase(), all = Store.get('envelora.v1.tripPhotos', {}) || {};
+    if (all[key] && Date.now() - all[key].at < this.TTL) return all[key].p;
+    const bad = f => !f || /\.svg$/i.test(f) || /map|flag|logo|seal|emblem|locator|coat/i.test(f);
+    let file = null;
+    const lead = await Stories.api('en', { action: 'query', titles: dest, redirects: 1, prop: 'pageimages', piprop: 'name' });
+    const lp = Object.values((lead.query && lead.query.pages) || {})[0];
+    if (lp && !bad(lp.pageimage)) file = lp.pageimage;
+    // prefer a famous sight of the place when one exists
+    const sr = await Stories.api('en', { action: 'query', generator: 'search', gsrsearch: `"${dest}" (fort OR temple OR lake OR beach OR palace OR waterfall OR dam OR monument OR valley OR ghat)`, gsrlimit: 8, prop: 'pageimages', piprop: 'name' }).catch(() => null);
+    const sight = Object.values((sr && sr.query && sr.query.pages) || {}).sort((a, b) => (a.index || 0) - (b.index || 0)).find(p => p.title !== (lp && lp.title) && !bad(p.pageimage));
+    const files = [sight && sight.pageimage, file].filter(Boolean).map(f => 'File:' + f.replace(/_/g, ' '));
+    const lic = files.length ? await Stories.licensed(files) : [];
+    const p = lic[0] ? { src: lic[0].src, author: lic[0].author, lic: lic[0].lic, page: lic[0].page, place: sight && lic[0].page && decodeURIComponent(lic[0].page).replace(/_/g, ' ').includes(sight.pageimage.replace(/_/g, ' ')) ? sight.title : dest } : null;
+    all[key] = { at: Date.now(), p }; const ks = Object.keys(all); if (ks.length > 60) ks.sort((a, b) => all[a].at - all[b].at).slice(0, ks.length - 60).forEach(k => delete all[k]);
+    Store.set('envelora.v1.tripPhotos', all);
+    return p;
   },
   render() {
     const host = $('#homeExplore'); if (!host) return;
@@ -6022,7 +6051,6 @@ const Home = {
         ${last ? `<div class="m" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.type === 'system' ? '' : Util.esc((last.name || '').split(' ')[0]) + ': '}${Util.esc(last.type === 'score' ? '🏆 ' + last.game + ' scores' : last.type === 'photo' ? '📷 Photo' : last.text)}</div>` : ''}</div>${icon('arrowR')}</div>`;
     }).join('') : '';
     $$('[data-clan]').forEach(el => el.onclick = () => Chat.open(el.dataset.clan));
-    if (typeof Explore !== 'undefined') Explore.render();
   },
   header() {
     const u = Auth.user, btn = $('#acctBtn');
