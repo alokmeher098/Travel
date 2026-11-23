@@ -4266,7 +4266,7 @@ const Stories = {
       <form class="row" id="sySearchF" style="gap:8px;margin:12px 0" autocomplete="off"><input class="input" id="sySearch" placeholder="Search any place, e.g. Hawa Mahal"/><button class="btn soft" style="flex:none">Search</button></form>
       ${tops.length ? `<h3 class="sy-h">On your ${Util.esc(this.c.trip.destination)} trip</h3><div class="share-chips" id="syTops">${tops.map(n => `<button class="chip" data-q="${Util.esc(n.replace(/\s*\(.*\)/, ''))}">${Util.esc(n)}</button>`).join('')}</div>` : ''}
       <div id="syList"></div>
-      <p class="hint sy-credit">Stories come from Wikipedia; credits are in the account menu → Photo credits. Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
+      <p class="hint sy-credit">Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
     this.bindLang(() => this.home());
     $('#syNear').onclick = () => this.near();
     $('#syWatch').onchange = e => e.target.checked ? this.watch() : this.unwatch();
@@ -4380,7 +4380,7 @@ const Stories = {
         ${about}
         <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
         <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${src}">Read full article</a></div>
-        <p class="hint sy-credit">From Wikipedia · <button type="button" class="sy-cr" onclick="Home.credits()">Credits</button></p>`;
+`;
       Stories.remember({ title: pg.title, url: src, pics: pics.map(x => ({ src: x.src, author: x.author, lic: x.lic, licUrl: x.licUrl, page: x.page })) });
       this.bindLang(() => this.story(enTitle, q));
       $('#syPlay').onclick = () => this.togglePlay();
@@ -6105,7 +6105,7 @@ const Home = {
       <button data-m="login">${icon('login')}${u ? 'Log In (switch account)' : 'Log In'}</button>
       ${u ? `<button data-m="pay">${icon('wallet')}Payments & refunds</button>` : ''}
       ${u ? `<button data-m="out">${icon('logout')}Sign Out</button>` : ''}
-      <button data-m="credits">${icon('info')}Photo credits</button>
+      <button data-m="credits">${icon('info')}Credits</button>
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
   },
@@ -6120,7 +6120,7 @@ const Home = {
     const list = Explore.credits(), st = Store.get('envelora.v2.storyCredits', []) || [];
     const lic = p => p.licUrl ? `<a href="${Util.esc(p.licUrl)}" target="_blank" rel="noopener">${Util.esc(p.lic)}</a>` : Util.esc(p.lic);
     const row = (p, name) => `<div class="phc"><img src="${Util.esc(p.src)}" alt="" loading="lazy"/><div>${name ? `<b>${Util.esc(name)}</b>` : ''}<span>Photo: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a></span><span>${lic(p)}${/BY-SA/i.test(p.lic) ? ' · resized/cropped' : ''}</span></div></div>`;
-    UI.sheet('Photo credits', `<p class="muted" style="margin:0 0 12px">Photos and place stories come from Wikimedia Commons and Wikipedia, used under their free licences. Envelora isn't affiliated with Wikipedia or the photographers.</p>
+    UI.sheet('Credits', `<p class="muted" style="margin:0 0 12px">Photos and place stories come from Wikimedia Commons and Wikipedia, used under their free licences. Envelora isn't affiliated with Wikipedia or the photographers.</p>
       <h4 class="phc-h">Trip photos</h4>${list.length ? list.map(p => row(p, p.place)).join('') : '<p class="muted">No trip photos are showing right now.</p>'}
       <h4 class="phc-h">Place stories</h4>${st.length ? st.map(c => `<div class="phc-st"><b>${Util.esc(c.title)}</b><span>Text from the Wikipedia article “<a href="${Util.esc(c.url)}" target="_blank" rel="noopener">${Util.esc(c.title)}</a>” by Wikipedia contributors, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated.</span>${(c.pics || []).map(p => row(p)).join('')}</div>`).join('') : '<p class="muted">Stories you read will be credited here.</p>'}`);
   },
