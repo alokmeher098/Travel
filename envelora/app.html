@@ -1452,7 +1452,8 @@ const STAMP_ART = {
    STORE — localStorage wrapper. Account-scoped keys keep data separate per user.
    ----------------------------------------------------------------------------- */
 const KEYS = {
-  accounts: 'envelora.v1.accounts',                     // { [accountId]: profile }
+  accounts: 'envelora.v1.accounts',
+  session: 'envelora.v1.session',                       // { id, at } — keeps you logged in on this device                     // { [accountId]: profile }
   guestTrip: 'envelora.v1.guest.trip',                  // trip drafted before login
   acct: (id, k) => `envelora.v1.acct.${id}.${k}`,      // per-account: trip, clans, reminders
   clan: id => `envelora.v1.clan.${id}`                  // shared clan record (simulated backend row)
@@ -1895,7 +1896,7 @@ function stateMapSvg(state) {
 
 /* =============================================================================
    AUTH — accounts, OTP (demo), session
-   - The session lives in memory only, so every fresh opening starts logged out.
+   - The session is remembered on this device for 30 days (until you sign out).
    - Account data is stored under account-scoped keys (KEYS.acct(id, ...)).
    ============================================================================= */
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -1943,7 +1944,7 @@ const Auth = {
     if (type === 'phone') acc.phone = Util.normPhone(value); else acc.email = value.trim().toLowerCase();
     accts[acc.id] = acc;
     this.saveAccounts(accts);
-    this.user = acc;
+    this.user = acc; this.remember();
     const moved = this.transferGuestTrip();
     Clans.syncMemberProfile(acc);
     return { acc, isNew, moved };
@@ -1961,7 +1962,15 @@ const Auth = {
     return g;
   },
 
-  logout() { this.user = null; },
+  logout() { this.user = null; Store.del(KEYS.session); },
+  /** Keep the login on this device for 30 days after the last use. */
+  SESSION_DAYS: 30,
+  remember() { if (this.user) Store.set(KEYS.session, { id: this.user.id, at: Date.now() }); },
+  restore() {
+    const s = Store.get(KEYS.session), acc = s && this.get(s.id);
+    if (!acc || Date.now() - (s.at || 0) > this.SESSION_DAYS * 864e5) { Store.del(KEYS.session); return false; }
+    this.user = acc; this.remember(); return true;
+  },
 
   updateProfile({ name, phone, email }) {
     const accts = this.accounts();
@@ -2031,6 +2040,15 @@ const AuthUI = {
         const inp = $('#au-cap', host); inp.value = ''; inp.classList.remove('err');
       };
       newCap();
+      // Live countdown while locked: the message ticks every second and Send OTP stays disabled.
+      const lockTick = () => {
+        const err = $('#au-err', host), btn = $('#au-send', host); if (!err || !btn) { clearInterval(cap.timer); return; }
+        const left = Math.ceil((cap.lockUntil - Date.now()) / 1000);
+        if (left > 0) { err.textContent = `Wrong answer 3 times. Try again in ${left} second${left === 1 ? '' : 's'}.`; btn.disabled = true; return; }
+        clearInterval(cap.timer); cap.timer = null; btn.disabled = false; err.textContent = ''; newCap();
+        UI.toast('You can try again now. Solve the new sum.', 'info');
+      };
+      const startLock = () => { cap.lockUntil = Date.now() + 30000; clearInterval(cap.timer); lockTick(); cap.timer = setInterval(lockTick, 250); };
       $('#au-capNew', host).addEventListener('click', () => { newCap(); $('#au-cap', host).focus(); });
       $('#au-cap', host).addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3));
       $$('.seg button', host).forEach(b => b.addEventListener('click', () => {
@@ -2045,11 +2063,11 @@ const AuthUI = {
         if (st.type === 'phone' && !Util.validPhone(val.value)) { val.classList.add('err'); err.textContent = 'Enter a valid 10-digit Indian mobile number (starts with 6–9).'; val.focus(); return; }
         if (st.type === 'email' && !Util.validEmail(val.value)) { val.classList.add('err'); err.textContent = 'Enter a valid email address.'; val.focus(); return; }
         const capIn = $('#au-cap', host); capIn.classList.remove('err');
-        if (Date.now() < cap.lockUntil) { err.textContent = `Too many wrong answers. Try again in ${Math.ceil((cap.lockUntil - Date.now()) / 1000)} s.`; return; }
+        if (Date.now() < cap.lockUntil) { lockTick(); return; }
         if (!capIn.value) { capIn.classList.add('err'); err.textContent = 'Please solve the sum to continue.'; capIn.focus(); return; }
         if (+capIn.value !== cap.ans) {
           cap.tries++; newCap(); $('#au-cap', host).classList.add('err');
-          if (cap.tries >= 3) { cap.tries = 0; cap.lockUntil = Date.now() + 30000; err.textContent = 'Wrong answer 3 times. Please wait 30 seconds, then try the new sum.'; }
+          if (cap.tries >= 3) { cap.tries = 0; startLock(); }
           else { err.textContent = 'That answer is not right. Try this new sum.'; $('#au-cap', host).focus(); }
           return;
         }
@@ -2988,8 +3006,9 @@ const Invite = {
       ${full ? `<div class="err-msg" style="font-size:.95rem;margin-bottom:12px">This clan is full. Ask your clan leader to increase capacity.</div>` : ''}
       <button class="btn gold block xl" id="inv-join" ${full ? 'disabled' : ''}>${icon('shield', 'sm')}Join Clan</button>
       <div class="auth-foot"><button class="link-btn" id="inv-skip">Not now</button></div></div>`;
-    $('#inv-skip', host).onclick = () => { this.pending = null; Intro.showAuth(); };
+    $('#inv-skip', host).onclick = () => { this.pending = null; if (Auth.user) { App.onAuthChange(null, true); Intro.finish(); } else Intro.showAuth(); };
     $('#inv-join', host).onclick = () => {
+      if (Auth.user) return this.complete(c.id, { acc: Auth.user, isNew: false }, host); // already logged in on this device
       const box = document.createElement('div'); box.className = 'glass'; host.innerHTML = ''; host.appendChild(box);
       AuthUI.render(box, { title: 'Join ' + c.name, sub: 'Register or log in with your name and phone/email to join.', cta: 'Send OTP', onDone: r => this.complete(c.id, r, host) });
     };
@@ -5752,6 +5771,8 @@ const Intro = {
   open() {
     const el = $('#intro'); if (el.classList.contains('opened')) return;
     el.classList.add('opened', 'rising');
+    // Already logged in on this device → go straight to home (an invite link still shows its join card).
+    if (Auth.user && !Invite.pending) { App.onAuthChange(null, true); return this.finish(); }
     setTimeout(() => { el.classList.add('revealed'); Invite.pending ? Invite.renderCard($('#introAuth')) : this.showAuth(); }, 150);
   },
   showAuth() {
@@ -5776,6 +5797,7 @@ const Intro = {
   Brand.mount();
   $$('[data-nav-back]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = b.closest('.sheet') ? icon('close') : icon('back'); });
   Invite.parse();
+  Auth.restore();
   Intro.stamps();
   Promise.race([document.fonts ? document.fonts.ready : null, new Promise(r => setTimeout(r, 120))]).then(() => requestAnimationFrame(() => Intro.play()));
   Home.features();
