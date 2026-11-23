@@ -2820,6 +2820,13 @@ const Clans = {
   days(c) { return Trips.dayCount(c.trip); },
   /** Days a new spot must cover: the paid days, or the trip length if longer. Stops 'shorten → buy cheap spots → extend free'. */
   billDays(c) { return Math.max(c.paidDays || 0, Trips.dayCount(c.trip)); },
+  /** Days an extra spot is charged for: the whole trip before it starts, only the days left (today → last day) during it, 0 after it ends. */
+  spotDays(c) {
+    const today = Util.ymd(new Date());
+    if (today > c.trip.end) return 0;
+    if (today >= c.trip.start) return Util.daysBetween(today, c.trip.end) + 1;
+    return this.billDays(c);
+  },
 
   create({ trip, name, desc, payment }) {
     const u = Auth.user;
@@ -3436,8 +3443,8 @@ const ClanSettings = {
         ${can('invite') ? `<div class="cs-panel"><h3>${icon('link')}Invite members</h3>${open > 0 ? '' : `<div class="notice">${icon('info', 'sm')}<span>This clan is full. New people can't join until you buy more capacity.</span></div>`}${Invite.shareBlock(c)}</div>` : ''}
 
         ${can('buyCapacity') ? `<div class="cs-panel"><h3>${icon('plus')}Extra clan capacity</h3>
-          <p class="hint">${Util.inr(CONFIG.pricePerPersonPerDay)} × ${Clans.billDays(c)} paid trip day${Clans.billDays(c) > 1 ? 's' : ''} × additional spots</p>
-          <div class="cap-opts">${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} member${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.billDays(c) * n)} · ${Payments.isLive() ? 'Razorpay' : 'preview payment'}</span></button>`).join('')}</div></div>` : ''}
+          <p class="hint">${Clans.spotDays(c) ? `${Util.inr(CONFIG.pricePerPersonPerDay)} × ${Clans.spotDays(c)} ${Util.ymd(new Date()) >= c.trip.start ? 'remaining ' : ''}trip day${Clans.spotDays(c) > 1 ? 's' : ''} × additional spots${Util.ymd(new Date()) >= c.trip.start ? ' (charged only for the days left)' : ''}` : 'The trip has ended, so no more spots can be added.'}</p>
+          <div class="cap-opts"${Clans.spotDays(c) ? '' : ' hidden'}>${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} member${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.spotDays(c) * n)} · ${Payments.isLive() ? 'Razorpay' : 'preview payment'}</span></button>`).join('')}</div></div>` : ''}
 
         <div class="cs-panel"><h3>${icon('shield')}Your permissions · ${ROLE_LABEL[me.role]}</h3>
           <ul class="perm-list">${({
@@ -3496,7 +3503,8 @@ const ClanSettings = {
     Invite.bindShare(body, c);
     $$('[data-cap]', body).forEach(b => b.onclick = async () => {
       const n = +b.dataset.cap, cur = Clans.get(c.id); if (!Perm.can(cur, u.id, 'buyCapacity')) return;
-      const amount = CONFIG.pricePerPersonPerDay * Clans.billDays(cur) * n;
+      const spotDays = Clans.spotDays(cur); if (!spotDays) return UI.toast('The trip has ended, so no more spots can be added.', 'err');
+      const amount = CONFIG.pricePerPersonPerDay * spotDays * n;
       const res = await Payments.checkout({ amount, title: `+${n} clan spot${n > 1 ? 's' : ''} · ${cur.name}`, purpose: 'clan_capacity', notes: { clanId: cur.id, spots: n } });
       if (!res) return UI.toast('Payment cancelled.', 'info');
       if (res.status !== 'success') return UI.toast('Payment failed — capacity unchanged.', 'err');
