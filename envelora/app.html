@@ -2375,6 +2375,23 @@ const Planner = {
       if (Util.daysBetween(s, en) > 60) { err.textContent = 'Trips can be up to 60 days in this prototype.'; return; }
       if (editing) {
         const before = Trips.dayCount(t);
+        // A paid clan covers a fixed number of days: adding days needs payment for the extra days.
+        const clanRow = t.clanId && Clans.get(t.clanId), newDays = Trips.dayCount({ start: s, end: en });
+        let shortenNote = '';
+        if (clanRow) {
+          const paidDays = clanRow.paidDays || before;
+          if (newDays > paidDays) {
+            const extra = newDays - paidDays, cost = CONFIG.pricePerPersonPerDay * clanRow.capacity * extra, dd = n => n + ' day' + (n === 1 ? '' : 's');
+            const go = await UI.confirm('Pay for the extra days?', `Your clan has paid for ${dd(paidDays)}. Making the trip ${dd(newDays)} adds ${dd(extra)}: ₹${CONFIG.pricePerPersonPerDay} × ${dd(extra)} × ${clanRow.capacity} spot${clanRow.capacity === 1 ? '' : 's'} = ${Util.inr(cost)}. The new dates are saved after payment.`, { ok: 'Pay ' + Util.inr(cost), danger: false });
+            if (!go) { err.textContent = `Your clan is paid for ${dd(paidDays)}. Pay for the extra days, or keep the trip at ${dd(paidDays)} or fewer.`; return; }
+            const res = await Payments.checkout({ amount: cost, title: `+${dd(extra)} · ${clanRow.name}`, purpose: 'clan_days', notes: { clanId: clanRow.id } });
+            if (!res || res.status !== 'success') { err.textContent = 'Payment not completed, so the dates were not changed.'; return; }
+            const cur = Clans.get(clanRow.id); cur.paidDays = newDays;
+            cur.payments.push({ id: res.paymentId, amount: cost, mode: res.mode, status: res.status, purpose: `+${dd(extra)}`, ts: Date.now(), by: Auth.user.id });
+            Clans.save(cur);
+            Clans.post(cur.id, { type: 'system', text: `${Auth.user.name} extended the trip to ${dd(newDays)} (paid ${Util.inr(cost)} for ${dd(extra)}${res.mode === 'simulated' ? ', simulated preview payment' : ''}).` });
+          } else if (newDays < before) shortenNote = `Trip shortened to ${newDays} day${newDays === 1 ? '' : 's'}. Paid days aren't refunded, but you can extend back up to ${paidDays} days at no extra cost.`;
+        }
         const destChanged = t.destination.toLowerCase() !== dest.toLowerCase();
         const planned = t.days.reduce((a, d) => a + d.items.length, 0);
         if (destChanged && planned && !(await UI.confirm('Change destination?', `Your day plan has ${planned} activit${planned === 1 ? 'y' : 'ies'} for ${t.destination}. Changing to ${dest} will clear the day plan so you can plan the new place fresh. Packing, expenses and travellers stay.`, { ok: 'Clear & change' }))) return;
@@ -2386,7 +2403,8 @@ const Planner = {
         if (destChanged) this.syncPack(t);
         this.persist(); this.editingSetup = false; this.render();
         if (destChanged && planned) UI.toast(`Destination changed to ${dest}. Day plan cleared.`);
-        if (Trips.dayCount(t) !== before && t.clanId) UI.toast('Dates updated. Clan capacity is unchanged.', 'info');
+        if (shortenNote) UI.toast(shortenNote, 'info', 6000);
+        else if (Trips.dayCount(t) > before && clanRow) UI.toast(`Trip extended to ${Trips.dayCount(t)} days. Extra days are paid.`);
         return;
       }
       const nm = $$('#sf-names input').map((i, k) => i.value.trim() || (k === 0 ? '' : 'Traveller ' + (k + 1)));
