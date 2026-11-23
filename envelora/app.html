@@ -630,12 +630,12 @@ details.grp[open] summary::after{content:"–"}
 .chat-chips .chip{background:rgba(255,255,255,.08);color:var(--cream);border-color:rgba(212,178,106,.35)}
 .chat-chips .chip:active{background:var(--gold);color:var(--navy)}
 .chat-scroll{flex:1;overflow:auto;padding:0 12px 12px;background:#efe6d2 var(--grain);position:relative}
-.today-card{position:sticky;top:0;z-index:3;margin:0 -12px 10px;padding:10px 12px;background:linear-gradient(#efe6d2 85%,rgba(239,230,210,0))}
+.today-card{position:sticky;top:0;z-index:3;margin:0 -12px 6px;padding:8px 12px;background:linear-gradient(#efe6d2 85%,rgba(239,230,210,0))}
 .today-in{background:var(--paper);border:1px solid var(--gold);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
 .today-h{display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(135deg,var(--navy),var(--navy-3));color:var(--cream);cursor:pointer;border:none;width:100%;text-align:left}
 .today-h b{font-family:var(--serif);font-size:1rem}
-.today-h small{margin-left:auto;color:var(--gold);font-size:.75rem}
-.today-b{padding:10px 12px;max-height:38vh;overflow:auto}
+.today-h small{margin-left:auto;color:var(--gold);font-size:.75rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-car{font-style:normal;color:var(--gold);font-size:.8rem;flex:none}
+.today-b{padding:10px 12px;max-height:min(42vh,340px);overflow:auto;overscroll-behavior:contain}
 .today-card.collapsed .today-b{display:none}
 .tl{display:flex;gap:10px;padding:6px 0;font-size:.86rem;border-bottom:1px dashed var(--line)}
 .tl:last-child{border:none}
@@ -2957,12 +2957,12 @@ const Invite = {
    >>> SUPABASE INTEGRATION POINT — supabase.channel('clan:'+id).on('postgres_changes', {table:'messages'}, ...)
    ============================================================================= */
 const Chat = {
-  clanId: null, todayOpen: true, lastCount: 0,
+  clanId: null, todayOpen: false, lastCount: 0,
   clan() { return Clans.get(this.clanId); },
   open(id) {
     const c = Clans.get(id);
     if (!c || !Auth.user || !Clans.member(c, Auth.user.id)) { UI.toast('You are not a member of this clan.', 'err'); return; }
-    this.clanId = id; this.todayOpen = true;
+    this.clanId = id; this.todayOpen = false;
     Clans.linkAccount(Auth.user.id, id);
     UI.openOverlay('chat', () => { this.clanId = null; Home.render(); });
     this.render();
@@ -3001,7 +3001,7 @@ const Chat = {
     const nx = info.next;
     el.className = 'today-card' + (this.todayOpen ? '' : ' collapsed');
     el.innerHTML = `<div class="today-in">
-      <button class="today-h" id="todayToggle">${icon('sun', 'sm')}<b>Today</b><small>${Util.esc(info.label)} ${this.todayOpen ? '▴' : '▾'}</small></button>
+      <button class="today-h" id="todayToggle">${icon('sun', 'sm')}<b>Today</b><small>${!this.todayOpen && nx ? `Next ${Util.fmtTime(nx.time)} · ${Util.esc(nx.title)}` : Util.esc(info.label)}</small><i class="today-car">${this.todayOpen ? '▴' : '▾'}</i></button>
       <div class="today-b">
         ${nx ? `<div class="nx-box"><div class="lbl">Next up · ${Util.fmtTime(nx.time)}</div>
           <b style="font-family:var(--serif);font-size:1.05rem">${Util.esc(nx.title)}</b>
@@ -3156,6 +3156,8 @@ $('#chTitle').addEventListener('click', () => ClanSettings.open(Chat.clanId));
 $('#chSettings').addEventListener('click', () => ClanSettings.open(Chat.clanId));
 $('#composer').addEventListener('submit', e => { e.preventDefault(); const i = $('#chInput'); Chat.send(i.value); i.value = ''; i.style.height = ''; i.focus(); });
 $('#chInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('#composer').requestSubmit(); } });
+// Fold the Today card when typing so the chat gets the screen.
+$('#chInput').addEventListener('focus', () => { if (Chat.todayOpen) { Chat.todayOpen = false; Chat.renderToday(); } });
 $('#chInput').addEventListener('input', e => { const t = e.target; t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; });
 // Simulated realtime: other tabs of this browser update the open chat.
 window.addEventListener('storage', e => {
