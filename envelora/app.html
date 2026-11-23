@@ -1087,7 +1087,7 @@ details.grp[open] summary::after{content:"–"}
       <span class="sp-ch sp-l">E</span><span class="sp-ch sp-l">N</span><span class="sp-v" id="spV"><span class="sp-vin" data-vmark></span><i class="sp-shine"></i></span><span class="sp-ch sp-r">E</span><span class="sp-ch sp-r">L</span><span class="sp-ch sp-r">O</span><span class="sp-ch sp-r">R</span><span class="sp-ch sp-r">A</span>
     </div>
     <div class="sp-rule"></div>
-    <p class="sp-tag">Begin the journey</p>
+    <p class="sp-tag">Open the envelope · Begin the journey</p>
     <p class="sp-skip">Tap to skip</p>
   </div>
   <div class="auth-host" id="introAuth"></div>
@@ -1140,10 +1140,10 @@ details.grp[open] summary::after{content:"–"}
     </section>
     <!-- ========================================================================= -->
 
-    <div class="brand-lockup" aria-label="Envelora. Begin the journey.">
+    <div class="brand-lockup" aria-label="Envelora. Open the envelope, begin the journey.">
       <span class="wordmark" data-brand></span>
       <div class="brand-rule"></div>
-      <p class="brand-tag">Begin the journey</p>
+      <p class="brand-tag">Open the envelope · Begin the journey</p>
     </div>
     <p class="foot-note">Prototype build · OTP, payments, GPS & realtime chat are <b>simulated</b> and clearly labelled.<br/>Data is stored only in this browser (localStorage).</p>
   </main>
@@ -4300,7 +4300,7 @@ const Wraps = {
       const txt = (x, t, X, Y, font, col, align = 'left', max) => { x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'alphabetic'; x.fillText(String(t), X, Y, max); };
       const wrapTxt = (x, t, X, Y, maxW, lh, font, col, align = 'left') => { x.font = font; x.fillStyle = col; x.textAlign = align; let line = '', y = Y; String(t).split(' ').forEach(word => { const tl = line ? line + ' ' + word : word; if (x.measureText(tl).width > maxW && line) { x.fillText(line, X, y); line = word; y += lh; } else line = tl; }); if (line) x.fillText(line, X, y); return y + lh; };
       const head = (x, label, n, total) => { x.fillStyle = '#D4B26A'; x.fillRect(90, 110, 60, 4); txt(x, label.toUpperCase(), 170, 122, '500 30px Jost, sans-serif', '#a5802f'); txt(x, `${n} / ${total}`, W - 90, 122, '28px Jost, sans-serif', '#8a8070', 'right'); };
-      const foot = x => { x.fillStyle = 'rgba(13,27,42,.12)'; x.fillRect(90, H - 130, W - 180, 2); txt(x, 'ENVELORA · Begin the journey', 90, H - 80, '26px Jost, sans-serif', '#8a8070'); txt(x, Util.fmtDate(Util.ymd(w.created), { day: 'numeric', month: 'short', year: 'numeric' }), W - 90, H - 80, '26px Jost, sans-serif', '#8a8070', 'right'); };
+      const foot = x => { x.fillStyle = 'rgba(13,27,42,.12)'; x.fillRect(90, H - 130, W - 180, 2); txt(x, 'ENVELORA · Open the envelope, begin the journey', 90, H - 80, '26px Jost, sans-serif', '#8a8070'); txt(x, Util.fmtDate(Util.ymd(w.created), { day: 'numeric', month: 'short', year: 'numeric' }), W - 90, H - 80, '26px Jost, sans-serif', '#8a8070', 'right'); };
       const TOTAL = 3 + ((w.pics || []).length ? 1 : 0);
       // 1. Cover
       page(x => {
@@ -5757,7 +5757,7 @@ const Intro = {
   showAuth() {
     const host = $('#introAuth'); host.innerHTML = '<div class="glass" id="introGlass"></div>';
     AuthUI.render($('#introGlass'), {
-      title: 'Welcome to Envelora', sub: 'Begin the journey',
+      title: 'Welcome to Envelora', sub: 'Open the envelope · Begin the journey',
       onDone: r => { App.onAuthChange(r); this.finish(); },
       onSkip: () => this.finish()
     });
