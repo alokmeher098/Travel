@@ -856,7 +856,7 @@ details.grp[open] summary::after{content:"–"}
 .sy-item img,.sy-ph{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;display:grid;place-items:center;background:var(--navy);font-size:1.6rem}
 .sy-item b{display:block;color:var(--navy);font-weight:500}.sy-item small{color:var(--muted);font-size:.8rem}
 .sy-gallery{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:4px -4px 12px;padding:0 4px}
-.sy-gallery img{flex:none;width:82%;max-width:420px;height:230px;object-fit:cover;border-radius:16px;scroll-snap-align:start;background:#ddd}
+.sy-gallery figure{flex:none;width:82%;max-width:420px;margin:0;scroll-snap-align:start}.sy-gallery img{display:block;width:100%;height:230px;object-fit:cover;border-radius:16px;background:#ddd}.sy-gallery figcaption{font-size:.68rem;color:var(--muted,#777);margin-top:4px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sy-gallery figcaption a,.sy-credit a{color:inherit;text-decoration:underline}
 .sy-tts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.sy-rate{display:flex;align-items:center;gap:6px;flex:1;min-width:150px}.sy-rate input{flex:1;accent-color:var(--gold-d,#a5802f)}
 .sy-text{line-height:1.75;color:var(--ink,#1b2430);font-size:1.02rem}.sy-text h3{margin:6px 0 8px}.sy-text h4{margin:16px 0 6px;color:var(--navy);font-family:var(--serif);font-weight:400;font-size:1.12rem}.sy-text p{margin:0 0 10px}
 .sy-arrive{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:85;width:min(440px,calc(100% - 24px));display:grid;grid-template-columns:56px 1fr auto;grid-template-areas:"img t x" "b b b";gap:8px 12px;align-items:center;padding:12px;border-radius:18px;background:var(--navy);color:var(--cream);border:1px solid var(--gold);box-shadow:0 14px 40px rgba(0,0,0,.45);animation:fade .3s}
@@ -3792,7 +3792,22 @@ const Stories = {
   KEY: 'envelora.v1.storyLang', LANDMARK: /fort|palace|temple|mandir|masjid|mosque|church|cathedral|basilica|gurudwara|gurdwara|monastery|gompa|stupa|lake|beach|waterfall|falls|cave|museum|monument|memorial|tomb|mausoleum|minar|gate|garden|park|sanctuary|national park|dam|hill|peak|island|ghat|step ?well|baori|haveli|ruins|heritage|mahal|qila|darwaza|bridge|lighthouse|valley|river/i,
   lang() { return Store.get(this.KEY) || 'en'; },
   t(i) { return (this.UI_TXT[this.lang()] || this.UI_TXT.en)[i]; },
-  api(lang, params) { return fetch(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&` + new URLSearchParams(params)).then(r => r.json()); },
+  // Wikipedia asks apps to identify themselves; browsers can't set User-Agent, so Api-User-Agent is used.
+  UA: { 'Api-User-Agent': 'Envelora/1.0 (https://alokmeher098.github.io/Travel/envelora/)' },
+  api(lang, params) { return fetch(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&` + new URLSearchParams(params), { headers: this.UA }).then(r => r.json()); },
+  /** Look up author + license for image files; drop non-free (fair-use) and unlicensed files. */
+  async licensed(files) {
+    if (!files.length) return [];
+    const j = await this.api('en', { action: 'query', titles: files.join('|'), prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: 900, iiextmetadatafilter: 'Artist|LicenseShortName|LicenseUrl|NonFree|Restrictions' }).catch(() => null);
+    const pages = j && j.query ? Object.values(j.query.pages) : [], strip = h => { const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent.replace(/\s+/g, ' ').trim(); };
+    const norm = t => (t || '').replace(/_/g, ' ');
+    return files.map(f => pages.find(p => norm(p.title) === norm(f) || (j.query.normalized || []).some(n => norm(n.from) === norm(f) && n.to === p.title))).filter(p => p && p.imageinfo && p.imageinfo[0]).map(p => {
+      const ii = p.imageinfo[0], m = ii.extmetadata || {}, v = k => m[k] && m[k].value;
+      const lic = strip(v('LicenseShortName')), nonfree = String(v('NonFree') || '').toLowerCase() === 'true';
+      if (nonfree || !lic || /fair use|non-free/i.test(lic)) return null;
+      return { src: ii.thumburl || ii.url, page: ii.descriptionurl, author: strip(v('Artist')).slice(0, 80) || 'Unknown author', lic, licUrl: v('LicenseUrl') || '' };
+    }).filter(Boolean);
+  },
   open(c) {
     this.c = c; this.stopSpeech();
     UI.openOverlay('story', () => this.stopSpeech());
@@ -3810,7 +3825,7 @@ const Stories = {
       <form class="row" id="sySearchF" style="gap:8px;margin:12px 0" autocomplete="off"><input class="input" id="sySearch" placeholder="Search any place, e.g. Hawa Mahal"/><button class="btn soft" style="flex:none">Search</button></form>
       ${tops.length ? `<h3 class="sy-h">On your ${Util.esc(this.c.trip.destination)} trip</h3><div class="share-chips" id="syTops">${tops.map(n => `<button class="chip" data-q="${Util.esc(n.replace(/\s*\(.*\)/, ''))}">${Util.esc(n)}</button>`).join('')}</div>` : ''}
       <div id="syList"></div>
-      <p class="hint sy-credit">Stories and photos come from Wikipedia (CC BY-SA). Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
+      <p class="hint sy-credit">Stories come from Wikipedia (text under CC BY-SA 4.0); each photo is credited to its author. Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
     this.bindLang(() => this.home());
     $('#syNear').onclick = () => this.near();
     $('#syWatch').onchange = e => e.target.checked ? this.watch() : this.unwatch();
@@ -3870,23 +3885,25 @@ const Stories = {
         if (link) { title = link['*']; used = lang; }
       }
       const [ex, media] = await Promise.all([
-        this.api(used, { action: 'query', prop: 'extracts|description|pageimages', explaintext: 1, exsectionformat: 'wiki', titles: title, redirects: 1, piprop: 'original' }),
-        fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(enTitle.replace(/ /g, '_'))}`).then(r => r.ok ? r.json() : { items: [] }).catch(() => ({ items: [] }))
+        this.api(used, { action: 'query', prop: 'extracts|description|pageimages', explaintext: 1, exsectionformat: 'wiki', titles: title, redirects: 1, piprop: 'name' }),
+        fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(enTitle.replace(/ /g, '_'))}`, { headers: this.UA }).then(r => r.ok ? r.json() : { items: [] }).catch(() => ({ items: [] }))
       ]);
       const pg = Object.values(ex.query.pages)[0], secs = this.pickText(pg.extract || '');
-      const pics = [pg.original && pg.original.source].concat((media.items || []).filter(i => i.type === 'image' && i.srcset && !/\.svg/i.test(i.title)).map(i => (i.srcset[i.srcset.length - 1] || i.srcset[0]).src.replace(/^\/\//, 'https://'))).filter(Boolean)
-        .filter((u, i, a) => a.findIndex(x => x.split('/').pop().replace(/^\d+px-/, '') === u.split('/').pop().replace(/^\d+px-/, '')) === i).slice(0, 8);
+      const files = [pg.pageimage && 'File:' + pg.pageimage].concat((media.items || []).filter(i => i.type === 'image' && !/\.svg/i.test(i.title)).map(i => i.title))
+        .filter(Boolean).map(f => f.replace(/_/g, ' ')).filter((f, i, a) => a.indexOf(f) === i).slice(0, 14);
+      const pics = (await this.licensed(files)).slice(0, 8);
+      const src = `https://${used}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
       Wraps.log('story', enTitle);
       this.cur = { enTitle, title, used, text: [pg.title + '. ' + (pg.description || '')].concat(secs.map(s => (s.head ? s.head + '. ' : '') + s.body)).join('\n') };
       $('#syTitle').textContent = pg.title; $('#sySub').textContent = pg.description || (used === lang ? L[1] : 'English');
       $('#syBody').innerHTML = `${this.langSelect()}
         ${used !== lang ? `<div class="notice">${icon('info', 'sm')}<span>This story isn't written in ${Util.esc(L[1].split(' ').pop())} yet, so it's shown in English.</span></div>` : ''}
-        ${pics.length ? `<div class="sy-gallery">${pics.map(u => `<img src="${u}" alt="${Util.esc(pg.title)}" loading="lazy"/>`).join('')}</div>` : ''}
+        ${pics.length ? `<div class="sy-gallery">${pics.map(x => `<figure><img src="${Util.esc(x.src)}" alt="${Util.esc(pg.title)}" loading="lazy"/><figcaption>📷 <a href="${Util.esc(x.page)}" target="_blank" rel="noopener">${Util.esc(x.author)}</a> · ${x.licUrl ? `<a href="${Util.esc(x.licUrl)}" target="_blank" rel="noopener">${Util.esc(x.lic)}</a>` : Util.esc(x.lic)}</figcaption></figure>`).join('')}</div>` : ''}
         <div class="sy-tts"><button class="btn gold" id="syPlay">🔊 ${this.t(0)}</button><button class="btn soft" id="syStop">■ ${this.t(2)}</button>
           <label class="sy-rate">🐢<input type="range" id="syRate" min="0.6" max="1.4" step="0.1" value="${Store.get('envelora.v1.ttsRate') || 1}" aria-label="Reading speed"/>🐇</label></div>
         <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
-        <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="https://${used}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}">Read full article</a></div>
-        <p class="hint sy-credit">Text and photos: Wikipedia contributors, CC BY-SA 4.0.</p>`;
+        <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${src}">Read full article</a></div>
+        <p class="hint sy-credit">Text from the Wikipedia article “<a href="${src}" target="_blank" rel="noopener">${Util.esc(pg.title)}</a>” by Wikipedia contributors, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated. Photos are credited to their authors under their own licenses. Envelora is not affiliated with Wikipedia.</p>`;
       this.bindLang(() => this.story(enTitle));
       $('#syPlay').onclick = () => this.togglePlay();
       $('#syStop').onclick = () => this.stopSpeech();
