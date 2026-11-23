@@ -1176,6 +1176,7 @@ details.grp[open] summary::after{content:"–"}
 .phc{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(13,27,42,.08)}.phc img{width:72px;height:52px;object-fit:cover;border-radius:8px;flex:none}.phc div{display:flex;flex-direction:column;gap:2px;font-size:.8rem;min-width:0}.phc span{color:var(--muted)}.phc a{color:inherit;text-decoration:underline}
 .phc-h{margin:16px 0 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.phc-st{padding:10px 0;border-top:1px solid rgba(13,27,42,.08);font-size:.8rem;display:flex;flex-direction:column;gap:4px}.phc-st>span{color:var(--muted)}.phc-st a{color:inherit;text-decoration:underline}.phc-st .phc{border:0;padding:4px 0}
 .sy-cr{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
+.guide-hero.has-photo{background-size:cover!important;background-position:center!important;min-height:190px}.guide-hero.has-photo .big{display:none}.guide-hero.has-photo h2,.guide-hero.has-photo p{text-shadow:0 1px 8px rgba(0,0,0,.5)}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -2780,8 +2781,17 @@ const Planner = {
   },
 
   /* ---------- E. PLACE GUIDE ---------- */
+  /** same real photo as the trip card (same cache), behind the guide header */
+  heroPhoto(host, dest) {
+    if (typeof Explore === 'undefined' || !dest) return;
+    Explore.destPhoto(dest).then(p => {
+      const h = host.querySelector('.guide-hero'); if (!p || !h || !h.isConnected) return;
+      h.classList.add('has-photo'); h.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.6)),url("${p.src.replace(/"/g, '%22')}")`;
+    }).catch(() => { });
+  },
   renderGuide(host) {
     const t = this.trip, g = guideFor(t.destination), ed = this.canEdit();
+    setTimeout(() => this.heroPhoto(host, t.destination), 0);
     if (!g) {
       host.innerHTML = `<div class="guide-hero" style="background:linear-gradient(135deg,var(--navy),var(--navy-3))"><span class="big">🧭</span><h2>${Util.esc(t.destination)}</h2><p>Detailed guide coming soon for this destination.</p></div>
         <div class="card"><h3>General tips for India travel</h3><ul style="padding-left:18px;margin:0">
