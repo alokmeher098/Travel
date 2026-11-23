@@ -1174,6 +1174,8 @@ details.grp[open] summary::after{content:"–"}
 .pc-crtip{position:absolute;right:8px;bottom:30px;max-width:78%;z-index:3;background:rgba(10,12,16,.82);color:#fff;font-size:.66rem;line-height:1.35;padding:5px 8px;border-radius:8px;text-align:left;font-style:normal}.pc-crtip a{color:#ffe7a6}
 .ph-note{margin:6px 2px 0;font-size:.68rem;color:var(--muted);text-align:center}.ph-note button{background:none;border:0;padding:0;font:inherit;color:var(--gold-d,#9a7a2e);text-decoration:underline;cursor:pointer}
 .phc{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(13,27,42,.08)}.phc img{width:72px;height:52px;object-fit:cover;border-radius:8px;flex:none}.phc div{display:flex;flex-direction:column;gap:2px;font-size:.8rem;min-width:0}.phc span{color:var(--muted)}.phc a{color:inherit;text-decoration:underline}
+.phc-h{margin:16px 0 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.phc-st{padding:10px 0;border-top:1px solid rgba(13,27,42,.08);font-size:.8rem;display:flex;flex-direction:column;gap:4px}.phc-st>span{color:var(--muted)}.phc-st a{color:inherit;text-decoration:underline}.phc-st .phc{border:0;padding:4px 0}
+.sy-cr{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -4221,6 +4223,8 @@ const Stories = {
   t(i) { return (this.UI_TXT[this.lang()] || this.UI_TXT.en)[i]; },
   // Wikipedia asks apps to identify themselves; browsers can't set User-Agent, so Api-User-Agent is used.
   UA: { 'Api-User-Agent': 'Envelora/1.0 (https://alokmeher098.github.io/Travel/envelora/)' },
+  /** keep credits of the last stories read (shown on the Photo credits page) */
+  remember(c) { const l = (Store.get('envelora.v2.storyCredits', []) || []).filter(x => x.url !== c.url); l.unshift(c); Store.set('envelora.v2.storyCredits', l.slice(0, 20)); },
   api(lang, params) { return fetch(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&` + new URLSearchParams(params), { headers: this.UA }).then(r => r.json()); },
   /** Look up author + license for image files; drop non-free (fair-use) and unlicensed files. */
   async licensed(files, width = 900) {
@@ -4252,7 +4256,7 @@ const Stories = {
       <form class="row" id="sySearchF" style="gap:8px;margin:12px 0" autocomplete="off"><input class="input" id="sySearch" placeholder="Search any place, e.g. Hawa Mahal"/><button class="btn soft" style="flex:none">Search</button></form>
       ${tops.length ? `<h3 class="sy-h">On your ${Util.esc(this.c.trip.destination)} trip</h3><div class="share-chips" id="syTops">${tops.map(n => `<button class="chip" data-q="${Util.esc(n.replace(/\s*\(.*\)/, ''))}">${Util.esc(n)}</button>`).join('')}</div>` : ''}
       <div id="syList"></div>
-      <p class="hint sy-credit">Stories come from Wikipedia (text under CC BY-SA 4.0); each photo is credited to its author. Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
+      <p class="hint sy-credit">Stories come from Wikipedia; credits are in the account menu → Photo credits. Read-aloud uses your phone's voices; add Indian-language voices in your phone's Text-to-speech settings.</p>`;
     this.bindLang(() => this.home());
     $('#syNear').onclick = () => this.near();
     $('#syWatch').onchange = e => e.target.checked ? this.watch() : this.unwatch();
@@ -4360,13 +4364,14 @@ const Stories = {
       $('#syTitle').textContent = pg.title; $('#sySub').textContent = pg.description || (used === lang ? L[1] : 'English');
       $('#syBody').innerHTML = `${this.langSelect()}
         ${used !== lang ? `<div class="notice">${icon('info', 'sm')}<span>This story isn't written in ${Util.esc(L[1].split(' ').pop())} yet, so it's shown in English.</span></div>` : ''}
-        ${pics.length ? `<div class="sy-gallery">${pics.map(x => `<figure><img src="${Util.esc(x.src)}" alt="${Util.esc(pg.title)}" loading="lazy"/><figcaption>📷 <a href="${Util.esc(x.page)}" target="_blank" rel="noopener">${Util.esc(x.author)}</a> · ${x.licUrl ? `<a href="${Util.esc(x.licUrl)}" target="_blank" rel="noopener">${Util.esc(x.lic)}</a>` : Util.esc(x.lic)}</figcaption></figure>`).join('')}</div>` : ''}
+        ${pics.length ? `<div class="sy-gallery">${pics.map(x => `<figure><img src="${Util.esc(x.src)}" alt="${Util.esc(pg.title)}" loading="lazy"/></figure>`).join('')}</div>` : ''}
         <div class="sy-tts"><button class="btn gold" id="syPlay">🔊 ${this.t(0)}</button><button class="btn soft" id="syStop">■ ${this.t(2)}</button>
           <label class="sy-rate">🐢<input type="range" id="syRate" min="0.6" max="1.4" step="0.1" value="${Store.get('envelora.v1.ttsRate') || 1}" aria-label="Reading speed"/>🐇</label></div>
         ${about}
         <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
         <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${src}">Read full article</a></div>
-        <p class="hint sy-credit">Text from the Wikipedia article “<a href="${src}" target="_blank" rel="noopener">${Util.esc(pg.title)}</a>” by Wikipedia contributors, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated. Photos are credited to their authors under their own licenses. Envelora is not affiliated with Wikipedia.</p>`;
+        <p class="hint sy-credit">From Wikipedia · <button type="button" class="sy-cr" onclick="Home.credits()">Credits</button></p>`;
+      Stories.remember({ title: pg.title, url: src, pics: pics.map(x => ({ src: x.src, author: x.author, lic: x.lic, licUrl: x.licUrl, page: x.page })) });
       this.bindLang(() => this.story(enTitle, q));
       $('#syPlay').onclick = () => this.togglePlay();
       $('#syStop').onclick = () => this.stopSpeech();
@@ -6102,9 +6107,12 @@ const Home = {
     d.querySelector('button').onclick = () => this.credits(); h.append(d);
   },
   credits() {
-    const list = Explore.credits();
-    UI.sheet('Photo credits', `<p class="muted" style="margin:0 0 12px">Trip photos come from Wikimedia Commons and are used under their free licences. Envelora isn't affiliated with the photographers.</p>
-      ${list.length ? list.map(p => `<div class="phc"><img src="${Util.esc(p.src)}" alt="" loading="lazy"/><div><b>${Util.esc(p.place || '')}</b><span>Photo: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a></span><span>${p.licUrl ? `<a href="${Util.esc(p.licUrl)}" target="_blank" rel="noopener">${Util.esc(p.lic)}</a>` : Util.esc(p.lic)}${/BY-SA|by-sa/.test(p.lic) ? ' · resized/cropped' : ''}</span></div></div>`).join('') : '<p class="muted">No photos are showing right now.</p>'}`);
+    const list = Explore.credits(), st = Store.get('envelora.v2.storyCredits', []) || [];
+    const lic = p => p.licUrl ? `<a href="${Util.esc(p.licUrl)}" target="_blank" rel="noopener">${Util.esc(p.lic)}</a>` : Util.esc(p.lic);
+    const row = (p, name) => `<div class="phc"><img src="${Util.esc(p.src)}" alt="" loading="lazy"/><div>${name ? `<b>${Util.esc(name)}</b>` : ''}<span>Photo: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a></span><span>${lic(p)}${/BY-SA/i.test(p.lic) ? ' · resized/cropped' : ''}</span></div></div>`;
+    UI.sheet('Photo credits', `<p class="muted" style="margin:0 0 12px">Photos and place stories come from Wikimedia Commons and Wikipedia, used under their free licences. Envelora isn't affiliated with Wikipedia or the photographers.</p>
+      <h4 class="phc-h">Trip photos</h4>${list.length ? list.map(p => row(p, p.place)).join('') : '<p class="muted">No trip photos are showing right now.</p>'}
+      <h4 class="phc-h">Place stories</h4>${st.length ? st.map(c => `<div class="phc-st"><b>${Util.esc(c.title)}</b><span>Text from the Wikipedia article “<a href="${Util.esc(c.url)}" target="_blank" rel="noopener">${Util.esc(c.title)}</a>” by Wikipedia contributors, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated.</span>${(c.pics || []).map(p => row(p)).join('')}</div>`).join('') : '<p class="muted">Stories you read will be credited here.</p>'}`);
   },
   closeMenu() { $('#acctMenu').hidden = true; $('#acctBtn').setAttribute('aria-expanded', 'false'); },
   async menuAction(k) {
