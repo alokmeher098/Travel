@@ -2137,6 +2137,7 @@ const Planner = {
     const t = this.trip;
     $('#plEdit').innerHTML = icon('edit');
     if (!t || this.editingSetup) return this.renderSetup();
+    if (this.canEdit() && this.syncPack(t, true)) this.persist();
     const days = Trips.dayCount(t);
     $('#plTitle').textContent = 'Trip to ' + t.destination;
     $('#plSub').textContent = `${Util.fmtDate(t.start)} – ${Util.fmtDate(t.end, { day: 'numeric', month: 'short', year: 'numeric' })} · ${days} day${days > 1 ? 's' : ''} · ${t.travellers.length} traveller${t.travellers.length > 1 ? 's' : ''}`;
@@ -2249,12 +2250,10 @@ const Planner = {
         if (destChanged && planned && !(await UI.confirm('Change destination?', `Your day plan has ${planned} activit${planned === 1 ? 'y' : 'ies'} for ${t.destination}. Changing to ${dest} will clear the day plan so you can plan the new place fresh. Packing, expenses and travellers stay.`, { ok: 'Clear & change' }))) return;
         if (destChanged) {
           t.days.forEach(d => { d.items = []; });
-          const old = guideFor(t.destination);
-          if (old) t.packing = t.packing.filter(p => !(p.cat === 'For ' + old.name && !p.packed));
         }
         Object.assign(t, { destination: dest, from, start: s, end: en });
         Trips.syncDays(t);
-        if (destChanged) { const g = guideFor(dest); if (g) g.packing.forEach(text => { if (!t.packing.some(p => p.text === text)) t.packing.push({ id: Util.uid('pk'), cat: 'For ' + g.name, text, packed: false }); }); }
+        if (destChanged) this.syncPack(t);
         this.persist(); this.editingSetup = false; this.render();
         if (destChanged && planned) UI.toast(`Destination changed to ${dest}. Day plan cleared.`);
         if (Trips.dayCount(t) !== before && t.clanId) UI.toast('Dates updated. Clan capacity is unchanged.', 'info');
@@ -2374,6 +2373,14 @@ const Planner = {
   },
 
   /* ---------- B. PACKING ---------- */
+  // Keep destination packing tips only for the current destination: drop unticked tips left from earlier destinations.
+  syncPack(t, cleanOnly) {
+    const g = guideFor(t.destination), keep = g ? 'For ' + g.name : null, n = t.packing.length;
+    t.packing = t.packing.filter(p => p.packed || !/^For /.test(p.cat) || p.cat === keep);
+    let changed = t.packing.length !== n;
+    if (g && !cleanOnly) g.packing.forEach(text => { if (!t.packing.some(p => p.text === text)) { t.packing.push({ id: Util.uid('pk'), cat: keep, text, packed: false }); changed = true; } });
+    return changed;
+  },
   renderPack(host) {
     const t = this.trip, ed = !this.ctx.readOnly;
     const done = t.packing.filter(p => p.packed).length, tot = t.packing.length;
