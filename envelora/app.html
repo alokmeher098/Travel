@@ -1081,6 +1081,7 @@ details.grp[open] summary::after{content:"–"}
 .rf-ok{color:#2e7d4f!important}
 .dialog .acts{flex-wrap:wrap}.dialog .acts .btn{flex:1 1 120px;min-width:0;white-space:normal;line-height:1.25;height:auto;min-height:46px}
 .input[readonly]{opacity:.65;cursor:not-allowed;background-image:none}
+.cap-now{display:flex;gap:8px;margin:2px 0 10px}.cap-now>div{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,178,106,.25)}.cap-now b{display:block;font-size:1.3rem;color:var(--gold)}.cap-now span{font-size:.72rem;opacity:.75}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -2149,7 +2150,7 @@ const Trips = {
     if (!t) return null;
     if (t.clanId) {
       const c = Clans.get(t.clanId);
-      if (c && c.trip && Auth.user && Clans.member(c, Auth.user.id)) return c.trip;
+      if (c && c.trip && Auth.user && Clans.member(c, Auth.user.id)) return Clans.syncSeats(c).trip;
       if (!c) { delete t.clanId; Store.set(this.key(), t); }
     }
     return t;
@@ -2236,7 +2237,7 @@ const Planner = {
   /** Open planner. opts: { clanId, readOnly, tab } */
   open(opts = {}) {
     this.ctx = { clanId: opts.clanId || null, readOnly: !!opts.readOnly };
-    this.trip = this.ctx.clanId ? Util.clone(Clans.get(this.ctx.clanId).trip) : this.loadOwn();
+    this.trip = this.ctx.clanId ? Util.clone(Clans.syncSeats(Clans.get(this.ctx.clanId)).trip) : this.loadOwn();
     this.tab = opts.tab || 0; this.day = 0; this.editingSetup = false;
     UI.openOverlay('planner', () => Home.render());
     this.render();
@@ -2818,6 +2819,13 @@ const Clans = {
   unlinkAccount(accId, clanId) { Store.set(KEYS.acct(accId, 'clans'), this.idsFor(accId).filter(x => x !== clanId)); },
   inviteUrl(c) { return location.href.split('#')[0] + '#join=' + c.id + '.' + c.token; },
   days(c) { return Trips.dayCount(c.trip); },
+  /** Every paid spot is a traveller seat in the clan trip ("Traveller 5"…); joining members fill free seats. */
+  syncSeats(c) {
+    if (!c || !c.trip) return c; let added = 0;
+    while (c.trip.travellers.length < c.capacity) { c.trip.travellers.push({ id: Util.uid('tv'), name: 'Traveller ' + (c.trip.travellers.length + 1), phone: '', email: '' }); added++; }
+    if (added) this.save(c);
+    return c;
+  },
   /** Days a new spot must cover: the paid days, or the trip length if longer. Stops 'shorten → buy cheap spots → extend free'. */
   billDays(c) { return Math.max(c.paidDays || 0, Trips.dayCount(c.trip)); },
   /** Days an extra spot is charged for: the whole trip before it starts, only the days left (today → last day) during it, 0 after it ends. */
@@ -3443,8 +3451,12 @@ const ClanSettings = {
         ${can('invite') ? `<div class="cs-panel"><h3>${icon('link')}Invite members</h3>${open > 0 ? '' : `<div class="notice">${icon('info', 'sm')}<span>This clan is full. New people can't join until you buy more capacity.</span></div>`}${Invite.shareBlock(c)}</div>` : ''}
 
         ${can('buyCapacity') ? `<div class="cs-panel"><h3>${icon('plus')}Extra clan capacity</h3>
-          <p class="hint">${Clans.spotDays(c) ? `${Util.inr(CONFIG.pricePerPersonPerDay)} × ${Clans.spotDays(c)} ${Util.ymd(new Date()) >= c.trip.start ? 'remaining ' : ''}trip day${Clans.spotDays(c) > 1 ? 's' : ''} × additional spots${Util.ymd(new Date()) >= c.trip.start ? ' (charged only for the days left)' : ''}` : 'The trip has ended, so no more spots can be added.'}</p>
-          <div class="cap-opts"${Clans.spotDays(c) ? '' : ' hidden'}>${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} member${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.spotDays(c) * n)} · ${Payments.isLive() ? 'Razorpay' : 'preview payment'}</span></button>`).join('')}</div></div>` : ''}
+          <div class="cap-now"><div><b>${c.capacity}</b><span>paid spots</span></div><div><b>${c.members.length}</b><span>joined</span></div><div><b>${Math.max(0, c.capacity - c.members.length)}</b><span>open</span></div></div>
+          <p class="hint">${(() => { const sd = Clans.spotDays(c), started = Util.ymd(new Date()) >= c.trip.start, total = Trips.dayCount(c.trip);
+            if (!sd) return 'The trip has ended, so no more spots can be added.';
+            return started ? `The trip is on: a new spot is charged only for the <b>${sd} day${sd > 1 ? 's' : ''} left</b> (of ${total}). ₹${CONFIG.pricePerPersonPerDay} × ${sd} day${sd > 1 ? 's' : ''} per spot.`
+              : `The trip hasn't started, so a new spot covers the <b>whole ${total}-day trip</b> (${Util.fmtDate(c.trip.start)} – ${Util.fmtDate(c.trip.end)}). ₹${CONFIG.pricePerPersonPerDay} × ${total} days per spot.`; })()}</p>
+          <div class="cap-opts"${Clans.spotDays(c) ? '' : ' hidden'}>${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} spot${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.spotDays(c) * n)} · capacity → ${c.capacity + n}</span></button>`).join('')}</div></div>` : ''}
 
         <div class="cs-panel"><h3>${icon('shield')}Your permissions · ${ROLE_LABEL[me.role]}</h3>
           <ul class="perm-list">${({
@@ -3509,7 +3521,7 @@ const ClanSettings = {
       if (!res) return UI.toast('Payment cancelled.', 'info');
       if (res.status !== 'success') return UI.toast('Payment failed — capacity unchanged.', 'err');
       const fresh = Clans.get(c.id);
-      fresh.capacity += n;
+      fresh.capacity += n; Clans.syncSeats(fresh);
       fresh.payments.push({ id: res.paymentId, amount, mode: res.mode, status: res.status, purpose: `+${n} capacity`, ts: Date.now(), by: u.id });
       Clans.save(fresh);
       Clans.post(c.id, { type: 'system', text: `${u.name} added ${n} spot${n > 1 ? 's' : ''} · capacity is now ${fresh.capacity}${res.mode === 'simulated' ? ' (simulated payment)' : ''}.` });
