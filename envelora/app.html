@@ -1073,6 +1073,12 @@ details.grp[open] summary::after{content:"–"}
 .splash.up .sp-tag,.splash.shine .sp-tag{opacity:.92;transform:none}
 .sp-skip{position:absolute;bottom:max(22px,env(safe-area-inset-bottom));margin:0;color:var(--cream);opacity:.35;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}
 .splash.shine .sp-skip{opacity:0}
+.rf-card{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0 12px;background:#fff}
+.rf-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:.9rem}
+.rf-row span{color:var(--muted)}.rf-row b{color:var(--navy);text-align:right}
+.rf-row.tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px}
+.rf-row.big{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;font-size:1.05rem}.rf-row.big b{color:#2e7d4f;font-size:1.2rem}
+.rf-ok{color:#2e7d4f!important}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -3030,6 +3036,105 @@ const Invite = {
 };
 
 /* =============================================================================
+   REFUNDS — leader cancels the trip and closes the clan.
+   Policy: 80% of everything paid for the clan (creation + extra spots) is
+   refunded if cancelled before Day 1 starts (00:00 local time); no refund after.
+   Each payment is refunded 80% back to the account that paid it.
+   >>> RAZORPAY + SUPABASE INTEGRATION POINT — an Edge Function checks the policy
+   on the server and calls Razorpay POST /v1/payments/{payment_id}/refund
+   { amount: paise } for each payment; the app only shows the result.
+   ============================================================================= */
+const Refunds = {
+  RATE: 0.8,
+  key(uid) { return KEYS.acct(uid, 'refunds'); },
+  list(uid) { return Store.get(this.key(uid), []) || []; },
+  startTs(c) { return new Date(c.trip.start + 'T00:00:00').getTime(); },
+  pays(c) { return (c.payments || []).filter(p => p.status === 'success' && +p.amount > 0); },
+  quote(c, now = Date.now()) {
+    const pays = this.pays(c), paid = pays.reduce((a, p) => a + +p.amount, 0), ok = now < this.startTs(c);
+    const parts = pays.map(p => ({ paymentId: p.id, by: p.by, purpose: p.purpose, paid: +p.amount, refund: ok ? Math.round(p.amount * this.RATE) : 0, mode: p.mode }));
+    const refund = parts.reduce((a, p) => a + p.refund, 0);
+    return { ok, paid, refund, kept: paid - refund, parts, simulated: pays.some(p => p.mode !== 'live') };
+  },
+  leftText(c) {
+    const ms = this.startTs(c) - Date.now(); if (ms <= 0) return '';
+    const h = Math.floor(ms / 3600e3); return h >= 48 ? `${Math.floor(h / 24)} days` : h >= 1 ? `${h} h ${Math.floor(ms % 3600e3 / 60e3)} min` : `${Math.max(1, Math.floor(ms / 60e3))} min`;
+  },
+  open(c) {
+    const u = Auth.user; if (Perm.role(c, u.id) !== 'leader') return UI.toast('Only the clan leader can cancel the trip.', 'err');
+    const q = this.quote(c);
+    UI.sheet('Cancel trip & refund', `
+      <div class="rf-card">
+        <div class="rf-row"><span>Trip</span><b>${Util.esc(c.trip.destination)} · ${Util.fmtDate(c.trip.start)} – ${Util.fmtDate(c.trip.end)}</b></div>
+        ${q.parts.map(p => `<div class="rf-row"><span>${Util.esc(p.purpose || 'Payment')}</span><b>${Util.inr(p.paid)}</b></div>`).join('')}
+        <div class="rf-row tot"><span>Total paid</span><b>${Util.inr(q.paid)}</b></div>
+        <div class="rf-row"><span>${q.ok ? 'Cancellation fee (20%)' : 'Not refundable (trip has started)'}</span><b>− ${Util.inr(q.kept)}</b></div>
+        <div class="rf-row big"><span>You get back</span><b>${Util.inr(q.refund)}</b></div>
+      </div>
+      ${q.ok ? `<div class="notice">${icon('info', 'sm')}<span><b>80% refund</b> if you cancel before the trip starts${this.leftText(c) ? ` (starts in ${this.leftText(c)})` : ''}. After Day 1 begins there is no refund. Money goes back to the same UPI, card or bank account in 5–7 working days.</span></div>`
+        : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
+      <p class="hint">Cancelling closes the clan for all ${c.members.length} member${c.members.length > 1 ? 's' : ''}: the chat, photos, tickets and plans are deleted and everyone is told. Your trip plan stays on your home page as a draft.</p>
+      ${q.simulated ? `<p class="hint" style="font-size:.78rem">These were preview payments, so this refund is a preview too — no real money moves until Razorpay is connected.</p>` : ''}
+      ${q.ok ? `<button class="btn danger block" id="rfGo">Cancel trip & refund ${Util.inr(q.refund)}</button>` : ''}
+      <button class="btn ghost block" id="rfKeep" style="margin-top:8px">Keep my trip</button>`, body => {
+      $('#rfKeep', body).onclick = () => Nav.back();
+      $('#rfGo', body) && ($('#rfGo', body).onclick = async () => {
+        const ok = await UI.confirm('Cancel this trip?', `The clan "${c.name}" will be closed for everyone and ${Util.inr(q.refund)} refunded (80% of ${Util.inr(q.paid)}). This can't be undone.`, { ok: 'Yes, cancel & refund' });
+        if (ok) this.cancel(c.id, $('#rfGo', body));
+      });
+    });
+  },
+  /** Simulated refund (preview) or live refund through the server. */
+  async refund(parts) {
+    // >>> RAZORPAY INTEGRATION POINT — const r = await fetch(CONFIG.razorpay.refundUrl, { method: 'POST', body: JSON.stringify({ parts }) })
+    await new Promise(r => setTimeout(r, 900));
+    return parts.map(p => ({ ...p, refundId: (p.mode === 'live' ? 'rfnd_' : 'sim_rfnd_') + Util.token(10), status: 'processed' }));
+  },
+  async cancel(clanId, btn) {
+    const u = Auth.user, c = Clans.get(clanId); if (!c) return;
+    if (Perm.role(c, u.id) !== 'leader') return UI.toast('Only the clan leader can cancel the trip.', 'err');
+    const q = this.quote(c); if (!q.ok) return UI.toast('The trip has started, so it can no longer be refunded.', 'err');
+    btn && UI.busy(btn, true, 'Processing refund…');
+    const done = await this.refund(q.parts), at = Date.now();
+    // refund record for each account that paid
+    const byPayer = {}; done.forEach(p => (byPayer[p.by || u.id] = byPayer[p.by || u.id] || []).push(p));
+    Object.entries(byPayer).forEach(([acc, ps]) => {
+      const l = this.list(acc); l.unshift({ id: Util.uid('rf'), clan: c.name, destination: c.trip.destination, start: c.trip.start, end: c.trip.end, paid: ps.reduce((a, p) => a + p.paid, 0), refund: ps.reduce((a, p) => a + p.refund, 0), parts: ps, at, by: u.name, simulated: ps.some(p => p.mode !== 'live') });
+      Store.set(this.key(acc), l.slice(0, 30));
+    });
+    // tell every member, then close the clan
+    c.members.forEach(m => {
+      if (!m.accountId) return;
+      if (m.accountId !== u.id) { const k = KEYS.acct(m.accountId, 'notices'), n = Store.get(k, []) || []; n.push({ text: `${u.name} cancelled the trip to ${c.trip.destination}. The clan "${c.name}" has been closed.`, at }); Store.set(k, n); }
+      Clans.unlinkAccount(m.accountId, c.id);
+    });
+    Store.del(KEYS.clan(c.id)); Store.del('envelora.v1.tickets.' + c.id);
+    if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Trip cancelled · ' + c.name, `Refund of ${Util.inr(q.refund)} started.`);
+    Nav.home(() => { Home.render(); UI.toast(`Trip cancelled. ${Util.inr(q.refund)} refund started — it reaches your account in 5–7 working days.`, 'ok', 6000); });
+  },
+  /** Account menu → Payments & refunds */
+  history() {
+    const u = Auth.user, l = this.list(u.id);
+    const pays = Clans.listFor(u.id).flatMap(c => (c.payments || []).filter(p => p.by === u.id && p.status === 'success').map(p => ({ ...p, clan: c.name })));
+    UI.sheet('Payments & refunds', `
+      <h3 class="stp-h">Refunds</h3>
+      ${l.length ? l.map(r => `<div class="rf-card"><div class="rf-row"><span>${Util.esc(r.destination)} · ${Util.esc(r.clan)}</span><b class="rf-ok">✓ ${Util.inr(r.refund)}</b></div>
+        <div class="rf-row"><span>Paid ${Util.inr(r.paid)} · 80% refunded${r.simulated ? ' · preview' : ''}</span><span>${new Date(r.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
+        <div class="rf-row"><span>Status</span><span>Refund started · 5–7 working days</span></div></div>`).join('') : '<p class="hint">No refunds yet.</p>'}
+      <h3 class="stp-h">Payments for active clans</h3>
+      ${pays.length ? pays.map(p => `<div class="rf-row"><span>${Util.esc(p.clan)} · ${Util.esc(p.purpose || 'Payment')}</span><b>${Util.inr(p.amount)}</b></div>`).join('') : '<p class="hint">No active clan payments.</p>'}
+      <p class="hint" style="font-size:.78rem;margin-top:12px">Refund rule: 80% back if the trip is cancelled before Day 1 starts; no refund after it starts.</p>`);
+  },
+  /** Show messages left for this account (e.g. "the leader cancelled the trip"). */
+  notices() {
+    if (!Auth.user) return; const k = KEYS.acct(Auth.user.id, 'notices'), n = Store.get(k, []) || [];
+    if (!n.length) return; Store.del(k);
+    n.forEach((x, i) => setTimeout(() => UI.toast(x.text, 'info', 7000), 400 + i * 800));
+  }
+};
+setTimeout(() => { if ((typeof Home !== 'undefined') && Home.render && !Home._rfHook) { const r = Home.render.bind(Home); Home.render = function () { r(); Refunds.notices(); }; Home._rfHook = true; } }, 0);
+
+/* =============================================================================
    CHAT — WhatsApp-inspired clan group chat (simulated realtime)
    Messages sync across tabs of this browser via the `storage` event.
    >>> SUPABASE INTEGRATION POINT — supabase.channel('clan:'+id).on('postgres_changes', {table:'messages'}, ...)
@@ -3055,7 +3160,7 @@ const Chat = {
     $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
-    if (window.Tickets) Tickets.banner();
+    if ((typeof Tickets !== 'undefined')) Tickets.banner();
     this.renderMessages(false);
     const sc = $('#chScroll'); requestAnimationFrame(() => sc.scrollTop = sc.scrollHeight);
   },
@@ -3311,7 +3416,7 @@ const ClanSettings = {
           ${(c.payments || []).map(p => `<div class="bal" style="border-color:rgba(212,178,106,.2)"><span>${Util.esc(p.purpose)}<br/><span class="hint">${Util.fmtDT(p.ts)}</span></span><span class="v">${Util.inr(p.amount)} <span class="badge ${p.mode === 'simulated' ? 'sim' : 'live'}">${p.mode === 'simulated' ? 'Simulated' : 'Paid'}</span></span></div>`).join('')}
         </div>
 
-        ${me.role !== 'leader' ? `<button class="btn danger block" id="csLeave" style="margin-bottom:24px">${icon('door', 'sm')}Leave clan</button>` : `<p class="hint" style="text-align:center;color:rgba(241,230,204,.5)">Leaders must appoint a new leader before leaving.</p>`}
+        ${me.role !== 'leader' ? `<button class="btn danger block" id="csLeave" style="margin-bottom:24px">${icon('door', 'sm')}Leave clan</button>` : `<p class="hint" style="text-align:center;color:rgba(241,230,204,.5)">Leaders must appoint a new leader before leaving.</p><button class="btn danger block" id="csCancel" style="margin:4px 0 24px">${icon('trash', 'sm')}Cancel trip & refund</button>`}
       </div>`;
     this.bind(c);
   },
@@ -3369,6 +3474,7 @@ const ClanSettings = {
       this.render(); UI.toast(`Capacity increased to ${fresh.capacity}.`);
     });
     $$('[data-ma]', body).forEach(b => b.onclick = () => UI.armed(b, () => this.memberAction(b.dataset.ma, b.dataset.id)));
+    $('#csCancel') && ($('#csCancel').onclick = () => Refunds.open(Clans.get(c.id)));
     $('#csLeave') && ($('#csLeave').onclick = e => UI.armed(e.currentTarget, () => {
       const cur = Clans.get(c.id); Clans.removeMember(cur, u.id);
       Clans.post(c.id, { type: 'system', text: `${u.name} left the clan.` });
@@ -4129,7 +4235,7 @@ const Stories = {
       try {
         const hit = (await this.geo(la, lo, 400)).find(x => x.m < 300 && !this.seen.has(x.title)); if (!hit) return;
         this.seen.add(hit.title); Wraps.log('visit', hit.title); this.arrive(hit);
-        if (window.Alerts && Alerts.notify) Alerts.notify('You’ve reached ' + hit.title, 'Open Envelora to read or listen to its story.');
+        if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('You’ve reached ' + hit.title, 'Open Envelora to read or listen to its story.');
       } catch (e) { }
     }, () => { this.unwatch(); UI.toast('Location is off, so arrival alerts can’t work.', 'err'); }, { enableHighAccuracy: true, maximumAge: 30000 });
     if (!silent) UI.toast('Arrival alerts on. You’ll get a card to read or listen when you reach a famous place.');
@@ -4176,12 +4282,12 @@ const Wraps = {
       if (now >= end && !c.endWarned) {
         c.endWarned = true; Clans.save(c);
         Clans.post(c.id, { type: 'system', text: `🏁 The trip is over! This clan will be deleted automatically on ${new Date(del).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} (12 hours after the trip ended). Save your photos and settle expenses before then. Everyone will get their own Envelora Wrap.` });
-        if (window.Alerts && Alerts.notify) Alerts.notify('Trip over · ' + c.name, 'This clan will be deleted in 12 hours. Your Envelora Wrap is coming!');
+        if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Trip over · ' + c.name, 'This clan will be deleted in 12 hours. Your Envelora Wrap is coming!');
       }
       if (now >= del - 3600e3 && !c.lastWarned) {
         c.lastWarned = true; Clans.save(Clans.get(c.id) ? Object.assign(Clans.get(c.id), { lastWarned: true }) : c);
         Clans.post(c.id, { type: 'system', text: `⏳ Last hour! "${c.name}" will be deleted in ${this.fmtLeft(del - now)}. Download anything you want to keep.` });
-        if (window.Alerts && Alerts.notify) Alerts.notify('1 hour left · ' + c.name, 'The clan will be deleted soon. Save your photos now.');
+        if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('1 hour left · ' + c.name, 'The clan will be deleted soon. Save your photos now.');
       }
     });
     this.banner(now);
@@ -4214,9 +4320,9 @@ const Wraps = {
     if (Auth.user) {
       const own = Trips.loadOwn && Trips.loadOwn(); if (own && own.clanId === c.id) { delete own.clanId; Trips.saveOwn(own); }
       const mine = this.list(Auth.user.id).find(x => x.clanId === c.id);
-      if (mine) { UI.toast(`🎁 Your Envelora Wrap for ${c.trip.destination} is ready!`); if (window.Alerts && Alerts.notify) Alerts.notify('Your Envelora Wrap is ready 🎁', `Relive your ${c.trip.destination} trip.`); }
+      if (mine) { UI.toast(`🎁 Your Envelora Wrap for ${c.trip.destination} is ready!`); if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Your Envelora Wrap is ready 🎁', `Relive your ${c.trip.destination} trip.`); }
     }
-    if (open) Nav.home(() => Home.render()); else if (window.Home) Home.render();
+    if (open) Nav.home(() => Home.render()); else if ((typeof Home !== 'undefined')) Home.render();
   },
 
   /* ---------- stats ---------- */
@@ -5577,6 +5683,7 @@ const Home = {
     m.innerHTML = `<div class="mh">${u ? `<b>${Util.esc(u.name)}</b><span>${Util.esc(Auth.contactOf(u))}</span>` : '<b>Guest traveller</b><span>Not logged in</span>'}</div>
       <button data-m="edit">${icon('edit')}Edit Details</button>
       <button data-m="login">${icon('login')}${u ? 'Log In (switch account)' : 'Log In'}</button>
+      ${u ? `<button data-m="pay">${icon('wallet')}Payments & refunds</button>` : ''}
       ${u ? `<button data-m="out">${icon('logout')}Sign Out</button>` : ''}
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
@@ -5585,6 +5692,7 @@ const Home = {
   async menuAction(k) {
     this.closeMenu();
     if (k === 'login') { AuthUI.openSheet({ sheetTitle: 'Log in', title: Auth.user ? 'Switch account' : 'Welcome back', sub: 'Log in or create an account with a one-time code.', dark: false }); }
+    if (k === 'pay' && Auth.user) Refunds.history();
     if (k === 'out') {
       const ok = await UI.confirm('Sign out?', 'Your trips and clans stay saved in this account on this browser.', { ok: 'Sign out', danger: false });
       if (ok) Nav.home(() => { Auth.logout(); App.onAuthChange(null); UI.toast('Signed out. See you on the next journey!'); });
