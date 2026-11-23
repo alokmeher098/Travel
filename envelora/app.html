@@ -1136,6 +1136,36 @@ details.grp[open] summary::after{content:"–"}
 .rs-smoke{animation:rsSmoke 1.2s ease-out infinite}
 @keyframes rsSmoke{from{transform:translate(0,0) scale(.6);opacity:.9}to{transform:translate(-14px,-14px) scale(1.8);opacity:0}}
 @media(prefers-reduced-motion:reduce){.rs *{animation:none!important}}
+/* ---- Explore destinations + living photos ---- */
+.ex-circles{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;margin:0 -16px;padding:4px 16px 8px}
+.ex-circles::-webkit-scrollbar,.ex-cards::-webkit-scrollbar{display:none}
+.ex-c{flex:none;width:84px;border:0;background:none;padding:0;text-align:center;cursor:pointer;scroll-snap-align:start;font:inherit;color:var(--navy)}
+.ex-ring{display:block;width:84px;height:84px;border-radius:50%;overflow:hidden;position:relative;box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--gold),0 6px 14px rgba(13,27,42,.18)}
+.ex-c b{display:block;margin-top:8px;font-weight:600;font-size:.88rem}
+.ex-cards{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:4px 16px 10px}
+.ex-card{flex:0 0 66%;max-width:300px;scroll-snap-align:start;position:relative;border:0;padding:0;border-radius:20px;overflow:hidden;background:#fff;text-align:left;cursor:pointer;font:inherit;box-shadow:0 8px 22px rgba(13,27,42,.14)}
+.ex-card .lp{height:170px}
+.ex-tag{position:absolute;top:12px;left:12px;background:var(--paper);color:var(--navy);font-family:var(--serif);font-size:1.05rem;padding:4px 12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.ex-foot{display:flex;flex-direction:column;gap:2px;padding:10px 14px 12px}.ex-foot small{color:var(--muted);font-size:.8rem}.ex-foot b{color:var(--navy);font-size:.92rem}
+.ex-credit{margin-top:6px;font-size:.72rem;color:var(--muted)}.ex-credit summary{cursor:pointer}.ex-credit a{color:inherit}
+.lp{position:relative;width:100%;height:100%;overflow:hidden;background:#1b2b3a}
+.lp.lp-scene .rs{position:absolute;inset:0;width:100%;height:100%}
+.lp-move{position:absolute;inset:0;transform-origin:50% 60%;animation:lpZoom 14s ease-in-out infinite alternate;animation-play-state:paused}
+.lp.play .lp-move,.lp.play .lp-person,.lp.play .lp-light,.lp.play .rs-fly{animation-play-state:running}
+.lp-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lp-water{filter:url(#lpWater);clip-path:inset(58% 0 0 0)}
+.lp-wind{filter:url(#lpWind);clip-path:inset(0 0 52% 0)}
+.lp-light{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,244,214,.22) 45%,transparent 60%);background-size:250% 100%;animation:lpLight 9s ease-in-out infinite;animation-play-state:paused;pointer-events:none}
+@keyframes lpZoom{0%{transform:scale(1.02) translate(0,0)}50%{transform:scale(1.12) translate(-2%,-1.5%)}100%{transform:scale(1.06) translate(2%,1%)}}
+@keyframes lpLight{0%{background-position:120% 0}100%{background-position:-120% 0}}
+.lp-walk,.lp-birds{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lp-person{animation:lpWalk 20s linear infinite;animation-play-state:paused}
+@keyframes lpWalk{from{transform:translateX(-30px)}to{transform:translateX(430px)}}
+.lp-leg{transform-box:fill-box;transform-origin:50% 0;animation:lpStep .55s ease-in-out infinite alternate}.lp-leg.b{animation-direction:alternate-reverse}
+.lp-arm{transform-box:fill-box;transform-origin:50% 0;animation:lpStep .55s ease-in-out infinite alternate-reverse}
+@keyframes lpStep{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+.ex-c .lp .rs-fly{display:none}
+@media(prefers-reduced-motion:reduce){.lp *{animation:none!important}.lp-water,.lp-wind{display:none}}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1186,6 +1216,7 @@ details.grp[open] summary::after{content:"–"}
 
     <div id="homeTrip"></div>
     <div id="homeClans"></div>
+    <div id="homeExplore"></div>
 
     <div class="section-t"><h2>Inside every Envelora trip</h2></div>
     <div class="features" id="features"></div>
@@ -2319,6 +2350,7 @@ const Planner = {
   open(opts = {}) {
     this.ctx = { clanId: opts.clanId || null, readOnly: !!opts.readOnly };
     if (opts.tripId) Trips.setActive(opts.tripId);
+    this.prefill = opts.dest || '';
     this.trip = this.ctx.clanId ? Util.clone(Clans.syncSeats(Clans.get(this.ctx.clanId)).trip) : opts.fresh ? null : this.loadOwn();
     this.tab = opts.tab || 0; this.day = 0; this.editingSetup = false;
     UI.openOverlay('planner', () => Home.render());
@@ -2405,7 +2437,7 @@ const Planner = {
         <div class="lt">${editing ? 'Amend your letter' : 'Dear traveller, where shall we go?'}</div>
         <h3>${editing ? 'Trip details' : 'Your journey'}</h3>
         <div class="field"><label class="f" for="sf-dest">Destination</label>
-          <div class="ac"><input class="input" id="sf-dest" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-dest" autocomplete="off" placeholder="e.g. Goa, Manali, Jaipur" value="${Util.esc(t ? t.destination : '')}" required />
+          <div class="ac"><input class="input" id="sf-dest" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-dest" autocomplete="off" placeholder="e.g. Goa, Manali, Jaipur" value="${Util.esc(t ? t.destination : (this.prefill || ''))}" required />
           <ul class="ac-list" id="ac-dest" role="listbox" hidden></ul></div>
           <div class="share-chips" style="margin-top:8px">${Object.values(DESTINATIONS).map(d => `<button type="button" class="chip" data-dest="${d.name}">${d.emoji} ${d.name}</button>`).join('')}</div>
         </div>
@@ -5856,6 +5888,83 @@ const Reels = {
 };
 
 /* =============================================================================
+   EXPLORE — "Explore destinations" on the home page.
+   Round destination photos (swipe) + larger getaway cards. Every photo is a
+   "living photo": real Wikimedia Commons photo (free licence, credited) with
+   slow zoom in/out, rippling water, wind, walking people and birds layered on.
+   No photo (offline)? The animated scene for that kind of place is shown.
+   Tap → starts a new trip with that destination filled in.
+   ============================================================================= */
+const Explore = {
+  // [shown name, planner destination, Wikipedia article with a good photo, scene kind]
+  LIST: [
+    ['Goa', 'Goa', 'Palolem Beach', 'wave'], ['Kerala', 'Alleppey', 'Kerala backwaters', 'boat'], ['Manali', 'Manali', 'Manali, Himachal Pradesh', 'mountain'],
+    ['Srinagar', 'Srinagar', 'Dal Lake', 'boat'], ['Jaipur', 'Jaipur', 'Hawa Mahal', 'palace'], ['Udaipur', 'Udaipur', 'Lake Pichola', 'boat'],
+    ['Varanasi', 'Varanasi', 'Ghats in Varanasi', 'boat'], ['Rishikesh', 'Rishikesh', 'Lakshman Jhula', 'boat'], ['Darjeeling', 'Darjeeling', 'Darjeeling', 'tea'],
+    ['Andaman', 'Havelock Island', 'Radhanagar Beach', 'wave'], ['Ladakh', 'Leh', 'Pangong Tso', 'mountain'], ['Munnar', 'Munnar', 'Munnar', 'tea'],
+    ['Agra', 'Agra', 'Taj Mahal', 'palace'], ['Shimla', 'Shimla', 'Shimla', 'mountain'], ['Hampi', 'Hampi', 'Hampi', 'temple'], ['Jaisalmer', 'Jaisalmer', 'Jaisalmer Fort', 'camel']
+  ],
+  CARDS: [['Goa', 'Beaches, shacks & sunsets'], ['Srinagar', 'Shikara rides on Dal Lake'], ['Jaipur', 'Forts, palaces & bazaars'], ['Varanasi', 'Ghats & the Ganga aarti'], ['Ladakh', 'High passes & blue lakes'], ['Munnar', 'Tea hills in the mist']],
+  CK: 'envelora.v1.destPhotos', TTL: 30 * 864e5,
+  item(name) { return this.LIST.find(x => x[0] === name); },
+  async photos() {
+    const c = Store.get(this.CK, null);
+    if (c && Date.now() - c.at < this.TTL && c.map) return c.map;
+    const titles = this.LIST.map(x => x[2]);
+    const j = await Stories.api('en', { action: 'query', titles: titles.join('|'), redirects: 1, prop: 'pageimages', piprop: 'name' });
+    const q = j.query || {}, pages = Object.values(q.pages || {}), norm = t => { const n = (q.normalized || []).find(x => x.from === t); const r = (q.redirects || []).find(x => x.from === (n ? n.to : t)); return r ? r.to : n ? n.to : t; };
+    const fileOf = {}; this.LIST.forEach(x => { const p = pages.find(pg => pg.title === norm(x[2])); if (p && p.pageimage && !/\.svg$/i.test(p.pageimage)) fileOf[x[0]] = 'File:' + p.pageimage.replace(/_/g, ' '); });
+    const files = [...new Set(Object.values(fileOf))], lic = await Stories.licensed(files);
+    const byFile = {}; files.forEach(f => { const hit = lic.find(l => l.page && decodeURIComponent(l.page).replace(/_/g, ' ').endsWith(f)); if (hit) byFile[f] = hit; });
+    const map = {}; Object.entries(fileOf).forEach(([k, f]) => { const p = byFile[f]; if (p) map[k] = { src: p.src, author: p.author, lic: p.lic, page: p.page }; });
+    Store.set(this.CK, { at: Date.now(), map });
+    return map;
+  },
+  defs() {
+    if (document.getElementById('lpDefs')) return;
+    const d = document.createElement('div'); d.id = 'lpDefs'; d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = `<svg width="0" height="0" style="position:absolute"><filter id="lpWater" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.09" numOctaves="2" seed="3"><animate attributeName="baseFrequency" dur="7s" values="0.008 0.09;0.011 0.12;0.008 0.09" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" scale="9" xChannelSelector="R" yChannelSelector="G"/></filter>
+      <filter id="lpWind" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="1" seed="7"><animate attributeName="seed" dur="3s" values="7;8;9;8;7" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter></svg>`;
+    document.body.appendChild(d);
+  },
+  walkers(n = 3) {
+    return `<svg class="lp-walk" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<g class="lp-person" style="animation-duration:${18 + i * 5}s;animation-delay:${-i * 6}s"><g transform="translate(0 ${146 - (i % 2) * 4}) scale(${.9 - i * .08})" fill="rgba(20,20,25,.78)" stroke="rgba(20,20,25,.78)" stroke-linecap="round">
+      <circle cx="0" cy="-23" r="3.2" stroke="none"/><line x1="0" y1="-19" x2="0" y2="-8" stroke-width="2.6"/><line class="lp-arm" x1="0" y1="-17" x2="0" y2="-9" stroke-width="1.8"/>
+      <line class="lp-leg a" x1="0" y1="-8" x2="0" y2="2" stroke-width="2.2"/><line class="lp-leg b" x1="0" y1="-8" x2="0" y2="2" stroke-width="2.2"/></g></g>`).join('')}</svg>`;
+  },
+  birds() { return `<svg class="lp-birds" viewBox="0 0 400 160" preserveAspectRatio="xMidYMin slice" aria-hidden="true"><g class="rs-fly">${[0, 1, 2].map(i => `<path d="M${i * 16} ${20 + i % 2 * 6} q 4 -5 8 0 q 4 -5 8 0" stroke="rgba(25,25,25,.7)" stroke-width="1.4" fill="none" class="rs-flap" style="animation-delay:${i * .15}s"/>`).join('')}</g></svg>`; },
+  /** A living photo: real photo + motion layers. full=false for small circles (zoom only). */
+  living(name, photo, full) {
+    const it = this.item(name), kind = it ? it[3] : 'train';
+    if (!photo) return `<div class="lp lp-${kind} lp-scene">${Reels.scene(kind)}</div>`;
+    const src = Util.esc(photo.src), water = ['wave', 'boat'].includes(kind), wind = ['tea', 'mountain', 'temple', 'wave'].includes(kind);
+    return `<div class="lp lp-${kind}"><div class="lp-move" style="animation-delay:${-(name.length % 7) * 1.7}s">
+        <img class="lp-img" src="${src}" alt="${Util.esc(name)}" loading="lazy" decoding="async"/>
+        ${full && water ? `<img class="lp-img lp-water" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
+        ${full && wind ? `<img class="lp-img lp-wind" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
+      </div><div class="lp-light"></div>${full ? this.birds() + (['wave', 'boat', 'palace', 'temple', 'camel'].includes(kind) ? this.walkers(kind === 'camel' ? 2 : 3) : '') : ''}</div>`;
+  },
+  render() {
+    const host = $('#homeExplore'); if (!host) return;
+    if (host.dataset.done) return; host.dataset.done = '1';
+    this.defs();
+    const draw = (map = {}) => {
+      host.innerHTML = `<div class="section-t"><h2>Explore destinations</h2><span class="hint">swipe ←</span></div>
+        <div class="ex-circles">${this.LIST.map(x => `<button class="ex-c" data-dest="${Util.esc(x[1])}" aria-label="Plan a trip to ${Util.esc(x[0])}"><span class="ex-ring">${this.living(x[0], map[x[0]], false)}</span><b>${Util.esc(x[0])}</b></button>`).join('')}</div>
+        <div class="section-t" style="margin-top:18px"><h2>Trending getaways</h2></div>
+        <div class="ex-cards">${this.CARDS.map(([n, tag]) => { const it = this.item(n); return `<button class="ex-card" data-dest="${Util.esc(it[1])}" aria-label="Plan a trip to ${Util.esc(n)}">${this.living(n, map[n], true)}<span class="ex-tag">${Util.esc(n)}</span><span class="ex-foot"><small>${Util.esc(tag)}</small><b>Clan from ${Util.inr(CONFIG.pricePerPersonPerDay)}/person/day</b></span></button>`; }).join('')}</div>
+        ${Object.keys(map).length ? `<details class="ex-credit"><summary>📷 Photo credits · Wikimedia Commons</summary>${Object.entries(map).map(([k, p]) => `<div>${Util.esc(k)}: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> (${Util.esc(p.lic)})</div>`).join('')}<div>Motion effects added by Envelora.</div></details>` : ''}`;
+      host.onclick = e => { const b = e.target.closest('[data-dest]'); if (b) Planner.open({ fresh: true, dest: b.dataset.dest }); };
+      // run the motion only while visible (saves battery)
+      if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('play', en.isIntersecting)), { rootMargin: '60px' }); $$('.lp', host).forEach(l => io.observe(l)); }
+      else $$('.lp', host).forEach(l => l.classList.add('play'));
+    };
+    draw(); // instantly with animated scenes, then swap in real photos
+    this.photos().then(map => { if (Object.keys(map).length) { host.dataset.done = '1'; draw(map); } }).catch(() => { });
+  }
+};
+
+/* =============================================================================
    HOME + HEADER + ACCOUNT MENU
    ============================================================================= */
 const Home = {
@@ -5913,6 +6022,7 @@ const Home = {
         ${last ? `<div class="m" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.type === 'system' ? '' : Util.esc((last.name || '').split(' ')[0]) + ': '}${Util.esc(last.type === 'score' ? '🏆 ' + last.game + ' scores' : last.type === 'photo' ? '📷 Photo' : last.text)}</div>` : ''}</div>${icon('arrowR')}</div>`;
     }).join('') : '';
     $$('[data-clan]').forEach(el => el.onclick = () => Chat.open(el.dataset.clan));
+    if (typeof Explore !== 'undefined') Explore.render();
   },
   header() {
     const u = Auth.user, btn = $('#acctBtn');
