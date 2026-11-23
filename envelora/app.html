@@ -1040,6 +1040,7 @@ details.grp[open] summary::after{content:"–"}
 .cap-row canvas{flex:none;width:150px;height:48px;border-radius:12px;border:1px solid rgba(212,178,106,.6);user-select:none;-webkit-user-select:none}
 .cap-row .icon-btn{flex:none}
 .cap-row .input{flex:1;min-width:0;text-align:center;font-size:1.1rem;letter-spacing:.08em}
+.sy-about{margin:4px 0 12px;padding:12px 14px;border-radius:14px;background:#fff7e3;border:1px solid var(--gold)}.sy-about b{display:block;color:var(--navy);font-family:var(--serif);font-size:1.05rem}.sy-about small{display:block;color:var(--muted);font-size:.76rem;margin:2px 0 6px}.sy-about p{margin:6px 0 0;line-height:1.5}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -3939,20 +3940,42 @@ const Stories = {
       this.list(await this.geo(c.latitude, c.longitude), 'Famous places near you');
     } catch (e) { L.innerHTML = `<p class="hint">${e && e.code === 1 ? 'Location is off. Allow location for Envelora, or search a place above.' : 'Could not load places right now (no internet, or blocked in this preview).'}</p>`; }
   },
+  /** Search: exact title → titles starting with the words → full text (as typed, then + India). */
   async search(q, open) {
     const L = $('#syList'); L.innerHTML = '<p class="hint">Searching…</p>';
     try {
-      const j = await this.api('en', { action: 'query', generator: 'search', gsrsearch: q + ' India', gsrlimit: 10, prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: 160 });
-      const ps = Object.values((j.query && j.query.pages) || {}).sort((a, b) => a.index - b.index).map(p => ({ title: p.title, desc: p.description || '', thumb: p.thumbnail && p.thumbnail.source }));
-      if (open && ps.length) return this.story(ps[0].title);
-      this.list(ps, 'Results');
+      const strip = h => { const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent; };
+      const [ex, pre, ft, fti] = await Promise.all([
+        this.api('en', { action: 'query', titles: q, redirects: 1 }).catch(() => null),
+        this.api('en', { action: 'query', list: 'prefixsearch', pssearch: q, pslimit: 6 }).catch(() => null),
+        this.api('en', { action: 'query', list: 'search', srsearch: q, srlimit: 10, srprop: 'snippet' }).catch(() => null),
+        this.api('en', { action: 'query', list: 'search', srsearch: q + ' India', srlimit: 10, srprop: 'snippet' }).catch(() => null)
+      ]);
+      if (!ex && !pre && !ft && !fti) throw new Error('offline');
+      const out = [], seen = new Set(), add = (title, snip) => { if (!title || seen.has(title)) return; seen.add(title); out.push({ title, snip: snip ? strip(snip) : '' }); };
+      Object.values((ex && ex.query && ex.query.pages) || {}).forEach(p => { if (!('missing' in p) && !('invalid' in p)) add(p.title); });
+      ((pre && pre.query && pre.query.prefixsearch) || []).forEach(p => add(p.title));
+      const fts = [].concat((ft && ft.query && ft.query.search) || [], (fti && fti.query && fti.query.search) || []);
+      const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+      // full-text hits whose title or snippet mention every word come first
+      fts.sort((a, b) => { const sc = x => words.filter(w => (x.title + ' ' + strip(x.snippet)).toLowerCase().includes(w)).length; return sc(b) - sc(a); }).forEach(p => add(p.title, p.snippet));
+      const top = out.slice(0, 10);
+      if (top.length) {
+        const info = await this.api('en', { action: 'query', titles: top.map(x => x.title).join('|'), prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: 160, redirects: 1 }).catch(() => null);
+        const pages = Object.values((info && info.query && info.query.pages) || {});
+        top.forEach(x => { const p = pages.find(y => y.title === x.title); if (p) { x.desc = p.description || ''; x.thumb = p.thumbnail && p.thumbnail.source; } x.desc = x.desc || (x.snip ? x.snip.slice(0, 90) + '…' : ''); });
+      }
+      this.query = q;
+      if (open && top.length) return this.story(top[0].title);
+      this.list(top, `Results for “${Util.esc(q)}”`);
+      if (!top.length) $('#syList').innerHTML = `<p class="hint">Nothing on Wikipedia matches “${Util.esc(q)}”. Check the spelling, or try the nearest village or town name.</p>`;
     } catch (e) { L.innerHTML = '<p class="hint">Could not search right now (no internet, or blocked in this preview).</p>'; }
   },
   list(ps, head) {
     const L = $('#syList');
     L.innerHTML = ps.length ? `<h3 class="sy-h">${head}</h3><div class="sy-list">${ps.map(p => `<button class="sy-item" data-t="${Util.esc(p.title)}">${p.thumb ? `<img src="${p.thumb}" alt="" loading="lazy"/>` : '<span class="sy-ph">🏛️</span>'}<span><b>${Util.esc(p.title)}</b><small>${Util.esc(p.desc)}${p.m != null ? ` · ${p.m < 1000 ? Math.round(p.m) + ' m' : (p.m / 1000).toFixed(1) + ' km'}` : ''}</small></span></button>`).join('')}</div>`
       : '<p class="hint">No famous places found here. Try searching by name.</p>';
-    L.onclick = e => { const b = e.target.closest('[data-t]'); if (b) this.story(b.dataset.t); };
+    L.onclick = e => { const b = e.target.closest('[data-t]'); if (b) this.story(b.dataset.t, head.startsWith('Results') ? this.query : ''); };
   },
   /** Plain-text sections of the article; keeps intro + history-like sections. */
   pickText(raw) {
@@ -3965,8 +3988,8 @@ const Stories = {
     }
     return out;
   },
-  async story(enTitle) {
-    this.stopSpeech();
+  async story(enTitle, q = '') {
+    this.stopSpeech(); this.storyQ = q;
     const lang = this.lang(), L = this.LANGS.find(x => x[0] === lang);
     $('#syTitle').textContent = enTitle; $('#sySub').textContent = 'Loading story…';
     $('#syBody').innerHTML = '<p class="hint">Opening the story…</p>';
@@ -3982,6 +4005,19 @@ const Stories = {
         fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(enTitle.replace(/ /g, '_'))}`, { headers: this.UA }).then(r => r.ok ? r.json() : { items: [] }).catch(() => ({ items: [] }))
       ]);
       const pg = Object.values(ex.query.pages)[0], secs = this.pickText(pg.extract || '');
+      let about = '';
+      if (q) {
+        const ws = q.toLowerCase().split(/\s+/).filter(w => w.length > 2), tl = pg.title.toLowerCase();
+        if (ws.length && !ws.every(w => tl.includes(w))) {
+          const sents = (pg.extract || '').replace(/\n+/g, ' ').split(/(?<=[.!?।])\s+/);
+          const score = s => ws.filter(w => s.toLowerCase().includes(w)).length;
+          const best = Math.max(0, ...sents.map(score)), need = Math.min(ws.length, Math.max(1, best));
+          const idx = new Set(); if (best) sents.forEach((s, i) => { if (score(s) >= need && s.length < 600) { idx.add(i); if (sents[i + 1] && sents[i + 1].length < 600) idx.add(i + 1); } });
+          const hits = [...idx].sort((a, b) => a - b).slice(0, 5).map(i => sents[i]), nice = q.replace(/\b\p{L}/gu, ch => ch.toUpperCase());
+          about = hits.length ? `<div class="sy-about"><b>📍 About ${Util.esc(nice)}</b><small>There's no separate Wikipedia article for it, so here's what the “${Util.esc(pg.title)}” article says:</small>${hits.map(h => `<p>${Util.esc(h)}</p>`).join('')}</div>`
+            : `<div class="notice">${icon('info', 'sm')}<span>Wikipedia has no separate article for “${Util.esc(q)}”. This is the closest article: ${Util.esc(pg.title)}.</span></div>`;
+        }
+      }
       const files = [pg.pageimage && 'File:' + pg.pageimage].concat((media.items || []).filter(i => i.type === 'image' && !/\.svg/i.test(i.title)).map(i => i.title))
         .filter(Boolean).map(f => f.replace(/_/g, ' ')).filter((f, i, a) => a.indexOf(f) === i).slice(0, 14);
       const pics = (await this.licensed(files)).slice(0, 8);
@@ -3994,10 +4030,11 @@ const Stories = {
         ${pics.length ? `<div class="sy-gallery">${pics.map(x => `<figure><img src="${Util.esc(x.src)}" alt="${Util.esc(pg.title)}" loading="lazy"/><figcaption>📷 <a href="${Util.esc(x.page)}" target="_blank" rel="noopener">${Util.esc(x.author)}</a> · ${x.licUrl ? `<a href="${Util.esc(x.licUrl)}" target="_blank" rel="noopener">${Util.esc(x.lic)}</a>` : Util.esc(x.lic)}</figcaption></figure>`).join('')}</div>` : ''}
         <div class="sy-tts"><button class="btn gold" id="syPlay">🔊 ${this.t(0)}</button><button class="btn soft" id="syStop">■ ${this.t(2)}</button>
           <label class="sy-rate">🐢<input type="range" id="syRate" min="0.6" max="1.4" step="0.1" value="${Store.get('envelora.v1.ttsRate') || 1}" aria-label="Reading speed"/>🐇</label></div>
+        ${about}
         <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
         <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${src}">Read full article</a></div>
         <p class="hint sy-credit">Text from the Wikipedia article “<a href="${src}" target="_blank" rel="noopener">${Util.esc(pg.title)}</a>” by Wikipedia contributors, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated. Photos are credited to their authors under their own licenses. Envelora is not affiliated with Wikipedia.</p>`;
-      this.bindLang(() => this.story(enTitle));
+      this.bindLang(() => this.story(enTitle, q));
       $('#syPlay').onclick = () => this.togglePlay();
       $('#syStop').onclick = () => this.stopSpeech();
       $('#syRate').onchange = e => { Store.set('envelora.v1.ttsRate', +e.target.value); if (this.speaking) { this.stopSpeech(); this.togglePlay(); } };
