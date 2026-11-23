@@ -1172,6 +1172,8 @@ details.grp[open] summary::after{content:"–"}
 .lp.still{animation:lpIn .6s ease}@keyframes lpIn{from{opacity:0}to{opacity:1}}
 .pc-cr{position:absolute;right:8px;bottom:8px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:rgba(0,0,0,.35);color:#fff;font:italic 600 11px/16px Georgia,serif;padding:0;cursor:pointer;opacity:.75;z-index:2}
 .pc-crtip{position:absolute;right:8px;bottom:30px;max-width:78%;z-index:3;background:rgba(10,12,16,.82);color:#fff;font-size:.66rem;line-height:1.35;padding:5px 8px;border-radius:8px;text-align:left;font-style:normal}.pc-crtip a{color:#ffe7a6}
+.ph-note{margin:6px 2px 0;font-size:.68rem;color:var(--muted);text-align:center}.ph-note button{background:none;border:0;padding:0;font:inherit;color:var(--gold-d,#9a7a2e);text-decoration:underline;cursor:pointer}
+.phc{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(13,27,42,.08)}.phc img{width:72px;height:52px;object-fit:cover;border-radius:8px;flex:none}.phc div{display:flex;flex-direction:column;gap:2px;font-size:.8rem;min-width:0}.phc span{color:var(--muted)}.phc a{color:inherit;text-decoration:underline}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -5895,14 +5897,7 @@ const Reels = {
         if (!p || !box.isConnected) return;
         // still, DSLR-style photo (no motion)
         box.classList.add('has-reel'); reel.innerHTML = `<div class="lp still"><img class="lp-img" src="${Util.esc(p.src)}" alt="${Util.esc(p.place || box.dataset.reel)}" decoding="async"/><div class="lp-vig"></div></div>`;
-        // tiny ⓘ on the photo; tap shows the credit (licence attribution) without opening the trip
-        box.querySelectorAll('.pc-cr').forEach(x => x.remove());
-        const b = document.createElement('button'); b.className = 'pc-cr'; b.type = 'button'; b.setAttribute('aria-label', 'Photo credit'); b.textContent = 'i';
-        const tip = document.createElement('span'); tip.className = 'pc-crtip'; tip.hidden = true;
-        tip.innerHTML = `📷 ${p.place && p.place !== box.dataset.reel ? Util.esc(p.place) + ' · ' : ''}<a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> · ${Util.esc(p.lic)} · Wikimedia Commons`;
-        b.onclick = e => { e.stopPropagation(); tip.hidden = !tip.hidden; };
-        tip.onclick = e => e.stopPropagation();
-        box.append(b, tip);
+        Home.creditNote && Home.creditNote();
       }).catch(() => { });
     });
   }
@@ -5965,6 +5960,11 @@ const Explore = {
         ${full && wind ? `<img class="lp-img lp-wind" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
       </div><div class="lp-light"></div>${full ? this.birds() + (['wave', 'boat', 'palace', 'temple', 'camel'].includes(kind) ? this.walkers(kind === 'camel' ? 2 : 3) : '') : ''}</div>`;
   },
+  /** Credits for the photos currently shown on trip cards. */
+  credits() {
+    const all = Store.get('envelora.v2.tripPhotos', {}) || {}, seen = new Set();
+    return Trips.all().map(t => t.destination && all['d:' + t.destination.trim().toLowerCase()]).filter(x => x && x.p && !seen.has(x.p.src) && seen.add(x.p.src)).map(x => x.p);
+  },
   /** Real photo of a destination's famous place (cached 30 days). */
   async destPhoto(dest) {
     const key = 'd:' + dest.trim().toLowerCase(), all = Store.get('envelora.v2.tripPhotos', {}) || {};
@@ -5990,7 +5990,7 @@ const Explore = {
     const score = l => (l.w >= 1600 ? 2 : l.w >= 1000 ? 1 : 0) + (l.w && l.h && l.w / l.h >= 1.25 ? 2 : 0);
     const best = lic.map((l, k) => ({ l, k, s: score(l) })).sort((a, b) => b.s - a.s || a.k - b.k)[0];
     const pick = best && best.l, from = pick && cand.find(c => c.f === pick.file);
-    const p = pick ? { src: pick.src, author: pick.author, lic: pick.lic, page: pick.page, place: from ? from.place : dest } : null;
+    const p = pick ? { src: pick.src, author: pick.author, lic: pick.lic, licUrl: pick.licUrl, page: pick.page, place: from ? from.place : dest } : null;
     all[key] = { at: Date.now(), p }; const ks = Object.keys(all); if (ks.length > 60) ks.sort((a, b) => all[a].at - all[b].at).slice(0, ks.length - 60).forEach(k => delete all[k]);
     Store.set('envelora.v2.tripPhotos', all);
     return p;
@@ -6090,8 +6090,21 @@ const Home = {
       <button data-m="login">${icon('login')}${u ? 'Log In (switch account)' : 'Log In'}</button>
       ${u ? `<button data-m="pay">${icon('wallet')}Payments & refunds</button>` : ''}
       ${u ? `<button data-m="out">${icon('logout')}Sign Out</button>` : ''}
+      <button data-m="credits">${icon('info')}Photo credits</button>
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
+  },
+  /** one quiet line under the trips row: "Photos · Wikimedia Commons · Credits" */
+  creditNote() {
+    const h = $('#homeTrip'); if (!h || h.querySelector('.ph-note')) return;
+    const d = document.createElement('p'); d.className = 'ph-note';
+    d.innerHTML = 'Photos from Wikimedia Commons · <button type="button">Credits</button>';
+    d.querySelector('button').onclick = () => this.credits(); h.append(d);
+  },
+  credits() {
+    const list = Explore.credits();
+    UI.sheet('Photo credits', `<p class="muted" style="margin:0 0 12px">Trip photos come from Wikimedia Commons and are used under their free licences. Envelora isn't affiliated with the photographers.</p>
+      ${list.length ? list.map(p => `<div class="phc"><img src="${Util.esc(p.src)}" alt="" loading="lazy"/><div><b>${Util.esc(p.place || '')}</b><span>Photo: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a></span><span>${p.licUrl ? `<a href="${Util.esc(p.licUrl)}" target="_blank" rel="noopener">${Util.esc(p.lic)}</a>` : Util.esc(p.lic)}${/BY-SA|by-sa/.test(p.lic) ? ' · resized/cropped' : ''}</span></div></div>`).join('') : '<p class="muted">No photos are showing right now.</p>'}`);
   },
   closeMenu() { $('#acctMenu').hidden = true; $('#acctBtn').setAttribute('aria-expanded', 'false'); },
   async menuAction(k) {
@@ -6122,6 +6135,7 @@ const Home = {
         };
       });
     }
+    if (k === 'credits') this.credits();
     if (k === 'about') UI.sheet('About this prototype', `
       <p><b>Envelora</b> is a frontend prototype. Here is what is real and what is simulated:</p>
       <ul class="hint" style="font-size:.9rem;padding-left:18px">
