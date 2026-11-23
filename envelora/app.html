@@ -1079,6 +1079,8 @@ details.grp[open] summary::after{content:"–"}
 .rf-row.tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px}
 .rf-row.big{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;font-size:1.05rem}.rf-row.big b{color:#2e7d4f;font-size:1.2rem}
 .rf-ok{color:#2e7d4f!important}
+.dialog .acts{flex-wrap:wrap}.dialog .acts .btn{flex:1 1 120px;min-width:0;white-space:normal;line-height:1.25;height:auto;min-height:46px}
+.input[readonly]{opacity:.65;cursor:not-allowed;background-image:none}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -2307,6 +2309,7 @@ const Planner = {
   /* ---------- Setup form (initial trip details) ---------- */
   renderSetup() {
     const t = this.trip; const editing = !!t;
+    const lockDates = !!(editing && t && t.clanId && Clans.get(t.clanId)); // paid clan: start locked, end only later
     $('#plTitle').textContent = editing ? 'Edit trip details' : 'Plan your trip';
     $('#plSub').textContent = editing ? t.destination : 'Start with the envelope details';
     $('#plTabs').hidden = true; $('#plFoot').hidden = true; $('#plEdit').hidden = true;
@@ -2327,8 +2330,8 @@ const Planner = {
           <div class="ac"><input class="input" id="sf-from" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" autocomplete="off" placeholder="e.g. Delhi" value="${Util.esc(t ? t.from : '')}" />
           <ul class="ac-list" id="ac-from" role="listbox" hidden></ul></div></div>
         <div class="grid2">
-          <div class="field"><label class="f" for="sf-start">Trip start</label><input class="input" type="date" id="sf-start" min="${editing && t.start < today ? t.start : today}" value="${start}" /><small class="hint">The day you leave home</small></div>
-          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" min="${start}" value="${end}" /><small class="hint">The day you reach back home</small></div>
+          <div class="field"><label class="f" for="sf-start">Trip start${lockDates ? ' 🔒' : ''}</label><input class="input" type="date" id="sf-start" min="${editing && t.start < today ? t.start : today}" value="${start}" ${lockDates ? 'readonly aria-readonly="true"' : ''}/><small class="hint">${lockDates ? 'The day you leave home · locked after payment' : 'The day you leave home'}</small></div>
+          <div class="field"><label class="f" for="sf-end">Trip end</label><input class="input" type="date" id="sf-end" min="${lockDates ? t.end : start}" value="${end}" /><small class="hint">${lockDates ? 'The day you reach back home · can only be moved later (extra days are paid)' : 'The day you reach back home'}</small></div>
         </div>
         ${editing ? `<p class="hint">Travellers are managed in the <b>Group</b> tab.</p>` : `
         <div class="field"><label class="f" for="sf-count">Number of travellers</label>
@@ -2346,7 +2349,7 @@ const Planner = {
     const f = $('#setupForm');
     $$('[data-dest]', f).forEach(b => b.onclick = () => { $('#sf-dest').value = b.dataset.dest; });
     // End date can never be before the start date; move it along if needed.
-    $('#sf-start').addEventListener('change', () => { const s = $('#sf-start').value, e = $('#sf-end'); e.min = s; if (e.value && e.value < s) e.value = s; });
+    $('#sf-start').addEventListener('change', () => { if ($('#sf-start').readOnly) return; const s = $('#sf-start').value, e = $('#sf-end'); e.min = s; if (e.value && e.value < s) e.value = s; });
     const byName = n => PLACES.find(p => p.v === n);
     Autocomplete.attach($('#sf-dest'), $('#ac-dest'), PLACES, DEST_SUGGEST.map(byName).filter(Boolean));
     Autocomplete.attach($('#sf-from'), $('#ac-from'), PLACES.filter(p => p.meta !== 'Guide available' && p.meta !== 'State'), ORIGIN_SUGGEST.map(n => PLACES.find(p => p.v === n || p.alias === n)).filter(Boolean));
@@ -2377,9 +2380,17 @@ const Planner = {
         const before = Trips.dayCount(t);
         // A paid clan covers a fixed number of days: adding days needs payment for the extra days.
         const clanRow = t.clanId && Clans.get(t.clanId), newDays = Trips.dayCount({ start: s, end: en });
+        if (clanRow && s !== t.start) { err.textContent = `The start date is locked after payment (${Util.fmtDate(t.start)}). Cancel the trip instead if plans changed.`; $('#sf-start').value = t.start; return; }
+        if (clanRow && en < t.end) { err.textContent = `The return date can only be moved later, not earlier than ${Util.fmtDate(t.end)}.`; $('#sf-end').value = t.end; return; }
         let shortenNote = '';
         if (clanRow) {
           const paidDays = clanRow.paidDays || before;
+          // Moving the start to today (or earlier) starts the trip now and closes the refund window.
+          const oldDeadline = Refunds.startTs(clanRow), newStartTs = new Date(s + 'T00:00:00').getTime();
+          if (newStartTs < oldDeadline && Date.now() < oldDeadline && Date.now() >= newStartTs) {
+            const go = await UI.confirm('Start the trip today?', `Moving the start date to ${Util.fmtDate(s)} means the trip has started. After this, cancelling gives NO refund (now: 80% back until ${Util.fmtDate(Util.ymd(new Date(oldDeadline)))}).`, { ok: 'Yes, change dates' });
+            if (!go) { err.textContent = 'Dates not changed. Your 80% refund window stays open until the trip starts.'; return; }
+          }
           if (newDays > paidDays) {
             const extra = newDays - paidDays, cost = CONFIG.pricePerPersonPerDay * clanRow.capacity * extra, dd = n => n + ' day' + (n === 1 ? '' : 's');
             const go = await UI.confirm('Pay for the extra days?', `Your clan has paid for ${dd(paidDays)}. Making the trip ${dd(newDays)} adds ${dd(extra)}: ₹${CONFIG.pricePerPersonPerDay} × ${dd(extra)} × ${clanRow.capacity} spot${clanRow.capacity === 1 ? '' : 's'} = ${Util.inr(cost)}. The new dates are saved after payment.`, { ok: 'Pay ' + Util.inr(cost), danger: false });
@@ -2390,7 +2401,9 @@ const Planner = {
             cur.payments.push({ id: res.paymentId, amount: cost, mode: res.mode, status: res.status, purpose: `+${dd(extra)}`, ts: Date.now(), by: Auth.user.id });
             Clans.save(cur);
             Clans.post(cur.id, { type: 'system', text: `${Auth.user.name} extended the trip to ${dd(newDays)} (paid ${Util.inr(cost)} for ${dd(extra)}${res.mode === 'simulated' ? ', simulated preview payment' : ''}).` });
-          } else if (newDays < before) shortenNote = `Trip shortened to ${newDays} day${newDays === 1 ? '' : 's'}. Paid days aren't refunded, but you can extend back up to ${paidDays} days at no extra cost.`;
+          }
+          { const cur = Clans.get(clanRow.id); cur.refundBy = Date.now() < oldDeadline ? newStartTs : Math.min(oldDeadline, newStartTs); /* postponing before the start moves the deadline; once started it is locked */ Clans.save(cur); }
+          if (newDays < before) shortenNote = `Trip shortened to ${newDays} day${newDays === 1 ? '' : 's'}. Paid days aren't refunded, but you can extend back up to ${paidDays} days at no extra cost.`;
         }
         const destChanged = t.destination.toLowerCase() !== dest.toLowerCase();
         const planned = t.days.reduce((a, d) => a + d.items.length, 0);
@@ -2805,6 +2818,8 @@ const Clans = {
   unlinkAccount(accId, clanId) { Store.set(KEYS.acct(accId, 'clans'), this.idsFor(accId).filter(x => x !== clanId)); },
   inviteUrl(c) { return location.href.split('#')[0] + '#join=' + c.id + '.' + c.token; },
   days(c) { return Trips.dayCount(c.trip); },
+  /** Days a new spot must cover: the paid days, or the trip length if longer. Stops 'shorten → buy cheap spots → extend free'. */
+  billDays(c) { return Math.max(c.paidDays || 0, Trips.dayCount(c.trip)); },
 
   create({ trip, name, desc, payment }) {
     const u = Auth.user;
@@ -3066,7 +3081,8 @@ const Refunds = {
   RATE: 0.8,
   key(uid) { return KEYS.acct(uid, 'refunds'); },
   list(uid) { return Store.get(this.key(uid), []) || []; },
-  startTs(c) { return new Date(c.trip.start + 'T00:00:00').getTime(); },
+  /** Refund deadline = the earliest start date the trip has ever had, so moving dates later can't reopen refunds. */
+  startTs(c) { const cur = new Date(c.trip.start + 'T00:00:00').getTime(); return c.refundBy ? Math.min(c.refundBy, cur) : cur; },
   pays(c) { return (c.payments || []).filter(p => p.status === 'success' && +p.amount > 0); },
   quote(c, now = Date.now()) {
     const pays = this.pays(c), paid = pays.reduce((a, p) => a + +p.amount, 0), ok = now < this.startTs(c);
@@ -3090,14 +3106,14 @@ const Refunds = {
         <div class="rf-row big"><span>You get back</span><b>${Util.inr(q.refund)}</b></div>
       </div>
       ${q.ok ? `<div class="notice">${icon('info', 'sm')}<span><b>80% refund</b> if you cancel before the trip starts${this.leftText(c) ? ` (starts in ${this.leftText(c)})` : ''}. After Day 1 begins there is no refund. Money goes back to the same UPI, card or bank account in 5–7 working days.</span></div>`
-        : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
+        : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>${c.refundBy && Util.ymd(new Date(this.startTs(c))) !== c.trip.start ? ` (on ${Util.fmtDate(Util.ymd(new Date(this.startTs(c))))}; moving the dates later doesn't reopen refunds)` : ''}, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
       <p class="hint">Cancelling closes the clan for all ${c.members.length} member${c.members.length > 1 ? 's' : ''}: the chat, photos, tickets and plans are deleted and everyone is told. Your trip plan stays on your home page as a draft.</p>
       ${q.simulated ? `<p class="hint" style="font-size:.78rem">These were preview payments, so this refund is a preview too — no real money moves until Razorpay is connected.</p>` : ''}
       <button class="btn danger block" id="rfGo">${q.ok ? `Cancel trip & refund ${Util.inr(q.refund)}` : 'Cancel trip & close clan (no refund)'}</button>
       <button class="btn ghost block" id="rfKeep" style="margin-top:8px">Keep my trip</button>`, body => {
       $('#rfKeep', body).onclick = () => Nav.back();
       $('#rfGo', body) && ($('#rfGo', body).onclick = async () => {
-        const ok = await UI.confirm('Cancel this trip?', q.ok ? `The clan "${c.name}" will be closed for everyone and ${Util.inr(q.refund)} refunded (80% of ${Util.inr(q.paid)}). This can't be undone.` : `The trip has already started, so there is no refund. The clan "${c.name}" will be closed for everyone now and its chat, photos and tickets deleted. This can't be undone.`, { ok: q.ok ? 'Yes, cancel & refund' : 'Yes, cancel trip' });
+        const ok = await UI.confirm(q.ok ? 'Cancel this trip?' : 'Cancel without refund?', q.ok ? `You (${Auth.user.name}) are cancelling the trip. The clan "${c.name}" will be closed for everyone and ${Util.inr(q.refund)} refunded (80% of ${Util.inr(q.paid)}). This can't be undone.` : `You (${Auth.user.name}) are cancelling a trip that has already started, so you will NOT get a refund (₹0 of ${Util.inr(q.paid)}). The clan "${c.name}" will be closed for everyone now and its chat, photos and tickets deleted. This can't be undone.`, { ok: q.ok ? 'Yes, cancel & refund' : 'Yes, cancel without refund' });
         if (ok) this.cancel(c.id, $('#rfGo', body));
       });
     });
@@ -3420,8 +3436,8 @@ const ClanSettings = {
         ${can('invite') ? `<div class="cs-panel"><h3>${icon('link')}Invite members</h3>${open > 0 ? '' : `<div class="notice">${icon('info', 'sm')}<span>This clan is full. New people can't join until you buy more capacity.</span></div>`}${Invite.shareBlock(c)}</div>` : ''}
 
         ${can('buyCapacity') ? `<div class="cs-panel"><h3>${icon('plus')}Extra clan capacity</h3>
-          <p class="hint">${Util.inr(CONFIG.pricePerPersonPerDay)} × ${days} trip day${days > 1 ? 's' : ''} × additional spots</p>
-          <div class="cap-opts">${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} member${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * days * n)} · ${Payments.isLive() ? 'Razorpay' : 'preview payment'}</span></button>`).join('')}</div></div>` : ''}
+          <p class="hint">${Util.inr(CONFIG.pricePerPersonPerDay)} × ${Clans.billDays(c)} paid trip day${Clans.billDays(c) > 1 ? 's' : ''} × additional spots</p>
+          <div class="cap-opts">${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} member${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.billDays(c) * n)} · ${Payments.isLive() ? 'Razorpay' : 'preview payment'}</span></button>`).join('')}</div></div>` : ''}
 
         <div class="cs-panel"><h3>${icon('shield')}Your permissions · ${ROLE_LABEL[me.role]}</h3>
           <ul class="perm-list">${({
@@ -3480,7 +3496,7 @@ const ClanSettings = {
     Invite.bindShare(body, c);
     $$('[data-cap]', body).forEach(b => b.onclick = async () => {
       const n = +b.dataset.cap, cur = Clans.get(c.id); if (!Perm.can(cur, u.id, 'buyCapacity')) return;
-      const amount = CONFIG.pricePerPersonPerDay * Clans.days(cur) * n;
+      const amount = CONFIG.pricePerPersonPerDay * Clans.billDays(cur) * n;
       const res = await Payments.checkout({ amount, title: `+${n} clan spot${n > 1 ? 's' : ''} · ${cur.name}`, purpose: 'clan_capacity', notes: { clanId: cur.id, spots: n } });
       if (!res) return UI.toast('Payment cancelled.', 'info');
       if (res.status !== 'success') return UI.toast('Payment failed — capacity unchanged.', 'err');
