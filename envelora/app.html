@@ -3075,11 +3075,11 @@ const Refunds = {
         : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
       <p class="hint">Cancelling closes the clan for all ${c.members.length} member${c.members.length > 1 ? 's' : ''}: the chat, photos, tickets and plans are deleted and everyone is told. Your trip plan stays on your home page as a draft.</p>
       ${q.simulated ? `<p class="hint" style="font-size:.78rem">These were preview payments, so this refund is a preview too — no real money moves until Razorpay is connected.</p>` : ''}
-      ${q.ok ? `<button class="btn danger block" id="rfGo">Cancel trip & refund ${Util.inr(q.refund)}</button>` : ''}
+      <button class="btn danger block" id="rfGo">${q.ok ? `Cancel trip & refund ${Util.inr(q.refund)}` : 'Cancel trip & close clan (no refund)'}</button>
       <button class="btn ghost block" id="rfKeep" style="margin-top:8px">Keep my trip</button>`, body => {
       $('#rfKeep', body).onclick = () => Nav.back();
       $('#rfGo', body) && ($('#rfGo', body).onclick = async () => {
-        const ok = await UI.confirm('Cancel this trip?', `The clan "${c.name}" will be closed for everyone and ${Util.inr(q.refund)} refunded (80% of ${Util.inr(q.paid)}). This can't be undone.`, { ok: 'Yes, cancel & refund' });
+        const ok = await UI.confirm('Cancel this trip?', q.ok ? `The clan "${c.name}" will be closed for everyone and ${Util.inr(q.refund)} refunded (80% of ${Util.inr(q.paid)}). This can't be undone.` : `The trip has already started, so there is no refund. The clan "${c.name}" will be closed for everyone now and its chat, photos and tickets deleted. This can't be undone.`, { ok: q.ok ? 'Yes, cancel & refund' : 'Yes, cancel trip' });
         if (ok) this.cancel(c.id, $('#rfGo', body));
       });
     });
@@ -3093,9 +3093,9 @@ const Refunds = {
   async cancel(clanId, btn) {
     const u = Auth.user, c = Clans.get(clanId); if (!c) return;
     if (Perm.role(c, u.id) !== 'leader') return UI.toast('Only the clan leader can cancel the trip.', 'err');
-    const q = this.quote(c); if (!q.ok) return UI.toast('The trip has started, so it can no longer be refunded.', 'err');
+    const q = this.quote(c); // after Day 1 the trip can still be cancelled, with no refund
     btn && UI.busy(btn, true, 'Processing refund…');
-    const done = await this.refund(q.parts), at = Date.now();
+    const done = q.refund > 0 ? await this.refund(q.parts) : [], at = Date.now();
     // refund record for each account that paid
     const byPayer = {}; done.forEach(p => (byPayer[p.by || u.id] = byPayer[p.by || u.id] || []).push(p));
     Object.entries(byPayer).forEach(([acc, ps]) => {
@@ -3109,8 +3109,8 @@ const Refunds = {
       Clans.unlinkAccount(m.accountId, c.id);
     });
     Store.del(KEYS.clan(c.id)); Store.del('envelora.v1.tickets.' + c.id);
-    if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Trip cancelled · ' + c.name, `Refund of ${Util.inr(q.refund)} started.`);
-    Nav.home(() => { Home.render(); UI.toast(`Trip cancelled. ${Util.inr(q.refund)} refund started — it reaches your account in 5–7 working days.`, 'ok', 6000); });
+    if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Trip cancelled · ' + c.name, q.refund > 0 ? `Refund of ${Util.inr(q.refund)} started.` : 'Clan closed. No refund after the trip starts.');
+    Nav.home(() => { Home.render(); UI.toast(q.refund > 0 ? `Trip cancelled. ${Util.inr(q.refund)} refund started — it reaches your account in 5–7 working days.` : 'Trip cancelled and clan closed. No refund, as the trip had already started.', 'ok', 6000); });
   },
   /** Account menu → Payments & refunds */
   history() {
