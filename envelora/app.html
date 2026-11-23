@@ -1083,6 +1083,59 @@ details.grp[open] summary::after{content:"–"}
 .input[readonly]{opacity:.65;cursor:not-allowed;background-image:none}
 .cap-now{display:flex;gap:8px;margin:2px 0 10px}.cap-now>div{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,178,106,.25)}.cap-now b{display:block;font-size:1.3rem;color:var(--gold)}.cap-now span{font-size:.72rem;opacity:.75}
 .notice.warn{border-color:#c0574a;background:#fdecea;color:#7a2a20}.gp-full{text-align:center}.gp-full b{font-family:var(--serif);font-size:1.1rem;color:var(--navy)}
+/* ---- trip rail (swipe right-to-left) + photo reel ---- */
+.trip-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px}
+.trip-rail::-webkit-scrollbar{display:none}
+.trip-rail>.trip-slide{flex:0 0 100%;scroll-snap-align:center;margin:0}
+.trip-rail.multi>.trip-slide{flex-basis:88%}
+.rail-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}.rail-dots i{width:6px;height:6px;border-radius:50%;background:rgba(13,27,42,.2);transition:all .2s}.rail-dots i.on{width:18px;border-radius:3px;background:var(--gold)}
+.postcard .pc-img{overflow:hidden;isolation:isolate}
+.pc-img .reel{position:absolute;inset:0;z-index:-1}
+.pc-img .reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;will-change:opacity,transform}
+.pc-img.has-reel::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0) 40%,rgba(0,0,0,.55))}
+.pc-img.has-reel{height:150px}
+.pc-badge{position:absolute;top:10px;right:96px}
+.pc-acts{display:flex;gap:8px;align-items:center}
+.reel-credit{margin:0;padding:0 14px 10px;font-size:.64rem;color:var(--muted);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.reel-credit a{color:inherit}
+@media(prefers-reduced-motion:reduce){.pc-img .reel img{animation:none!important}.pc-img .reel img:first-child{opacity:1}}
+/* ---- animated destination scenes ---- */
+.pc-img .reel .rs{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rs-flap,.rs-flick,.rs-flag,.rs-smoke{transform-box:fill-box}
+.rs-sway{animation:rsSway 3.2s ease-in-out infinite alternate}
+@keyframes rsSway{from{transform:rotate(-6deg)}to{transform:rotate(7deg)}}
+.rs-sway2{transform-origin:50% 100%!important;animation:rsSway2 2.8s ease-in-out infinite alternate}
+@keyframes rsSway2{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.rs-wave{animation:rsWave 6s linear infinite}
+@keyframes rsWave{from{transform:translateX(0)}to{transform:translateX(-50px)}}
+.rs-drift{animation:rsDrift 40s linear infinite}
+@keyframes rsDrift{from{transform:translateX(-80px)}to{transform:translateX(480px)}}
+.rs-fly{animation:rsFly 9s linear infinite}
+@keyframes rsFly{0%{transform:translate(-120px,10px)}50%{transform:translate(60px,-6px)}100%{transform:translate(260px,8px)}}
+.rs-flap{animation:rsFlap .5s ease-in-out infinite alternate;transform-origin:50% 100%}
+@keyframes rsFlap{from{transform:scaleY(1)}to{transform:scaleY(.4)}}
+.rs-glow{animation:rsGlow 3s ease-in-out infinite alternate}
+@keyframes rsGlow{from{opacity:.85}to{opacity:1;filter:drop-shadow(0 0 6px #ffe7a0)}}
+.rs-snow{animation:rsSnow 4s linear infinite}
+@keyframes rsSnow{from{transform:translateY(-150px)}to{transform:translateY(0)}}
+.rs-flag{transform-origin:0 50%;animation:rsFlag .8s ease-in-out infinite alternate}
+@keyframes rsFlag{from{transform:skewY(-6deg) scaleX(.9)}to{transform:skewY(6deg) scaleX(1)}}
+.rs-rays{animation:rsSpin 24s linear infinite;transform-box:view-box!important}
+@keyframes rsSpin{to{transform:rotate(360deg)}}
+.rs-flick{animation:rsFlick .35s ease-in-out infinite alternate}
+@keyframes rsFlick{from{opacity:.55;transform:scale(.85)}to{opacity:1;transform:scale(1.15)}}
+.rs-bob{animation:rsBob 1.8s ease-in-out infinite alternate}
+@keyframes rsBob{from{transform:translateY(-1.5px)}to{transform:translateY(1.5px)}}
+.rs-cross{animation:rsCross 14s linear infinite}
+.rs-cross.slow{animation-duration:22s}.rs-cross.fast{animation-duration:7s}
+@keyframes rsCross{from{transform:translateX(-60px)}to{transform:translateX(520px)}}
+.rs-ripple{animation:rsRipple 3s ease-in-out infinite}
+@keyframes rsRipple{0%,100%{opacity:.2;transform:translateX(-6px)}50%{opacity:.9;transform:translateX(6px)}}
+.rs-mist{animation:rsMist 10s ease-in-out infinite alternate}
+@keyframes rsMist{from{transform:translateX(-30px)}to{transform:translateX(40px)}}
+.rs-smoke{animation:rsSmoke 1.2s ease-out infinite}
+@keyframes rsSmoke{from{transform:translate(0,0) scale(.6);opacity:.9}to{transform:translate(-14px,-14px) scale(1.8);opacity:0}}
+@media(prefers-reduced-motion:reduce){.rs *{animation:none!important}}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1962,14 +2015,20 @@ const Auth = {
 
   /** A trip drafted before login moves into the account on login. */
   transferGuestTrip() {
-    const g = Store.get(KEYS.guestTrip);
-    if (!g || !g.destination || !this.user) return null;
-    g.ownerId = this.user.id;
-    const lead = g.travellers && g.travellers[0];
-    if (lead && !lead.accountId) { lead.accountId = this.user.id; if (!lead.phone) lead.phone = this.user.phone; if (!lead.email) lead.email = this.user.email; }
-    Store.set(KEYS.acct(this.user.id, 'trip'), g);
-    Store.del(KEYS.guestTrip);
-    return g;
+    if (!this.user) return null;
+    // all trips drafted as a guest (old single draft + the new list) move into the account
+    const guest = (Store.get(Trips.GUEST_LIST, []) || []).concat(Store.get(KEYS.guestTrip) ? [Store.get(KEYS.guestTrip)] : []).filter(g => g && g.destination);
+    Store.del(KEYS.guestTrip); Store.del(Trips.GUEST_LIST); Store.del(Trips.GUEST_ACTIVE);
+    if (!guest.length) return null;
+    const mine = Trips.all();
+    guest.forEach(g => {
+      g.ownerId = this.user.id;
+      const lead = g.travellers && g.travellers[0];
+      if (lead && !lead.accountId) { lead.accountId = this.user.id; if (!lead.phone) lead.phone = this.user.phone; if (!lead.email) lead.email = this.user.email; }
+      if (!mine.some(x => x.id === g.id)) mine.unshift(g);
+    });
+    Trips.saveList(mine); Trips.setActive(guest[0].id);
+    return guest[0];
   },
 
   logout() { this.user = null; Store.del(KEYS.session); },
@@ -2144,19 +2203,40 @@ const AuthUI = {
    TRIPS — trip model + persistence
    ============================================================================= */
 const Trips = {
-  key() { return Auth.user ? KEYS.acct(Auth.user.id, 'trip') : KEYS.guestTrip; },
-  /** Load the current user's own trip; if it is sealed into a clan, the clan copy is canonical. */
-  loadOwn() {
-    const t = Store.get(this.key());
-    if (!t) return null;
-    if (t.clanId) {
-      const c = Clans.get(t.clanId);
-      if (c && c.trip && Auth.user && Clans.member(c, Auth.user.id)) return Clans.syncSeats(c).trip;
-      if (!c) { delete t.clanId; Store.set(this.key(), t); }
-    }
+  /* Several trips per account: a list of trips + the one currently open ("active"). */
+  GUEST_LIST: 'envelora.v1.guest.trips', GUEST_ACTIVE: 'envelora.v1.guest.activeTrip',
+  key() { return Auth.user ? KEYS.acct(Auth.user.id, 'trip') : KEYS.guestTrip; },          // old single-trip key (migrated)
+  listKey() { return Auth.user ? KEYS.acct(Auth.user.id, 'trips') : this.GUEST_LIST; },
+  activeKey() { return Auth.user ? KEYS.acct(Auth.user.id, 'activeTrip') : this.GUEST_ACTIVE; },
+  all() {
+    let l = Store.get(this.listKey(), null);
+    if (!Array.isArray(l)) { const old = Store.get(this.key()); l = old && old.destination ? [old] : []; Store.set(this.listKey(), l); if (old) Store.set(this.activeKey(), old.id); Store.del(this.key()); }
+    return l;
+  },
+  saveList(l) { return Store.set(this.listKey(), l); },
+  setActive(id) { Store.set(this.activeKey(), id); },
+  /** A trip sealed into a clan uses the clan copy; if the clan is gone the trip becomes a draft again. */
+  resolve(t) {
+    if (!t || !t.clanId) return t;
+    const c = Clans.get(t.clanId);
+    if (c && c.trip && Auth.user && Clans.member(c, Auth.user.id)) return Clans.syncSeats(c).trip;
+    if (!c) { delete t.clanId; const l = this.all(), i = l.findIndex(x => x.id === t.id); if (i >= 0) { l[i] = t; this.saveList(l); } }
     return t;
   },
-  saveOwn(t) { t.updatedAt = Date.now(); return Store.set(this.key(), t); },
+  /** The trip currently open (most recent if none chosen). */
+  loadOwn() {
+    const l = this.all(); if (!l.length) return null;
+    const id = Store.get(this.activeKey());
+    return this.resolve(l.find(x => x.id === id) || l[0]);
+  },
+  /** Every trip of this account, newest first (clan trips resolved to the clan copy). */
+  listOwn() { return this.all().slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).map(t => this.resolve(t)); },
+  saveOwn(t) {
+    t.updatedAt = Date.now(); const l = this.all(), i = l.findIndex(x => x.id === t.id);
+    if (i >= 0) l[i] = t; else l.unshift(t);
+    this.setActive(t.id); return this.saveList(l);
+  },
+  removeOwn(id) { this.saveList(this.all().filter(x => x.id !== id)); if (Store.get(this.activeKey()) === id) Store.del(this.activeKey()); },
   create({ destination, from, start, end, names }) {
     const t = {
       id: Util.uid('trip'), destination: destination.trim(), from: from.trim(), start, end,
@@ -2238,7 +2318,8 @@ const Planner = {
   /** Open planner. opts: { clanId, readOnly, tab } */
   open(opts = {}) {
     this.ctx = { clanId: opts.clanId || null, readOnly: !!opts.readOnly };
-    this.trip = this.ctx.clanId ? Util.clone(Clans.syncSeats(Clans.get(this.ctx.clanId)).trip) : this.loadOwn();
+    if (opts.tripId) Trips.setActive(opts.tripId);
+    this.trip = this.ctx.clanId ? Util.clone(Clans.syncSeats(Clans.get(this.ctx.clanId)).trip) : opts.fresh ? null : this.loadOwn();
     this.tab = opts.tab || 0; this.day = 0; this.editingSetup = false;
     UI.openOverlay('planner', () => Home.render());
     this.render();
@@ -4388,7 +4469,7 @@ const Wraps = {
     const open = Chat.clanId === c.id;
     Store.del(KEYS.clan(c.id)); Store.del('envelora.v1.tickets.' + c.id);
     if (Auth.user) {
-      const own = Trips.loadOwn && Trips.loadOwn(); if (own && own.clanId === c.id) { delete own.clanId; Trips.saveOwn(own); }
+      const own = Trips.all().find(x => x.clanId === c.id); if (own) { delete own.clanId; const l = Trips.all().map(x => x.id === own.id ? own : x); Trips.saveList(l); }
       const mine = this.list(Auth.user.id).find(x => x.clanId === c.id);
       if (mine) { UI.toast(`🎁 Your Envelora Wrap for ${c.trip.destination} is ready!`); if ((typeof Alerts !== 'undefined') && Alerts.notify) Alerts.notify('Your Envelora Wrap is ready 🎁', `Relive your ${c.trip.destination} trip.`); }
     }
@@ -5702,6 +5783,79 @@ GAME_IMPL.imposter = function (api) {
 };
 
 /* =============================================================================
+   REELS — animated scene behind each trip card ("Greetings from Goa").
+   Original looping SVG + CSS animation per kind of place (no network):
+   beach (waves, swaying palms) · mountain (snow, clouds, pines) · palace (flags, birds)
+   temple (flag, sun rays, lamps) · river/lake (bobbing boat, ripples, diyas)
+   tea hills (mist, rows) · desert (camel caravan, dunes) · city (toy train on a bridge)
+   ============================================================================= */
+const Reels = {
+  /** Which scene suits a destination (from its guide's art type and a few name hints). */
+  kind(dest) {
+    const g = guideFor(dest) || {}, n = (dest + ' ' + (g.state || '')).toLowerCase();
+    if (/srinagar|dal lake|nainital|udaipur|alleppey|alappuzha|kumarakom|backwater|varanasi|rishikesh|haridwar|ujjain|pushkar|kolkata/.test(n)) return 'boat';
+    if (/goa|beach|gokarna|varkala|kovalam|puri|pondicherry|puducherry|andaman|havelock|digha|lakshadweep|diu|kanyakumari/.test(n)) return 'wave';
+    if (/jaisalmer|bikaner|thar|rann|kutch/.test(n)) return 'camel';
+    if (/munnar|ooty|darjeeling|coorg|wayanad|kodaikanal|assam|sikkim|meghalaya|shillong/.test(n)) return 'tea';
+    return ({ wave: 'wave', mountain: 'mountain', palace: 'palace', temple: 'temple', boat: 'boat', tea: 'tea', camel: 'camel', train: 'train' })[g.art] || 'train';
+  },
+  palm(x, y, s, d) {
+    return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 C 3 -20 -2 -40 6 -62" stroke="#5b3a1e" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <g>${[-150, -110, -60, -20, 20].map(a => `<path d="M6 -62 q 14 -10 30 4 q -16 -4 -30 -4" fill="#1f6b3a" transform="rotate(${a} 6 -62)"/>`).join('')}<animateTransform attributeName="transform" type="rotate" values="-7 6 -62;8 6 -62;-7 6 -62" dur="3.4s" begin="-${d}s" repeatCount="indefinite"/></g></g>`;
+  },
+  pine(x, y, s, d) { return `<g transform="translate(${x} ${y}) scale(${s})"><g><animateTransform attributeName="transform" type="rotate" values="-3 0 0;3 0 0;-3 0 0" dur="2.8s" begin="-${d}s" repeatCount="indefinite"/><rect x="-2" y="-6" width="4" height="8" fill="#4a3424"/><path d="M0 -40 L12 -18 L5 -18 L15 -4 L-15 -4 L-5 -18 L-12 -18 Z" fill="#1d4a3a"/></g></g>`; },
+  birds(n = 3) { return `<g class="rs-fly">${Array.from({ length: n }, (_, i) => `<path d="M${i * 16} ${i % 2 * 6} q 4 -5 8 0 q 4 -5 8 0" stroke="#1b1b1b" stroke-width="1.4" fill="none" class="rs-flap" style="animation-delay:${i * .15}s"/>`).join('')}</g>`; },
+  cloud(x, y, s, d) { return `<g class="rs-drift" style="animation-duration:${d}s"><g transform="translate(${x} ${y}) scale(${s})" fill="#fff" opacity=".85"><ellipse cx="0" cy="0" rx="22" ry="9"/><ellipse cx="14" cy="-6" rx="14" ry="9"/><ellipse cx="-12" cy="-4" rx="11" ry="7"/></g></g>`; },
+  scene(k) {
+    const sky = (a, b) => `<defs><linearGradient id="rsSky${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="400" height="160" fill="url(#rsSky${k})"/>`;
+    const wave = (y, c, dur, op = 1) => `<g class="rs-wave" style="animation-duration:${dur}s"><path d="M0 ${y} ${Array.from({ length: 17 }, (_, i) => `q 25 -7 50 0`).join(' ')} V 170 H 0 Z" fill="${c}" opacity="${op}"/></g>`;
+    const S = {
+      wave: () => sky('#7ec8e3', '#fde7c4') + `<circle cx="320" cy="48" r="20" fill="#ffd36b" class="rs-glow"/>` + this.cloud(60, 30, 1, 38) + this.cloud(220, 22, .8, 52) +
+        `<g transform="translate(250 30)">${this.birds()}</g>` + wave(98, '#3aa6c9', 9) + wave(106, '#2b8db3', 6, .9) + wave(114, '#bfe6f2', 4, .55) +
+        `<path d="M0 126 Q 200 112 400 126 V160 H0Z" fill="#f2d39b"/>` + this.palm(60, 132, 1.1, 0) + this.palm(100, 138, .8, .7) + this.palm(355, 136, .95, .3),
+      mountain: () => sky('#9fc5e8', '#e9f1f7') + this.cloud(80, 34, 1, 44) + this.cloud(280, 26, .9, 60) +
+        `<path d="M-10 120 L70 48 L120 92 L180 30 L250 100 L310 52 L410 118 V160 H-10Z" fill="#7d8ea3"/><path d="M70 48 L84 61 L76 60 L62 62Z M180 30 L196 46 L184 44 L168 48Z M310 52 L326 66 L314 64 L300 67Z" fill="#fff"/>
+        <path d="M-10 132 Q 100 104 200 128 T 410 124 V160 H-10Z" fill="#3e6b4f"/>` + [30, 70, 120, 280, 330, 370].map((x, i) => this.pine(x, 140 + (i % 2) * 6, .8 + (i % 3) * .15, i * .4)).join('') +
+        `<g class="rs-snow">${Array.from({ length: 34 }, (_, i) => `<circle cx="${(i * 37) % 400}" cy="${(i * 23) % 150}" r="${1 + (i % 3) * .5}" fill="#fff" opacity=".9"/>`).join('')}</g>`,
+      palace: () => sky('#f6a65b', '#fde3b0') + `<circle cx="300" cy="62" r="24" fill="#ffe08a" class="rs-glow"/>` + `<g transform="translate(40 34)">${this.birds(4)}</g>` +
+        `<g fill="#7a3b2e"><rect x="90" y="80" width="220" height="60"/><rect x="120" y="62" width="40" height="20"/><rect x="240" y="62" width="40" height="20"/><path d="M180 80 q 20 -46 40 0z"/><path d="M120 62 q 20 -26 40 0z M240 62 q 20 -26 40 0z"/>
+        ${[105, 135, 165, 195, 225, 255, 285].map(x => `<rect x="${x}" y="100" width="12" height="22" rx="6" fill="#f3c98b"/>`).join('')}</g>
+        <line x1="200" y1="34" x2="200" y2="14" stroke="#4a2418" stroke-width="2"/><path class="rs-flag" d="M200 14 h22 l-5 5 l5 5 h-22z" fill="#e2483d"/>
+        <line x1="140" y1="36" x2="140" y2="22" stroke="#4a2418" stroke-width="2"/><path class="rs-flag" style="animation-delay:.4s" d="M140 22 h16 l-4 4 l4 4 h-16z" fill="#f0a531"/>
+        <path d="M0 140 H400 V160 H0Z" fill="#c98b4f"/>`,
+      temple: () => sky('#ffcf8a', '#fff3d6') + `<g class="rs-rays" style="transform-origin:200px 60px">${Array.from({ length: 12 }, (_, i) => `<rect x="198" y="-40" width="4" height="100" fill="#ffd27a" opacity=".35" transform="rotate(${i * 30} 200 60)"/>`).join('')}</g><circle cx="200" cy="60" r="18" fill="#ffb347"/>` +
+        `<g transform="translate(290 30)">${this.birds()}</g><g fill="#8a4b2a"><path d="M150 140 V96 h100 V140z"/><path d="M168 96 L200 40 L232 96z"/><path d="M128 140 V110 h30 V140z M242 140 V110 h30 V140z"/><path d="M132 110 L143 92 L154 110z M246 110 L257 92 L268 110z"/></g>
+        <line x1="200" y1="40" x2="200" y2="24" stroke="#5b2c16" stroke-width="2"/><path class="rs-flag" d="M200 24 h18 l-4 4 l4 4 h-18z" fill="#ff7a1a"/>
+        <rect x="190" y="116" width="20" height="24" rx="10" fill="#3a1d0f"/>${[160, 240].map((x, i) => `<circle cx="${x}" cy="134" r="3" fill="#ffcc33" class="rs-flick" style="animation-delay:${i * .3}s"/>`).join('')}<path d="M0 140 H400 V160 H0Z" fill="#d9a066"/>`,
+      boat: () => sky('#89b8d6', '#f4d9b8') + `<path d="M-10 92 L60 50 L120 84 L190 40 L260 86 L330 54 L410 90 V110 H-10Z" fill="#6f879c" opacity=".8"/><path d="M190 40 L202 52 L192 50 L180 54Z M60 50 L70 59 L62 58 L52 61Z" fill="#fff"/>` + this.cloud(300, 26, .9, 50) +
+        `<rect y="104" width="400" height="56" fill="#3f7fa3"/>` + Array.from({ length: 6 }, (_, i) => `<g class="rs-ripple" style="animation-delay:${i * .6}s"><path d="M${20 + i * 66} ${118 + (i % 3) * 12} h26" stroke="#bfe0f0" stroke-width="2" stroke-linecap="round"/></g>`).join('') +
+        `<g class="rs-cross"><g class="rs-bob"><path d="M-40 120 q 40 14 80 0 l -8 -8 h -64z" fill="#7a2f22"/><path d="M-26 112 q 26 -22 52 0z" fill="#e8b04b"/><rect x="-24" y="105" width="48" height="7" fill="#b8452f"/><line x1="18" y1="112" x2="36" y2="132" stroke="#3a1d0f" stroke-width="2"/></g></g>` +
+        [70, 150, 250, 330].map((x, i) => `<g class="rs-bob" style="animation-delay:${i * .5}s"><path d="M${x - 5} 142 h10 l-2 4 h-6z" fill="#8a4b2a"/><circle cx="${x}" cy="139" r="2.6" fill="#ffcc33" class="rs-flick" style="animation-delay:${i * .2}s"/></g>`).join(''),
+      tea: () => sky('#bfe3c9', '#f3f7e6') + `<circle cx="320" cy="44" r="16" fill="#ffe08a" class="rs-glow"/>` + `<g transform="translate(60 30)">${this.birds()}</g>` +
+        `<path d="M-10 96 Q 80 60 180 92 T 410 84 V160 H-10Z" fill="#5f9e5b"/><path d="M-10 118 Q 110 86 230 116 T 410 110 V160 H-10Z" fill="#3f7f43"/>` +
+        Array.from({ length: 7 }, (_, i) => `<path d="M-10 ${124 + i * 6} Q 200 ${110 + i * 6} 410 ${122 + i * 6}" stroke="#2f6633" stroke-width="2" fill="none" opacity=".6"/>`).join('') +
+        `<g class="rs-mist"><ellipse cx="80" cy="96" rx="90" ry="9" fill="#fff" opacity=".55"/><ellipse cx="300" cy="110" rx="110" ry="10" fill="#fff" opacity=".45"/></g>`,
+      camel: () => sky('#f7b267', '#fde4b5') + `<circle cx="80" cy="54" r="24" fill="#fff1a8" class="rs-glow"/>` +
+        `<path d="M-10 118 Q 90 92 200 116 T 410 110 V160 H-10Z" fill="#e0a25a"/><path d="M-10 136 Q 120 114 240 136 T 410 132 V160 H-10Z" fill="#c9843f"/>` +
+        `<g class="rs-cross slow">${[0, 34, 68].map((dx, i) => `<g class="rs-bob" style="animation-delay:${i * .25}s" transform="translate(${-dx} 0)"><g fill="#6b3f1f"><path d="M0 104 q6 -14 14 -4 q6 -10 12 0 l6 -8 l4 2 l-4 10 q-2 6 -6 6 h-24 q-4 0 -2 -6z"/><rect x="2" y="108" width="2.5" height="14"/><rect x="9" y="108" width="2.5" height="14"/><rect x="18" y="108" width="2.5" height="14"/><rect x="25" y="108" width="2.5" height="14"/></g></g>`).join('')}</g>`,
+      train: () => sky('#9cc9e6', '#eef5f9') + this.cloud(70, 32, 1, 40) + this.cloud(260, 24, .8, 56) +
+        `<g fill="#8fa6ba">${[[20, 70], [50, 58], [80, 76], [300, 62], [330, 50], [360, 72]].map(([x, y]) => `<rect x="${x}" y="${y}" width="26" height="${120 - y}"/>`).join('')}</g>
+        <path d="M0 120 H400" stroke="#6d4c35" stroke-width="5"/>${Array.from({ length: 9 }, (_, i) => `<path d="M${i * 50} 122 q25 22 50 0" stroke="#6d4c35" stroke-width="3" fill="none"/>`).join('')}
+        <g class="rs-cross fast"><g class="rs-bob">${[0, 46, 92].map((dx, i) => `<g transform="translate(${-dx} 0)"><rect x="0" y="100" width="42" height="18" rx="4" fill="${i ? '#2f5d8c' : '#b8452f'}"/>${[6, 18, 30].map(w => `<rect x="${w}" y="104" width="7" height="6" fill="#fff6d8"/>`).join('')}<circle cx="9" cy="119" r="3" fill="#222"/><circle cx="33" cy="119" r="3" fill="#222"/></g>`).join('')}<g class="rs-smoke"><circle cx="38" cy="92" r="4" fill="#fff" opacity=".8"/></g></g></g>
+        <path d="M0 140 H400 V160 H0Z" fill="#7fb07a"/>`
+    };
+    return `<svg class="rs" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${(S[k] || S.train)()}</svg>`;
+  },
+  mount(root = document) {
+    $$('[data-reel]', root).forEach(box => {
+      if (box.dataset.reelDone) return; box.dataset.reelDone = '1';
+      const reel = box.querySelector('.reel'); if (!reel) return;
+      reel.innerHTML = this.scene(this.kind(box.dataset.reel)); box.classList.add('has-reel');
+    });
+  }
+};
+
+/* =============================================================================
    HOME + HEADER + ACCOUNT MENU
    ============================================================================= */
 const Home = {
@@ -5709,23 +5863,44 @@ const Home = {
     this.header();
     const t = Trips.loadOwn(), u = Auth.user;
     $('#planBtn').innerHTML = `${icon('edit')}Plan My Own Trip`;
-    $('#planHint').textContent = t ? `Continue your ${t.destination} trip · ${Trips.dayCount(t)} days · ${t.travellers.length} travellers` : 'Free to plan · Clan from ₹39 per person per day';
-    // Trip postcard / empty state
-    if (t) {
-      const g = guideFor(t.destination), days = Trips.dayCount(t), acts = t.days.reduce((a, d) => a + d.items.length, 0);
-      const pk = t.packing.length ? Math.round(t.packing.filter(p => p.packed).length / t.packing.length * 100) : 0;
-      const until = Util.daysBetween(Util.ymd(new Date()), t.start);
-      $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2>${t.clanId ? '<span class="badge gold">In clan</span>' : '<span class="badge">Draft</span>'}</div>
-        <article class="postcard" id="tripCard" tabindex="0" role="button" aria-label="Open trip planner">
-          <div class="pc-img" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
+    const all = Trips.listOwn(), drafts = all.filter(x => !x.clanId);
+    $('#planHint').textContent = all.length ? `Start a new trip · ${drafts.length} draft${drafts.length === 1 ? '' : 's'}${all.length > drafts.length ? ` · ${all.length - drafts.length} in clan` : ''} saved below` : 'Free to plan · Clan from ₹39 per person per day';
+    // Trips: swipe right-to-left through every trip (drafts + clan trips), newest first
+    if (all.length) {
+      const today = Util.ymd(new Date());
+      const card = (t, k) => {
+        const g = guideFor(t.destination), days = Trips.dayCount(t), acts = t.days.reduce((a, d) => a + d.items.length, 0);
+        const pk = t.packing.length ? Math.round(t.packing.filter(p => p.packed).length / t.packing.length * 100) : 0;
+        const until = Util.daysBetween(today, t.start), past = t.end < today;
+        const badge = t.clanId ? '<span class="badge gold">In clan</span>' : past ? '<span class="badge">Past</span>' : '<span class="badge">Draft</span>';
+        return `<article class="postcard trip-slide" ${k === 0 ? 'id="tripCard"' : ''} data-trip="${t.id}" tabindex="0" role="button" aria-label="Open ${Util.esc(t.destination)} trip">
+          <div class="pc-img" data-reel="${Util.esc(t.destination)}" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><div class="reel" aria-hidden="true"></div><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
+            <span class="pc-badge">${badge}</span>
             <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${(g && stateMapSvg(g.mapState || g.state)) || STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">₹39</span></div></div></div></div>
           <div class="pc-body"><div class="pc-meta"><b>${Util.fmtDate(t.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(t.end, { day: 'numeric', month: 'short', year: 'numeric' })}</b> · ${days} day${days > 1 ? 's' : ''}${t.from ? ' · from ' + Util.esc(t.from) : ''}<br/>
             ${t.travellers.length} travellers · leader ${Util.esc(t.travellers[0].name)}<br/>${acts} planned activit${acts === 1 ? 'y' : 'ies'} · packing ${pk}%${until > 0 ? ` · <b>${until} day${until > 1 ? 's' : ''} to go</b>` : ''}</div>
-            <span class="btn sm">${icon('arrowR', 'sm')}Open</span></div>
-        </article>
-        ${!u ? `<p class="hint" style="margin-top:8px">${icon('info', 'sm')} You're planning as a guest. Log in to keep this trip in your account — it transfers automatically.</p>` : ''}`;
-      $('#tripCard').onclick = () => Planner.open();
-      $('#tripCard').onkeydown = e => { if (e.key === 'Enter') Planner.open(); };
+            <div class="pc-acts">${!t.clanId ? `<button class="icon-btn sm" data-deltrip="${t.id}" aria-label="Delete this draft">${icon('trash', 'sm')}</button>` : ''}<span class="btn sm">${icon('arrowR', 'sm')}Open</span></div></div>
+          <p class="reel-credit" hidden></p>
+        </article>`;
+      };
+      $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey${all.length > 1 ? 's' : ''}</h2>${all.length > 1 ? `<span class="hint">${all.length} trips · swipe ←</span>` : ''}</div>
+        <div class="trip-rail${all.length > 1 ? ' multi' : ''}">${all.map(card).join('')}</div>
+        ${all.length > 1 ? `<div class="rail-dots">${all.map((_, k) => `<i class="${k ? '' : 'on'}"></i>`).join('')}</div>` : ''}
+        ${!u ? `<p class="hint" style="margin-top:8px">${icon('info', 'sm')} You're planning as a guest. Log in to keep these trips in your account — they transfer automatically.</p>` : ''}`;
+      const rail = $('#homeTrip .trip-rail');
+      rail.onclick = async e => {
+        const del = e.target.closest('[data-deltrip]');
+        if (del) {
+          e.stopPropagation(); const t = Trips.all().find(x => x.id === del.dataset.deltrip); if (!t) return;
+          if (await UI.confirm('Delete this draft?', `Your ${t.destination} draft (${Util.fmtDate(t.start)} – ${Util.fmtDate(t.end)}) and its day plan, packing list and expenses will be deleted.`, { ok: 'Delete draft' })) { Trips.removeOwn(t.id); this.render(); UI.toast('Draft deleted.'); }
+          return;
+        }
+        const c = e.target.closest('[data-trip]'); if (c) Planner.open({ tripId: c.dataset.trip });
+      };
+      rail.onkeydown = e => { const c = e.target.closest('[data-trip]'); if (c && e.key === 'Enter') Planner.open({ tripId: c.dataset.trip }); };
+      const dots = $$('#homeTrip .rail-dots i');
+      if (dots.length) rail.onscroll = () => { const k = Math.round(rail.scrollLeft / (rail.firstElementChild.offsetWidth + 12)); dots.forEach((d, n) => d.classList.toggle('on', n === k)); };
+      if (typeof Reels !== 'undefined') Reels.mount($('#homeTrip'));
     } else {
       $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2></div><div class="card paper empty"><div class="em">💌</div><h4>No trip yet</h4><p>Your first letter is waiting to be written. Tap <b>Plan My Own Trip</b> to begin.</p></div>`;
     }
@@ -5808,7 +5983,7 @@ const Home = {
 $('#acctBtn').addEventListener('click', e => { e.stopPropagation(); Home.toggleMenu(); });
 $('#acctMenu').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (b) Home.menuAction(b.dataset.m); });
 document.addEventListener('click', e => { if (!$('#acctMenu').hidden && !e.target.closest('#acctMenu')) Home.closeMenu(); });
-$('#planBtn').addEventListener('click', () => Planner.open());
+$('#planBtn').addEventListener('click', () => Planner.open({ fresh: true })); // always a new trip; others stay as drafts
 $('#logoBtn').addEventListener('click', () => Nav.home(() => window.scrollTo({ top: 0, behavior: 'smooth' })));
 $('#clanBtn').addEventListener('click', () => {
   const cl = Auth.user ? Clans.listFor(Auth.user.id) : [];
