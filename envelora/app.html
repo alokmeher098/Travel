@@ -1082,6 +1082,7 @@ details.grp[open] summary::after{content:"–"}
 .dialog .acts{flex-wrap:wrap}.dialog .acts .btn{flex:1 1 120px;min-width:0;white-space:normal;line-height:1.25;height:auto;min-height:46px}
 .input[readonly]{opacity:.65;cursor:not-allowed;background-image:none}
 .cap-now{display:flex;gap:8px;margin:2px 0 10px}.cap-now>div{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,178,106,.25)}.cap-now b{display:block;font-size:1.3rem;color:var(--gold)}.cap-now span{font-size:.72rem;opacity:.75}
+.notice.warn{border-color:#c0574a;background:#fdecea;color:#7a2a20}.gp-full{text-align:center}.gp-full b{font-family:var(--serif);font-size:1.1rem;color:var(--navy)}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -2586,27 +2587,42 @@ const Planner = {
   renderGroup(host) {
     const t = this.trip, ed = this.canEdit();
     const clan = t.clanId && Clans.get(t.clanId);
+    // In a paid clan every traveller needs a paid spot.
+    const isOpen = p => !p.accountId && !p.phone && !p.email && /^Traveller \d+$/.test(p.name); // unfilled paid spot
+    const real = t.travellers.filter(p => !isOpen(p)).length;
+    const cap = clan ? clan.capacity : Infinity, full = clan && real >= cap, over = clan ? t.travellers.length - cap : 0;
+    const canBuy = clan && Auth.user && Perm.can(clan, Auth.user.id, 'buyCapacity');
     host.innerHTML = `
-      ${clan ? `<div class="notice">${icon('shield', 'sm')}<span>Clan <b>${Util.esc(clan.name)}</b> · ${clan.members.length}/${clan.capacity} paid spots used. Travellers who join via invite are linked automatically.</span></div>` : ''}
+      ${clan ? `<div class="notice">${icon('shield', 'sm')}<span>Clan <b>${Util.esc(clan.name)}</b> · <b>${Math.min(real, cap)}/${cap}</b> paid spots filled · ${clan.members.length} joined. Travellers who join via invite are linked automatically.</span></div>` : ''}
+      ${over > 0 ? `<div class="notice warn">${icon('info', 'sm')}<span><b>${over} traveller${over > 1 ? 's' : ''} more than the paid spots.</b> Remove ${over > 1 ? 'them' : 'one'} or buy ${over > 1 ? over + ' more spots' : 'one more spot'} in Clan Settings.</span></div>` : ''}
       <h3>Travellers (${t.travellers.length})</h3>
       ${t.travellers.map((p, i) => {
         const m = clan && p.accountId ? Clans.member(clan, p.accountId) : null;
         return `<div class="member">${Util.avatar(p.name)}
           <div class="info"><b>${Util.esc(p.name)} ${i === 0 ? '<span class="badge gold">Leader</span>' : ''} ${m && m.role === 'co' ? '<span class="badge co">Co-leader</span>' : ''}</b>
           <span>${Util.esc([p.phone ? '+91 ' + p.phone : '', p.email].filter(Boolean).join(' · ') || 'No contact added')}</span>
-          <span>${p.accountId ? (m ? '✓ Joined the clan' : '✓ Linked account') : 'Not joined yet'}</span></div>
+          <span>${p.accountId ? (m ? '✓ Joined the clan' : '✓ Linked account') : clan && isOpen(p) ? 'Open paid spot · add a name or share the invite' : 'Not joined yet'}</span></div>
           ${ed ? `<div class="ma"><button class="icon-btn" data-ed="${p.id}" aria-label="Edit ${Util.esc(p.name)}">${icon('edit', 'sm')}</button>
           ${i > 0 && !m ? `<button class="icon-btn" data-rm="${p.id}" aria-label="Remove ${Util.esc(p.name)}" style="color:var(--danger)">${icon('trash', 'sm')}</button>` : ''}</div>` : ''}
         </div>`;
       }).join('')}
-      ${ed ? `<form class="card" id="gp-form" style="margin-top:14px" autocomplete="off"><label class="f">Add a traveller</label>
+      ${ed && full ? `<div class="card gp-full" style="margin-top:14px"><b>${cap > 1 ? `All ${cap} paid spots are filled` : 'The only paid spot is filled'}</b><p class="hint" style="margin:6px 0 10px">To add another person, buy an extra spot first. During the trip you pay only for the days left.</p>
+        ${canBuy ? `<button class="btn gold block" id="gp-buy">${icon('plus', 'sm')}Buy more spots</button>` : '<p class="hint">Ask the clan leader or a co-leader to buy more spots.</p>'}</div>` : ''}
+      ${ed && !full ? `<form class="card" id="gp-form" style="margin-top:14px" autocomplete="off"><label class="f">Add a traveller${clan ? ` <span class="hint">(${cap - real} open spot${cap - real > 1 ? 's' : ''})</span>` : ''}</label>
         <div class="row"><input class="input" id="gp-name" placeholder="Name" maxlength="40" /><button class="btn" style="flex:none">${icon('plus', 'sm')}Add</button></div>
-        <p class="hint" style="margin:8px 0 0">${clan ? 'Adding travellers does not add clan spots — buy capacity in Clan Settings.' : 'Clan price is calculated from the number of travellers.'}</p></form>` : ''}`;
+        <p class="hint" style="margin:8px 0 0">${clan ? 'Each traveller uses one paid spot. Need more? Buy spots in Clan Settings.' : 'Clan price is calculated from the number of travellers.'}</p></form>` : ''}`;
     if (!ed) return;
-    $('#gp-form').onsubmit = e => {
+    $('#gp-buy') && ($('#gp-buy').onclick = () => ClanSettings.open(clan.id));
+    $('#gp-form') && ($('#gp-form').onsubmit = e => {
       e.preventDefault(); const n = $('#gp-name').value.trim(); if (n.length < 2) return $('#gp-name').focus();
+      const cur = t.clanId && Clans.get(t.clanId);
+      if (cur) {
+        const spot = t.travellers.find(isOpen); // fill an open paid spot first
+        if (spot) { spot.name = n; this.persist(); this.renderTabsOnly(); return UI.toast(n + ' added to an open spot.'); }
+        if (t.travellers.length >= cur.capacity) { UI.toast('All paid spots are filled. Buy more spots in Clan Settings first.', 'err'); return this.renderTabsOnly(); }
+      }
       t.travellers.push({ id: Util.uid('tv'), name: n, phone: '', email: '', accountId: null }); this.persist(); this.renderTabsOnly(); UI.toast(n + ' added.');
-    };
+    });
     host.onclick = e => {
       const rm = e.target.closest('[data-rm]'), edb = e.target.closest('[data-ed]');
       if (rm) {
