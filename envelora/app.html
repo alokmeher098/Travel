@@ -1035,6 +1035,11 @@ details.grp[open] summary::after{content:"–"}
 .tk-banner>span{font-size:1.4rem}.tk-banner div{flex:1;min-width:0;display:flex;flex-direction:column}
 .tk-banner b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tk-banner small{font-size:.76rem}
 .tk-banner em{font-style:normal;font-size:.78rem;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--navy);color:var(--cream);flex:none}
+.hp-field{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cap-row{display:flex;gap:8px;align-items:center}
+.cap-row canvas{flex:none;width:150px;height:48px;border-radius:12px;border:1px solid rgba(212,178,106,.6);user-select:none;-webkit-user-select:none}
+.cap-row .icon-btn{flex:none}
+.cap-row .input{flex:1;min-width:0;text-align:center;font-size:1.1rem;letter-spacing:.08em}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1971,6 +1976,11 @@ const AuthUI = {
             <button type="button" data-t="email">Email</button>
           </div>
           <div class="field" id="au-cwrap"></div>
+          <div class="hp-field" aria-hidden="true"><label for="au-web">Website</label><input id="au-web" name="website" tabindex="-1" autocomplete="off"/></div>
+          <div class="field"><label class="f" for="au-cap">Security check · solve the sum</label>
+            <div class="cap-row"><canvas id="au-capImg" width="150" height="48" role="img"></canvas>
+              <button type="button" class="icon-btn" id="au-capNew" aria-label="New question">↻</button>
+              <input class="input" id="au-cap" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="= ?" /></div></div>
           <div class="err-msg" id="au-err"></div>
           <button class="btn gold block" type="submit" id="au-send">${Util.esc(cta)}</button>
           ${onSkip ? `<div class="auth-foot"><button type="button" class="link-btn" id="au-skip">Explore first — log in later</button></div>` : ''}
@@ -1984,6 +1994,26 @@ const AuthUI = {
         if (st.type === 'phone') v.addEventListener('input', () => v.value = v.value.replace(/\D/g, '').slice(0, 10));
       };
       drawContact();
+      // Maths captcha (light protection against bots spamming OTPs).
+      // >>> SUPABASE INTEGRATION POINT — verify a server-issued challenge (or Cloudflare Turnstile) in the send-OTP Edge Function; a check in the browser alone can be bypassed.
+      const cap = { a: 0, op: '+', b: 0, ans: 0, tries: 0, lockUntil: 0 };
+      const newCap = () => {
+        const r = n => 1 + Math.floor(Math.random() * n), k = Math.floor(Math.random() * 3);
+        if (k === 0) { cap.a = r(20); cap.b = r(9); cap.op = '+'; cap.ans = cap.a + cap.b; }
+        else if (k === 1) { cap.b = r(9); cap.a = cap.b + r(15); cap.op = '−'; cap.ans = cap.a - cap.b; }
+        else { cap.a = 1 + r(8); cap.b = 1 + r(8); cap.op = '×'; cap.ans = cap.a * cap.b; }
+        const cv = $('#au-capImg', host), x = cv.getContext('2d'), W = cv.width, H = cv.height;
+        x.clearRect(0, 0, W, H); x.fillStyle = '#f4ecda'; x.fillRect(0, 0, W, H);
+        for (let i = 0; i < 6; i++) { x.strokeStyle = `hsla(${Math.random() * 360},45%,45%,.35)`; x.lineWidth = 1 + Math.random(); x.beginPath(); x.moveTo(Math.random() * W, Math.random() * H); x.bezierCurveTo(Math.random() * W, Math.random() * H, Math.random() * W, Math.random() * H, Math.random() * W, Math.random() * H); x.stroke(); }
+        for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(13,27,42,${Math.random() * .25})`; x.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5); }
+        const txt = `${cap.a} ${cap.op} ${cap.b} =`; let px = 12;
+        [...txt].forEach(ch => { x.save(); x.translate(px, 32 + (Math.random() * 6 - 3)); x.rotate((Math.random() - .5) * .35); x.font = `700 ${22 + Math.floor(Math.random() * 5)}px Georgia, serif`; x.fillStyle = '#0d1b2a'; x.fillText(ch, 0, 0); px += ch === ' ' ? 7 : x.measureText(ch).width + 2; x.restore(); });
+        cv.setAttribute('aria-label', `Maths question: ${cap.a} ${({ '+': 'plus', '−': 'minus', '×': 'times' })[cap.op]} ${cap.b}`);
+        const inp = $('#au-cap', host); inp.value = ''; inp.classList.remove('err');
+      };
+      newCap();
+      $('#au-capNew', host).addEventListener('click', () => { newCap(); $('#au-cap', host).focus(); });
+      $('#au-cap', host).addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3));
       $$('.seg button', host).forEach(b => b.addEventListener('click', () => {
         st.type = b.dataset.t; $$('.seg button', host).forEach(x => x.classList.toggle('on', x === b)); drawContact(); $('#au-err', host).textContent = '';
       }));
@@ -1995,10 +2025,20 @@ const AuthUI = {
         if (name.value.trim().length < 2) { name.classList.add('err'); err.textContent = 'Please enter your name.'; name.focus(); return; }
         if (st.type === 'phone' && !Util.validPhone(val.value)) { val.classList.add('err'); err.textContent = 'Enter a valid 10-digit Indian mobile number (starts with 6–9).'; val.focus(); return; }
         if (st.type === 'email' && !Util.validEmail(val.value)) { val.classList.add('err'); err.textContent = 'Enter a valid email address.'; val.focus(); return; }
+        const capIn = $('#au-cap', host); capIn.classList.remove('err');
+        if (Date.now() < cap.lockUntil) { err.textContent = `Too many wrong answers. Try again in ${Math.ceil((cap.lockUntil - Date.now()) / 1000)} s.`; return; }
+        if (!capIn.value) { capIn.classList.add('err'); err.textContent = 'Please solve the sum to continue.'; capIn.focus(); return; }
+        if (+capIn.value !== cap.ans) {
+          cap.tries++; newCap(); $('#au-cap', host).classList.add('err');
+          if (cap.tries >= 3) { cap.tries = 0; cap.lockUntil = Date.now() + 30000; err.textContent = 'Wrong answer 3 times. Please wait 30 seconds, then try the new sum.'; }
+          else { err.textContent = 'That answer is not right. Try this new sum.'; $('#au-cap', host).focus(); }
+          return;
+        }
+        if ($('#au-web', host).value) { newCap(); err.textContent = 'Could not send OTP. Try again.'; return; } // honeypot: only bots fill the hidden field
         st.name = name.value.trim(); st.value = val.value.trim();
         const btn = $('#au-send', host); UI.busy(btn, true, 'Sending OTP…');
         try { await Auth.sendOtp(st.type, st.value); stepTwo(); }
-        catch (ex) { UI.busy(btn, false); err.textContent = 'Could not send OTP. Try again.'; }
+        catch (ex) { UI.busy(btn, false); newCap(); err.textContent = 'Could not send OTP. Try again.'; }
       });
     };
     const stepTwo = () => {
