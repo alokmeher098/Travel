@@ -1,0 +1,68 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Marcellus&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4B26A;--goldl:#ecd8a6;--cream:#F1E6CC}
+*{box-sizing:border-box;margin:0}
+body{background:#222;font-family:Jost,sans-serif;color:var(--cream)}
+.st{width:1080px;height:1920px;position:relative;overflow:hidden;background:#0B0B0B;display:flex;flex-direction:column;align-items:center;text-align:center}
+/* Instagram covers ~250px top and ~340px bottom with its own buttons: keep text between */
+.safe{position:absolute;left:90px;right:90px;top:260px;bottom:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.word{font-family:Marcellus,serif;letter-spacing:.32em;font-size:92px;white-space:nowrap}.v{color:var(--gold)}
+.tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:54px;color:var(--goldl)}
+h1{font-family:Marcellus,serif;font-weight:400;color:#fff}
+.beta{display:inline-block;background:var(--gold);color:#111;font:700 34px/1 Jost;letter-spacing:.16em;padding:20px 38px;border-radius:99px}
+.air{position:absolute;left:0;right:0;height:26px;background:repeating-linear-gradient(-45deg,#c9726b 0 40px,transparent 40px 80px,#2f3b4c 80px 120px,transparent 120px 160px)}
+.photo{position:absolute;inset:0}.photo img{width:100%;height:100%;object-fit:cover;object-position:40% 50%}
+.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,11,.85) 0%,rgba(11,11,11,.25) 30%,rgba(11,11,11,.35) 60%,rgba(11,11,11,.95) 100%)}
+.gp{display:flex;align-items:center;gap:26px;background:rgba(22,22,22,.9);border:2px solid rgba(241,230,204,.55);border-radius:26px;padding:26px 46px;text-align:left}
+.sticker{width:820px;height:200px;color:transparent;font-size:1px}
+.feat{display:flex;align-items:center;gap:28px;width:880px;padding:24px 34px;margin:12px 0;border-radius:30px;background:#141414;border:2px solid rgba(212,178,106,.3);text-align:left}
+.feat .ic{font-size:60px;width:84px;text-align:center}.feat b{font:600 44px Jost;color:#fff}
+</style></head><body>
+
+<!-- 1 teaser on the Manali photo -->
+<section class="st" id="t1">
+  <div class="photo"><img src="manali.png"></div>
+  <div class="safe" style="justify-content:space-between">
+    <div><div class="word">EN<span class="v">V</span>ELORA</div><p class="tag" style="margin-top:26px">Open the envelope · Begin the journey</p></div>
+    <div>
+      <span class="beta">FREE BETA</span>
+      <h1 style="font-size:120px;line-height:1.05;margin-top:46px">Something<br>new is<br>coming…</h1>
+      <p style="font-size:42px;margin-top:34px;color:#fff">The group trip planner made for India 🇮🇳</p>
+    </div>
+    <div class="gp"><svg width="66" height="74" viewBox="0 0 58 64"><path d="M4 4 L54 32 L4 60 Z" fill="none" stroke="#D4B26A" stroke-width="6" stroke-linejoin="round"/></svg>
+      <div><div style="font:500 28px Jost;letter-spacing:.08em;color:rgba(241,230,204,.85)">COMING SOON ON</div><div style="font:600 54px/1.1 Jost;color:#fff">Google Play</div></div></div>
+  </div>
+</section>
+
+<!-- 2 features -->
+<section class="st" id="t2">
+  <div class="air" style="top:0"></div>
+  <div class="safe">
+    <p style="font:600 32px Jost;letter-spacing:.22em;color:var(--gold)">ONE APP · ONE CLAN</p>
+    <h1 style="font-size:92px;line-height:1.08;margin:20px 0 50px">Zero chaos<br>on group trips.</h1>
+    <div class="feat"><span class="ic">🗓️</span><b>Day-by-day plan</b></div>
+    <div class="feat"><span class="ic">💬</span><b>Private clan chat</b></div>
+    <div class="feat"><span class="ic">💸</span><b>Fair expense split</b></div>
+    <div class="feat"><span class="ic">📍</span><b>Live map</b></div>
+    <div class="feat"><span class="ic">🎮</span><b>Road-trip games</b></div>
+    <div class="feat"><span class="ic">🎟️</span><b>Tickets & place guides</b></div>
+  </div>
+  <div class="air" style="bottom:0"></div>
+</section>
+
+<!-- 3 engagement: space for a poll / notify sticker -->
+<section class="st" id="t3">
+  <div class="air" style="top:0"></div>
+  <div class="safe">
+    <div class="word" style="font-size:72px">EN<span class="v">V</span>ELORA</div>
+    <h1 style="font-size:104px;line-height:1.08;margin-top:70px">Where is your<br>gang going next?</h1>
+    <p style="font-size:42px;margin-top:34px;color:rgba(241,230,204,.85)">Vote below 👇 and get notified<br>on launch day 🔔</p>
+    <div class="sticker" style="margin-top:80px">Add a Poll sticker here</div>
+    <div class="sticker" style="margin-top:40px;height:170px">Add a Notify / Countdown sticker here</div>
+    <span class="beta" style="margin-top:80px;font-size:30px">FREE BETA · COMING SOON</span>
+  </div>
+  <div class="air" style="bottom:0"></div>
+</section>
+</body></html>
