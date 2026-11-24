@@ -7119,7 +7119,11 @@ const Home = {
     this.header();
     const t = Trips.loadOwn(), u = Auth.user;
     $('#planBtn').innerHTML = `${icon('edit')}Plan My Own Trip`;
-    const all = Trips.listOwn(), drafts = all.filter(x => !x.clanId);
+    const own = Trips.listOwn(), drafts = own.filter(x => !x.clanId);
+    // members also see the clan trips they joined (view only); the leader's own copy is the clan copy
+    const joined = u ? Clans.listFor(u.id).filter(c => c.trip && !own.some(x => x.clanId === c.id)).map(c => Clans.syncSeats(c).trip) : [];
+    const all = own.concat(joined.filter(t => t.end >= Util.ymd(new Date())));
+    const canEditT = t => { if (!t.clanId) return true; const c = Clans.get(t.clanId); return !!(c && u && Perm.can(c, u.id, 'editTrip')); };
     $('#planHint').textContent = all.length ? `Start a new trip · ${drafts.length} draft${drafts.length === 1 ? '' : 's'}${all.length > drafts.length ? ` · ${all.length - drafts.length} in clan` : ''} saved below` : (CONFIG.beta ? 'Free beta · planning and Clans are free' : 'Free to plan · Clan from ₹' + CONFIG.listPrice + ' per person per day');
     // Trips: swipe right-to-left through every trip (drafts + clan trips), newest first
     if (all.length) {
@@ -7129,13 +7133,13 @@ const Home = {
         const pk = t.packing.length ? Math.round(t.packing.filter(p => p.packed).length / t.packing.length * 100) : 0;
         const until = Util.daysBetween(today, t.start), past = t.end < today;
         const badge = t.clanId ? '<span class="badge gold">In clan</span>' : past ? '<span class="badge">Past</span>' : '<span class="badge">Draft</span>';
-        return `<article class="postcard trip-slide" ${k === 0 ? 'id="tripCard"' : ''} data-trip="${t.id}" tabindex="0" role="button" aria-label="Open ${Util.esc(t.destination)} trip">
+        return `<article class="postcard trip-slide" ${k === 0 ? 'id="tripCard"' : ''} data-trip="${t.id}"${t.clanId ? ` data-tclan="${t.clanId}"` : ''} tabindex="0" role="button" aria-label="${canEditT(t) ? 'Edit' : 'View'} ${Util.esc(t.destination)} trip">
           <div class="pc-img" data-reel="${Util.esc(t.destination)}" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><div class="reel" aria-hidden="true"></div><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
             <span class="pc-badge">${badge}</span>
             <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${(g && stateMapSvg(g.mapState || g.state)) || STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">${CONFIG.beta ? 'FREE' : '₹' + CONFIG.listPrice}</span></div></div></div></div>
           <div class="pc-body"><div class="pc-meta"><b>${Util.fmtDate(t.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(t.end, { day: 'numeric', month: 'short', year: 'numeric' })}</b> · ${days} day${days > 1 ? 's' : ''}${t.from ? ' · from ' + Util.esc(t.from) : ''}<br/>
             ${t.travellers.length} travellers · leader ${Util.esc(t.travellers[0].name)}<br/>${acts} planned activit${acts === 1 ? 'y' : 'ies'} · packing ${pk}%${until > 0 ? ` · <b>${until} day${until > 1 ? 's' : ''} to go</b>` : ''}</div>
-            <div class="pc-acts">${!t.clanId ? `<button class="icon-btn sm" data-deltrip="${t.id}" aria-label="Delete this draft">${icon('trash', 'sm')}</button>` : ''}<span class="btn sm">${icon('arrowR', 'sm')}Open</span></div></div>
+            <div class="pc-acts">${!t.clanId ? `<button class="icon-btn sm" data-deltrip="${t.id}" aria-label="Delete this draft">${icon('trash', 'sm')}</button>` : ''}<span class="btn sm">${canEditT(t) ? icon('edit', 'sm') + 'Edit' : icon('book', 'sm') + 'View'}</span></div></div>
           <p class="reel-credit" hidden></p>
         </article>`;
       };
@@ -7151,9 +7155,9 @@ const Home = {
           if (await UI.confirm('Delete this draft?', `Your ${t.destination} draft (${Util.fmtDate(t.start)} – ${Util.fmtDate(t.end)}) and its day plan, packing list and expenses will be deleted.`, { ok: 'Delete draft' })) { Trips.removeOwn(t.id); this.render(); UI.toast('Draft deleted.'); }
           return;
         }
-        const c = e.target.closest('[data-trip]'); if (c) Planner.open({ tripId: c.dataset.trip });
+        const c = e.target.closest('[data-trip]'); if (c) this.openTrip(c);
       };
-      rail.onkeydown = e => { const c = e.target.closest('[data-trip]'); if (c && e.key === 'Enter') Planner.open({ tripId: c.dataset.trip }); };
+      rail.onkeydown = e => { const c = e.target.closest('[data-trip]'); if (c && e.key === 'Enter') this.openTrip(c); };
       const dots = $$('#homeTrip .rail-dots i');
       if (dots.length) rail.onscroll = () => { const k = Math.round(rail.scrollLeft / (rail.firstElementChild.offsetWidth + 12)); dots.forEach((d, n) => d.classList.toggle('on', n === k)); };
       if (typeof Reels !== 'undefined') Reels.mount($('#homeTrip'));
@@ -7190,6 +7194,12 @@ const Home = {
       <button data-m="credits">${icon('info')}Credits</button>
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
+  },
+  /** Clan trips open in the clan itself: the leader edits the shared plan, members only view it. */
+  openTrip(el) {
+    const c = el.dataset.tclan && Clans.get(el.dataset.tclan), u = Auth.user;
+    if (c && u && Clans.member(c, u.id)) return Planner.open({ clanId: c.id, readOnly: !Perm.can(c, u.id, 'editTrip') });
+    Planner.open({ tripId: el.dataset.trip });
   },
   /** one quiet line under the trips row: "Photos · Wikimedia Commons · Credits" */
   creditNote() {
