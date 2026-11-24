@@ -1,0 +1,124 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Marcellus&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B2A;--navy2:#132840;--gold:#D4B26A;--goldd:#9c7a36;--goldl:#ecd8a6;--cream:#F1E6CC;--paper:#F5EFE3;--ink:#18222e}
+*{box-sizing:border-box;margin:0}
+body{background:#222;font-family:Jost,system-ui,sans-serif}
+.s{width:1080px;height:1350px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.dark{background:#0B0B0B;color:var(--cream)}
+.light{background:var(--paper);color:var(--ink)}
+.word{font-family:Marcellus,serif;letter-spacing:.32em;font-size:46px;display:flex;align-items:center;gap:2px}
+.word .v{color:var(--gold)}
+.beta{display:inline-block;background:var(--gold);color:#111;font:700 24px/1 Jost;letter-spacing:.18em;padding:12px 22px;border-radius:99px}
+.air{position:absolute;left:0;right:0;height:22px;background:repeating-linear-gradient(-45deg,#c9726b 0 34px,transparent 34px 68px,#2f3b4c 68px 102px,transparent 102px 136px)}
+.phone{width:430px;height:874px;border-radius:58px;background:#000;padding:14px;box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 0 2px #3a3a3a inset}
+.phone .scr{width:100%;height:100%;border-radius:46px;overflow:hidden;background:#fff}
+.phone img{width:100%;display:block}
+.tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:40px;color:var(--goldl)}
+h1{font-family:Marcellus,serif;font-weight:400}
+.feat{display:flex;gap:26px;align-items:flex-start;padding:24px 0;border-top:1.5px solid rgba(212,178,106,.22)}
+.feat .ic{width:86px;height:86px;flex:none;border-radius:24px;background:#1a1a1a;border:1.5px solid rgba(212,178,106,.35);display:grid;place-items:center;font-size:42px}
+.feat b{display:block;font:600 38px/1.2 Jost;color:#fff}
+.feat span{font-size:28px;color:rgba(241,230,204,.72);line-height:1.35}
+.stamp{position:absolute;width:192px;height:240px;padding:14px;background:radial-gradient(circle,transparent 6px,var(--cream) 6.8px) -12px -12px/24px 24px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.4))}
+.stamp div{width:100%;height:100%;border:2px solid rgba(13,27,42,.25);background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--navy);font-family:Marcellus,serif}
+
+.dcard{margin:0 auto;width:880px;border-radius:56px;padding:18px;background:linear-gradient(#e9dcb8,#c9a75c);box-shadow:0 30px 70px rgba(0,0,0,.55)}
+.dcard .in{border-radius:44px;background:#0B0B0B;padding:44px 50px 34px;color:var(--cream)}
+.dcard h2{font-family:Marcellus,serif;font-weight:400;font-size:62px;color:#f5ecd6}
+.prog{margin:26px 0 30px}
+.prog .lbl{display:flex;justify-content:space-between;font-size:26px;color:rgba(241,230,204,.7);margin-bottom:12px}
+.prog .lbl b{color:var(--gold);font-weight:600}
+.bar{height:14px;border-radius:99px;background:#222;overflow:hidden}
+.bar i{display:block;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#ecd8a6,#D4B26A)}
+.dots{display:flex;justify-content:space-between;margin-top:10px;font-size:20px;color:rgba(241,230,204,.45)}
+.dots span.on{color:var(--gold)}
+.row{display:flex;gap:30px;padding:16px 24px;border-radius:24px;align-items:flex-start;font-size:31px;line-height:1.3}
+.row .t{flex:none;width:150px;color:var(--gold);font-size:29px;padding-top:2px}
+.row.done{opacity:.55}.row.done .x{text-decoration:line-through;text-decoration-color:rgba(212,178,106,.6)}
+.row.now{border:2px solid var(--gold);background:#141414}
+.row small{display:block;margin-top:8px;color:var(--gold);font-size:25px}
+.dfoot{display:flex;justify-content:space-between;border-top:1.5px solid #2a2a2a;margin-top:18px;padding-top:24px;font-size:26px;color:rgba(241,230,204,.75)}
+.dfoot b{color:var(--gold);font-weight:500}
+</style></head><body>
+
+<!-- 1. COVER -->
+<section class="s dark" id="s1">
+  <div style="position:relative;padding:90px 80px 0;display:flex;justify-content:space-between;align-items:center">
+    <div class="word">EN<span class="v">V</span>ELORA</div><span class="beta">FREE BETA</span>
+  </div>
+  <div style="position:relative;padding:120px 80px 0">
+    <p class="tag">Open the envelope · Begin the journey</p>
+    <h1 style="font-size:118px;line-height:1.02;margin-top:30px;color:#fff">Plan the trip.<br>Travel as a<br><span style="color:var(--gold)">Clan.</span></h1>
+    <p style="font-size:36px;line-height:1.45;margin-top:44px;color:rgba(241,230,204,.85);max-width:820px">The group trip planner for India — day plans, packing, split expenses, chat, tickets & live map in one private space.</p>
+  </div>
+  <div class="stamp" style="right:90px;bottom:150px;transform:rotate(8deg)"><div><span style="font-size:70px">🏔️</span><span style="font-size:34px;margin-top:8px">FREE</span><span style="font-size:18px;letter-spacing:.2em;margin-top:4px">BETA · 2026</span></div></div>
+  <div style="position:absolute;left:80px;bottom:110px;font-size:30px;color:var(--gold);letter-spacing:.12em;font-weight:600">SWIPE  →</div>
+  <div class="air" style="bottom:0"></div>
+</section>
+
+<!-- 2. FEATURES -->
+<section class="s dark" id="s2">
+  <div class="air" style="top:0"></div>
+  <div style="padding:100px 80px 0">
+    <p style="font:600 26px Jost;letter-spacing:.22em;color:var(--gold)">EVERYTHING YOUR GROUP NEEDS</p>
+    <h1 style="font-size:84px;line-height:1.08;margin:18px 0 40px;color:#fff">One app. One clan.<br>Zero chaos.</h1>
+    <div class="feat"><div class="ic">🗓️</div><div><b>Day-by-day plan</b><span>Times, cabs, drivers & hotels — everyone sees the same plan.</span></div></div>
+    <div class="feat"><div class="ic">💬</div><div><b>Private clan chat</b><span>Invite with one link. Polls, alerts & photos together.</span></div></div>
+    <div class="feat"><div class="ic">💸</div><div><b>Fair expense split</b><span>Who owes whom, to the rupee. No awkward maths.</span></div></div>
+    <div class="feat"><div class="ic">📍</div><div><b>Live map</b><span>See your friends on the map — only while they choose to share.</span></div></div>
+    <div class="feat"><div class="ic">🎮</div><div><b>Road-trip games</b><span>Fun games to play with your clan on the way.</span></div></div>
+    <div class="feat"><div class="ic">🎟️</div><div><b>Tickets & place guides</b><span>Train, flight & entry tickets in one place, plus stories of 1,400+ places.</span></div></div>
+  </div>
+</section>
+
+<!-- DAY PROGRESS -->
+<section class="s dark" id="sd">
+  <div style="padding:80px 80px 0">
+    <p style="font:600 26px Jost;letter-spacing:.22em;color:var(--gold)">YOUR DAY, HOUR BY HOUR</p>
+    <h1 style="font-size:72px;line-height:1.08;margin:14px 0 36px;color:#fff">Always know what's next.</h1>
+  </div>
+  <div class="dcard"><div class="in">
+    <h2>Day 2 in Manali</h2>
+    <div class="prog">
+      <div class="lbl"><span>Day 2 of 4 · Tuesday</span><b>2 of 5 done today</b></div>
+      <div class="bar"><i></i></div>
+    </div>
+    <div class="row done"><span class="t">7:00 am</span><span class="x">✓ Sunrise chai at Old Manali</span></div>
+    <div class="row done"><span class="t">8:30 am</span><span class="x">✓ Breakfast at the hotel</span></div>
+    <div class="row now"><span class="t">10:00 am</span><span>Cab to Solang Valley · Ramesh, HP 01 AB 4521<small>🚕 Arriving in 15 minutes</small></span></div>
+    <div class="row"><span class="t">1:30 pm</span><span>Lunch: try siddu, Himachal's famous dish</span></div>
+    <div class="row"><span class="t">4:00 pm</span><span>Hadimba Temple, with the story of the place</span></div>
+    <div class="dfoot"><span>📍 4 friends nearby</span><b>You owe Rahul ₹340</b></div>
+  </div></div>
+</section>
+
+<!-- 3. APP SCREENS -->
+<section class="s dark" id="s3">
+  <div style="padding:90px 80px 0;text-align:center">
+    <p class="tag">Made for Indian road trips</p>
+    <h1 style="font-size:76px;line-height:1.1;margin-top:14px;color:#fff">Your whole trip,<br>in your pocket.</h1>
+  </div>
+  <div style="position:relative;flex:1">
+    <div class="phone" style="position:absolute;left:90px;top:70px;transform:rotate(-6deg)"><div class="scr"><img src="home.png" style="margin-top:-212px"></div></div>
+    <div class="phone" style="position:absolute;right:90px;top:30px;transform:rotate(5deg)"><div class="scr"><img src="chat.png"></div></div>
+  </div>
+</section>
+
+<!-- 4. CTA -->
+<section class="s dark" id="s4">
+  <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 90px">
+    <div class="word" style="font-size:58px">EN<span class="v">V</span>ELORA</div>
+    <span class="beta" style="margin-top:46px;font-size:28px;padding:16px 30px">FREE BETA · LAUNCHING SOON</span>
+    <h1 style="font-size:92px;line-height:1.08;margin-top:54px;color:#fff">Coming soon<br>on Play Store.</h1>
+    <p style="font-size:36px;line-height:1.5;margin-top:36px;color:rgba(241,230,204,.85)">Free during beta. Download, invite your gang<br>& plan your next trip together.</p>
+    <div style="margin-top:60px;display:flex;align-items:center;gap:22px;background:#161616;border:2px solid rgba(241,230,204,.55);border-radius:22px;padding:22px 40px;color:#fff;text-align:left">
+      <svg width="58" height="64" viewBox="0 0 58 64" aria-hidden="true"><path d="M4 4 L54 32 L4 60 Z" fill="none" stroke="#D4B26A" stroke-width="6" stroke-linejoin="round"/></svg>
+      <div><div style="font:500 24px Jost;letter-spacing:.08em;color:rgba(241,230,204,.8)">COMING SOON ON</div><div style="font:600 46px/1.1 Jost">Google Play</div></div>
+    </div>
+    <p style="margin-top:52px;font:600 34px Jost;color:var(--gold);letter-spacing:.04em">🔔 Follow us to know the launch day first</p>
+  </div>
+  <div class="air" style="bottom:0"></div>
+</section>
+</body></html>
