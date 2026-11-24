@@ -2007,6 +2007,7 @@ const CONFIG = {
     // url: 'https://YOUR-PROJECT.supabase.co',
     // anonKey: 'public-anon-key',     // anon key is public; RLS policies must protect data
     url: 'https://prwvljhkgcpxjxtobcuv.supabase.co',      // Mumbai (ap-south-1)
+    relay: '',   // Cloudflare Worker URL (https://….workers.dev); when set, the app talks to it instead of supabase.co
     anonKey: 'sb_publishable_O1NHihsd7SPuPDvAqL9Rgw_R0lcU9Z4'   // public key; Row Level Security protects the data
   },
   razorpay: {
@@ -2387,7 +2388,7 @@ const Cloud = {
   init() {
     try {
       if (!CONFIG.supabase.url || !CONFIG.supabase.anonKey || !window.supabase || !window.supabase.createClient) return;
-      this.sb = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey, {
+      this.sb = window.supabase.createClient(CONFIG.supabase.relay || CONFIG.supabase.url, CONFIG.supabase.anonKey, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'envelora.sb.auth' }
       });
       this.sb.auth.onAuthStateChange((ev, s) => { if (ev === 'SIGNED_OUT') this.stop(); else if (s && s.user) this.uid = s.user.id; });
@@ -2403,7 +2404,7 @@ const Cloud = {
     if (/phone.*(provider|disabled|not.*enabled)|unsupported phone|sms provider/i.test(m)) return 'Mobile OTP isn\'t switched on yet. Please use Email for now.';
     if (/signups? not allowed/i.test(m)) return 'New sign-ups are closed right now.';
     if (/expired|invalid/i.test(m)) return 'That code is wrong or has expired. Ask for a new one.';
-    if (/fetch|network|failed to|load failed/i.test(m)) return navigator.onLine === false ? 'No internet connection. Check your network and try again.' : 'Couldn\'t reach the Envelora server from this network. Try Wi-Fi, or set Private DNS to one.one.one.one (Settings → Network → Private DNS), then try again.';
+    if (/fetch|network|failed to|load failed/i.test(m)) return 'No internet connection. Check your network and try again.';
     return m || 'Something went wrong. Please try again.';
   },
   phoneE164(v) { return '+91' + Util.normPhone(v); },
