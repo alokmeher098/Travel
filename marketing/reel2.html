@@ -81,8 +81,12 @@ html,body{width:1080px;height:1920px;background:#0B0B0B;overflow:hidden;font-fam
 <!-- C: crumple -->
 <div class="sc" id="C">
   <div class="desk"></div>
-  <div class="paper" id="ball" style="left:120px;top:430px"></div>
-  <div class="cap" style="top:1500px;font-size:62px" id="c0">There has to be<br>a <b>better way</b>…</div>
+  <div class="paper" id="cpaper"></div>
+  <svg id="crease" width="840" height="1060" style="position:absolute;left:120px;top:430px;opacity:0;pointer-events:none"><path d="M199 351 L149 487" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M36 739 L753 1012" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M617 1017 L15 306" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M811 822 L345 1000" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M521 867 L246 203" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M373 145 L321 1020" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M278 10 L38 180" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M658 384 L244 103" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M825 449 L175 63" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M46 179 L569 159" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M34 520 L209 1057" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M103 561 L650 434" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M830 506 L203 435" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M31 446 L209 943" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M698 528 L27 270" stroke="rgba(90,80,60,.5)" stroke-width="3"/><path d="M204 221 L194 922" stroke="rgba(90,80,60,.5)" stroke-width="3"/></svg>
+  <svg id="binb" width="300" height="360" viewBox="0 0 300 360" style="position:absolute;left:700px;top:1260px"><ellipse cx="150" cy="40" rx="130" ry="26" fill="#111" stroke="#D4B26A" stroke-width="6"/></svg>
+  <svg id="cball" width="300" height="300" viewBox="0 0 300 300" style="position:absolute;left:390px;top:810px;opacity:0;filter:drop-shadow(0 18px 20px rgba(0,0,0,.55))"><polygon points="136,171 241,150 228,188" fill="#f6f1e4" stroke="#bfb39a" stroke-width="1.2"/><polygon points="166,165 228,188 210,225" fill="#e6dfcd" stroke="#bfb39a" stroke-width="1.2"/><polygon points="165,135 210,225 170,236" fill="#d6cdb6" stroke="#bfb39a" stroke-width="1.2"/><polygon points="140,156 170,236 131,234" fill="#efe8d6" stroke="#bfb39a" stroke-width="1.2"/><polygon points="162,168 131,234 90,225" fill="#cfc5ad" stroke="#bfb39a" stroke-width="1.2"/><polygon points="169,129 90,225 50,198" fill="#f2ecdd" stroke="#bfb39a" stroke-width="1.2"/><polygon points="155,159 50,198 42,150" fill="#ddd4bf" stroke="#bfb39a" stroke-width="1.2"/><polygon points="150,134 42,150 54,104" fill="#f6f1e4" stroke="#bfb39a" stroke-width="1.2"/><polygon points="149,129 54,104 93,79" fill="#e6dfcd" stroke="#bfb39a" stroke-width="1.2"/><polygon points="172,168 93,79 128,52" fill="#d6cdb6" stroke="#bfb39a" stroke-width="1.2"/><polygon points="152,140 128,52 171,60" fill="#efe8d6" stroke="#bfb39a" stroke-width="1.2"/><polygon points="170,154 171,60 206,80" fill="#cfc5ad" stroke="#bfb39a" stroke-width="1.2"/><polygon points="169,167 206,80 229,112" fill="#f2ecdd" stroke="#bfb39a" stroke-width="1.2"/><polygon points="150,146 229,112 241,150" fill="#ddd4bf" stroke="#bfb39a" stroke-width="1.2"/><path d="M146 136 l36 -5" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M169 86 l32 3" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M111 150 l49 -4" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M190 105 l47 -7" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M150 116 l44 6" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M115 153 l66 -10" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M87 110 l61 3" stroke="#3b5a8f" stroke-width="3" opacity=".55" stroke-linecap="round"/><path d="M110 120 l40 30 l-10 40 M170 100 l-15 50 l40 25" stroke="#b5a98f" stroke-width="2" fill="none"/></svg>
+  <svg id="binf" width="300" height="360" viewBox="0 0 300 360" style="position:absolute;left:700px;top:1260px"><path d="M22 40 L50 330 Q150 352 250 330 L278 40 Q150 70 22 40 Z" fill="#1c1c1c" stroke="#D4B26A" stroke-width="6"/><path d="M95 90 L105 300 M150 96 L150 308 M205 90 L195 300" stroke="#3a3a3a" stroke-width="8" stroke-linecap="round"/></svg>
+  <div class="cap" style="top:200px;font-size:62px" id="c0">There has to be<br>a <b>better way</b>…</div>
 </div>
 
 <!-- D: envelope reveal -->
@@ -150,8 +154,8 @@ html,body{width:1080px;height:1920px;background:#0B0B0B;overflow:hidden;font-fam
 <script>
 const $ = id => document.getElementById(id);
 const cl = x => Math.max(0, Math.min(1, x)), ease = x => 1 - Math.pow(1 - cl(x), 3), seg = (t, a, b) => ease((t - a) / (b - a));
-const S = { A: [0, 4.2], B: [4.2, 7.6], C: [7.6, 9.4], D: [9.4, 12.4], E: [12.4, 14.8], F: [14.8, 17.2], G: [17.2, 20.2], H: [20.2, 22.6], I: [22.6, 26] };
-const DUR = 26;
+const S = { A: [0, 4.2], B: [4.2, 7.6], C: [7.6, 10.2], D: [10.2, 13.2], E: [13.2, 15.6], F: [15.6, 18], G: [18, 21], H: [21, 23.4], I: [23.4, 26.8] };
+const DUR = 26.8;
 function show(el, t, a, dy = 40, len = .45) { const k = seg(t, a, a + len); el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`; }
 function render(t) {
   for (const [id, [a, b]] of Object.entries(S)) { const fin = seg(t, a, a + .3), fout = id === 'I' ? 1 : 1 - seg(t, b - .25, b); $(id).style.opacity = t >= a - .01 && t <= b + .01 ? Math.min(fin, fout) : 0; }
@@ -163,29 +167,51 @@ function render(t) {
   $('paper').style.transform = `rotate(${-1.5 + Math.sin(t * 3) * .4}deg)`;
   // B: chat bubbles pop
   show($('b0'), t, 4.3); ['m1', 'm2', 'm3', 'm4', 'm5'].forEach((id, i) => { const k = seg(t, 4.6 + i * .5, 4.85 + i * .5); $(id).style.opacity = k; $(id).style.transform = `scale(${.6 + .4 * k})`; });
-  // C: crumple + toss
-  const cr = seg(t, 7.7, 8.5), toss = seg(t, 8.5, 9.2);
-  $('ball').style.transform = `translate(${toss * 700}px, ${-toss * 500}px) scale(${1 - .78 * cr}) rotate(${cr * 220 + toss * 400}deg)`;
-  $('ball').style.borderRadius = (cr * 50) + '%'; $('ball').style.filter = `brightness(${1 - cr * .25}) contrast(${1 + cr * .6})`;
-  show($('c0'), t, 8.2);
+  // C: crumple like real paper, then toss it into the bin
+  { const c = 7.6, k1 = seg(t, c + .25, c + 1.05), k2 = seg(t, c + .95, c + 1.25), fly = cl((t - (c + 1.3)) / .75);
+    const P = $('cpaper'); if (!P.dataset.f && t >= c) { P.innerHTML = $('paper').innerHTML; P.querySelectorAll('.hand').forEach(h => h.style.clipPath = 'none'); P.querySelectorAll('.strike').forEach((x, i) => x.style.width = (i ? 280 : 300) + 'px'); P.querySelector('.scrib').style.opacity = 1; P.dataset.f = 1; }
+    // jagged outline closing in (clip-path polygon from rectangle to crushed shape)
+    const N = 20, poly = [];
+    for (let i = 0; i < N; i++) {
+      const a = i / N * Math.PI * 2, rx = Math.cos(a), ry = Math.sin(a);
+      const m = Math.max(Math.abs(rx), Math.abs(ry)), ex = 50 + 50 * rx / m, ey = 50 + 50 * ry / m;       // rectangle edge
+      const jag = 14 + ((i * 37) % 11) * 2.2, cx = 50 + rx * jag * 1.15, cy = 50 + ry * jag * .92;           // crushed point
+      poly.push(`${(ex + (cx - ex) * k1).toFixed(1)}% ${(ey + (cy - ey) * k1).toFixed(1)}%`);
+    }
+    P.style.clipPath = `polygon(${poly.join(',')})`;
+    const sh = Math.sin(t * 40) * 4 * k1 * (1 - k2);
+    P.style.transform = `scale(${1 - .55 * k1}) rotate(${-1.5 + k1 * 25 + sh}deg) skew(${k1 * 6}deg, ${-k1 * 4}deg)`;
+    P.style.filter = `brightness(${1 - k1 * .3}) contrast(${1 + k1 * .5})`;
+    P.style.opacity = 1 - k2;
+    $('crease').style.opacity = k1 * (1 - k2) * .9; $('crease').style.transform = P.style.transform;
+    // the ball: appears, then flies in an arc and drops into the bin
+    const B = $('cball'); B.style.opacity = k2;
+    const x = fly * 310, y = -Math.sin(fly * Math.PI) * 480 + fly * 400;   // arc from centre to the bin opening
+    B.style.transform = `translate(${x}px, ${y}px) rotate(${fly * 540}deg) scale(${1 - fly * .35})`;
+    B.style.opacity = k2 * (fly > .97 ? 0 : 1);
+    const bw = t > c + 2.05 ? Math.sin((t - c - 2.05) * 30) * Math.exp(-(t - c - 2.05) * 6) * 6 : 0;   // bin wobble
+    $('binb').style.transform = $('binf').style.transform = `rotate(${bw}deg)`;
+    $('binb').style.opacity = $('binf').style.opacity = seg(t, c + .9, c + 1.3);
+    show($('c0'), t, c + .2);
+  }
   // D: envelope opens, letter rises
-  show($('d0'), t, 9.5); const fl = seg(t, 10.0, 10.6); $('flap').style.transform = `perspective(1200px) rotateX(${fl * 180}deg)`; $('flap').style.zIndex = fl > .5 ? 0 : 3;
-  $('seal').style.opacity = 1 - seg(t, 9.9, 10.1);
-  const up = seg(t, 10.6, 11.4); $('letter').style.transform = `translateY(${-up * 330}px) scale(${1 + up * .25})`; $('letter').style.zIndex = up > .3 ? 4 : 0;
-  $('env').style.transform = `translateY(${up * 160}px)`; $('env').style.opacity = 1 - seg(t, 11.3, 11.8);
-  show($('d1'), t, 11.4);
+  show($('d0'), t, 10.3); const fl = seg(t, 10.8, 11.4); $('flap').style.transform = `perspective(1200px) rotateX(${fl * 180}deg)`; $('flap').style.zIndex = fl > .5 ? 0 : 3;
+  $('seal').style.opacity = 1 - seg(t, 10.7, 10.9);
+  const up = seg(t, 11.4, 12.2); $('letter').style.transform = `translateY(${-up * 330}px) scale(${1 + up * .25})`; $('letter').style.zIndex = up > .3 ? 4 : 0;
+  $('env').style.transform = `translateY(${up * 160}px)`; $('env').style.opacity = 1 - seg(t, 12.1, 12.6);
+  show($('d1'), t, 12.2);
   // E, F: phones slide up
-  show($('e0'), t, 12.5); $('ph1').style.transform = `translateY(${(1 - seg(t, 12.5, 13.2)) * 800}px)`;
-  show($('f0'), t, 14.9); $('ph2').style.transform = `translateY(${(1 - seg(t, 14.9, 15.6)) * 800}px) scale(${1 + .03 * cl((t - 15.6) / 1.5)})`;
+  show($('e0'), t, 13.3); $('ph1').style.transform = `translateY(${(1 - seg(t, 13.3, 14)) * 800}px)`;
+  show($('f0'), t, 15.7); $('ph2').style.transform = `translateY(${(1 - seg(t, 15.7, 16.4)) * 800}px) scale(${1 + .03 * cl((t - 16.4) / 1.5)})`;
   // G: progress
-  show($('g0'), t, 17.3); show($('dc'), t, 17.5, 80, .5);
-  let done = 0; [[18.2, 'r1'], [18.7, 'r2']].forEach(([s, id]) => { const on = t >= s; if (on) done++; $(id).style.opacity = on ? .5 : 1; $(id).style.textDecoration = on ? 'line-through' : 'none'; });
-  $('bar').style.width = 40 * seg(t, 18.0, 19.0) + '%'; $('dn').textContent = done + ' of 5 done';
-  const now = t >= 19.1; $('r3').style.borderColor = now ? '#D4B26A' : 'transparent'; $('r3').style.background = now ? '#141414' : 'none'; $('arr').style.opacity = seg(t, 19.2, 19.6);
+  show($('g0'), t, 18.1); show($('dc'), t, 18.3, 80, .5);
+  let done = 0; [[19, 'r1'], [19.5, 'r2']].forEach(([s, id]) => { const on = t >= s; if (on) done++; $(id).style.opacity = on ? .5 : 1; $(id).style.textDecoration = on ? 'line-through' : 'none'; });
+  $('bar').style.width = 40 * seg(t, 18.8, 19.8) + '%'; $('dn').textContent = done + ' of 5 done';
+  const now = t >= 19.9; $('r3').style.borderColor = now ? '#D4B26A' : 'transparent'; $('r3').style.background = now ? '#141414' : 'none'; $('arr').style.opacity = seg(t, 20, 20.4);
   // H: features
-  show($('k0'), t, 20.3); ['k1', 'k2', 'k3', 'k4'].forEach((id, i) => { const k = seg(t, 20.6 + i * .35, 21 + i * .35); $(id).style.opacity = k; $(id).style.transform = `translateX(${(1 - k) * (i % 2 ? 300 : -300)}px)`; });
+  show($('k0'), t, 21.1); ['k1', 'k2', 'k3', 'k4'].forEach((id, i) => { const k = seg(t, 21.4 + i * .35, 21.8 + i * .35); $(id).style.opacity = k; $(id).style.transform = `translateX(${(1 - k) * (i % 2 ? 300 : -300)}px)`; });
   // I: ending
-  show($('i0'), t, 22.9, 40, .6); show($('i1'), t, 23.6, 50, .6);
+  show($('i0'), t, 23.7, 40, .6); show($('i1'), t, 24.4, 50, .6);
 }
 window.render = render; window.DUR = DUR; render(0);
 </script>
