@@ -2365,6 +2365,10 @@ const LEGAL = 'https://alokmeher098.github.io/Travel/envelora/legal.html';
 const Cloud = {
   sb: null, uid: null, applying: false, timers: {}, chans: [], started: false, warned: false,
   on() { return !!this.sb; },
+  same(a, b) {
+    const norm = v => Array.isArray(v) ? v.map(norm) : v && typeof v === 'object' ? Object.keys(v).sort().reduce((o, k) => (o[k] = norm(v[k]), o), {}) : v;
+    return JSON.stringify(norm(a)) === JSON.stringify(norm(b));
+  },
   init() {
     try {
       if (!CONFIG.supabase.url || !CONFIG.supabase.anonKey || !window.supabase || !window.supabase.createClient) return;
@@ -2445,7 +2449,7 @@ const Cloud = {
       // pick up anything others changed meanwhile (server merged the chat)
       if (ck && !del && ck[1] === 'clan') {
         const { data } = await this.sb.from('clan_kv').select('v').eq('clan_id', ck[0]).eq('k', 'clan').maybeSingle().then(r => r, () => ({}));
-        if (data && data.v && !this.timers[k] && JSON.stringify(data.v) !== JSON.stringify(Store.get(k))) { this.apply(k, data.v); this.rerender(); }
+        if (data && data.v && !this.timers[k] && !this.same(data.v, Store.get(k))) { this.apply(k, data.v); this.rerender(); }
       }
       return;
     }
@@ -2536,14 +2540,14 @@ const Cloud = {
         }
         if (p.new.updated_by === this.uid && !this.timers[this.localClanKey(row.clan_id, row.k)]) return; // my own write
         const { data } = await this.sb.from('clan_kv').select('v').eq('clan_id', row.clan_id).eq('k', row.k).maybeSingle();
-        if (data) this.applyClan(row.clan_id, row.k, data.v);
+        if (data && !this.same(data.v, Store.get(this.localClanKey(row.clan_id, row.k)))) this.applyClan(row.clan_id, row.k, data.v);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_kv', filter: 'user_id=eq.' + this.uid }, p => {
         const r = p.new && p.new.k ? p.new : null;
         if (!r) return;
         const lk = this.localUserKey(r.k);
         if (this.timers[lk]) return; // my own pending change wins
-        if (JSON.stringify(Store.get(lk)) === JSON.stringify(r.v)) return;
+        if (this.same(Store.get(lk), r.v)) return;
         this.apply(lk, r.v); this.rerender();
       })
       .subscribe((st, err) => { this.rt = st; if (st !== 'SUBSCRIBED') console.warn('Envelora live updates:', st, err || ''); if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setTimeout(() => this.started && this.listen(), 5000); });
@@ -2574,7 +2578,7 @@ const Cloud = {
           const lk = this.localClanKey(r.clan_id, r.k);
           if (this.timers[lk]) continue;
           const { data: row } = await this.sb.from('clan_kv').select('v').eq('clan_id', r.clan_id).eq('k', r.k).maybeSingle();
-          if (row && JSON.stringify(row.v) !== JSON.stringify(Store.get(lk))) this.applyClan(r.clan_id, r.k, row.v);
+          if (row && !this.same(row.v, Store.get(lk))) this.applyClan(r.clan_id, r.k, row.v);
         }
       } catch (e) { /* offline: try again next tick */ }
       finally { this.polling = false; }
@@ -4255,7 +4259,7 @@ const Chat = {
   clanId: null, todayOpen: false, lastCount: 0,
   clan() { return Clans.get(this.clanId); },
   open(id) {
-    const c = Clans.get(id);
+    const c = Clans.get(id); this._msgHtml = this._todayHtml = null;
     if (!c || !Auth.user || !Clans.member(c, Auth.user.id)) { UI.toast('You are not a member of this clan.', 'err'); return; }
     this.clanId = id; this.todayOpen = false;
     Clans.linkAccount(Auth.user.id, id);
@@ -4295,7 +4299,7 @@ const Chat = {
     const info = this.todayInfo(t), me = Trips.travellerFor(t, Auth.user.id);
     const nx = info.next;
     el.className = 'today-card' + (this.todayOpen ? '' : ' collapsed');
-    el.innerHTML = `<div class="today-in">
+    const th = `<div class="today-in">
       <button class="today-h" id="todayToggle">${icon('sun', 'sm')}<b>Today</b><small>${!this.todayOpen && nx ? `Next ${Util.fmtTime(nx.time)} · ${Util.esc(nx.title)}` : Util.esc(info.label)}</small><i class="today-car">${this.todayOpen ? '▴' : '▾'}</i></button>
       <div class="today-b">
         ${nx ? `<div class="nx-box"><div class="lbl">Next up · ${Util.fmtTime(nx.time)}</div>
@@ -4312,6 +4316,7 @@ const Chat = {
         ${info.items.map(a => `<div class="tl ${a === nx ? 'nx' : ''} ${info.isToday && a.time && a.time < info.nowT && a !== nx ? 'past' : ''}"><span class="t">${a.time ? Util.fmtTime(a.time) : '—'}</span><span><b>${Util.esc(a.title)}</b>${a.place ? '<br/><span class="hint">' + Util.esc(a.place) + '</span>' : ''}</span></div>`).join('')}
         <div class="exp-status">${me ? ExpensesUI.myStatus(t, me.id) : '<span>Expenses</span><b>—</b>'}</div>
       </div></div>`;
+    if (th !== this._todayHtml) { this._todayHtml = th; el.innerHTML = th; }
     $('#todayToggle').onclick = () => { this.todayOpen = !this.todayOpen; this.renderToday(); };
     if (nx) {
       $('#tdRemind').onclick = () => Alerts.remindActivity(t, info.idx, nx.id);
@@ -4324,7 +4329,7 @@ const Chat = {
     const box = $('#msgs'), uid = Auth.user && Auth.user.id;
     const sc = $('#chScroll'), atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 120;
     let lastDay = '';
-    box.innerHTML = c.messages.map(m => {
+    const html = c.messages.map(m => {
       const day = Util.ymd(m.ts); let sep = '';
       if (day !== lastDay) { lastDay = day; sep = `<div class="day-sep">${day === Util.ymd(new Date()) ? 'Today' : Util.fmtDate(day, { weekday: 'short', day: 'numeric', month: 'short' })}</div>`; }
       if (m.type === 'system') return sep + `<div class="msg sys"><div class="bub">${Util.esc(m.text)}<div class="ts">${Util.fmtClock(m.ts)}</div></div></div>`;
@@ -4336,12 +4341,20 @@ const Chat = {
       if (m.type === 'photo') { const ph = (c.photos || []).find(p => p.id === m.photoId); content = ph ? `<img src="${ph.data}" alt="Shared photo" />${content}` : '<i class="hint">Photo removed</i>'; }
       return sep + `<div class="msg ${mine ? 'me' : ''}">${mine ? '' : Util.avatar(m.name, 'sm')}<div class="bub ${cls}">${mine ? '' : `<div class="who" style="color:${col}">${Util.esc(m.name)}</div>`}${content}<div class="ts">${Util.fmtClock(m.ts)}${mine ? ' ✓✓' : ''}</div></div></div>`;
     }).join('') || `<div class="empty"><div class="em">💌</div><h4>Say hello to your clan</h4></div>`;
+    if (html !== this._msgHtml) { this._msgHtml = html; box.innerHTML = html; } // redraw only when something changed (no blink)
     if (scroll || atBottom) requestAnimationFrame(() => sc.scrollTop = sc.scrollHeight);
     this.lastCount = c.messages.length;
   },
   send(text) {
     text = text.trim(); if (!text) return;
     Clans.post(this.clanId, { type: 'text', text: text.slice(0, 1000) });
+  },
+  /** Light update after a sync: header text + Today + messages, without rebuilding the chips. */
+  refresh() {
+    const c = this.clan(); if (!c) return;
+    $('#chName').textContent = c.name;
+    $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
+    this.renderToday(); this.renderMessages();
   },
   /* ---------- CHIP ACTIONS ---------- */
   chip(k) {
@@ -4467,7 +4480,7 @@ window.addEventListener('storage', e => {
   const c = Chat.clan();
   if (!c || !Auth.user || !Clans.member(c, Auth.user.id)) { UI.toast('You are no longer a member of this clan.', 'err'); Nav.home(); return; }
   const fresh = c.messages.slice(Chat.lastCount);
-  Chat.render();
+  Chat.refresh();
   fresh.filter(m => m.type === 'alert' && m.by !== Auth.user.id).forEach(m => { Alerts.chime(); Alerts.notify('Clan alert · ' + c.name, m.text); });
   if (Nav.has('clanSettings')) ClanSettings.render();
 });
