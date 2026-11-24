@@ -1179,6 +1179,7 @@ details.grp[open] summary::after{content:"–"}
 .guide-hero.has-photo{background-size:cover!important;background-position:center!important;min-height:190px}.guide-hero.has-photo .big{display:none}.guide-hero.has-photo h2,.guide-hero.has-photo p{text-shadow:0 1px 8px rgba(0,0,0,.5)}
 .au-legal{margin:10px 0 0;font-size:.72rem;opacity:.75;text-align:center;line-height:1.4}.au-legal a{color:inherit;text-decoration:underline}
 #acctMenu .m-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;padding:11px 10px;border-radius:10px;font-weight:500}#acctMenu .m-link:hover{background:rgba(212,178,106,.15)}
+.beta-pill{margin-left:8px;font:600 .58rem/1 var(--sans);letter-spacing:.14em;padding:4px 7px;border-radius:99px;background:var(--gold);color:#111;vertical-align:middle}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1205,7 +1206,7 @@ details.grp[open] summary::after{content:"–"}
 <div id="app" class="app" hidden>
   <header class="topbar">
     <button class="logo" id="logoBtn" aria-label="Envelora home">
-      <span class="wordmark" data-brand></span>
+      <span class="wordmark" data-brand></span><span class="beta-pill">BETA</span>
     </button>
     <button class="icon-btn" id="clanBtn" aria-label="Open my clan" hidden></button>
     <button class="acct-btn" id="acctBtn" aria-haspopup="menu" aria-expanded="false"></button>
@@ -1251,7 +1252,7 @@ details.grp[open] summary::after{content:"–"}
       <div class="brand-rule"></div>
       <p class="brand-tag">Open the envelope · Begin the journey</p>
     </div>
-    <p class="foot-note">Prototype build · OTP, payments, GPS & realtime chat are <b>simulated</b> and clearly labelled.<br/>Data is stored only in this browser (localStorage).</p>
+    <p class="foot-note">Free beta · everything is free while we test. Login codes and live chat are still <b>simulated</b>.<br/>Data is stored only in this browser (localStorage).</p>
   </main>
 </div>
 
@@ -1380,7 +1381,9 @@ details.grp[open] summary::after{content:"–"}
    ----------------------------------------------------------------------------- */
 const CONFIG = {
   appName: 'Envelora',
-  pricePerPersonPerDay: 39,           // ₹39 × travellers × days
+  beta: true,                         // FREE BETA: no payments. Set to false to start charging.
+  listPrice: 39,                      // ₹39 × travellers × days (after beta)
+  get pricePerPersonPerDay() { return this.beta ? 0 : this.listPrice; },
   demoOtp: '246810',                  // DEMO ONLY — remove when Supabase OTP is live
   maxCoLeaders: 2,
   supabase: {
@@ -2518,20 +2521,20 @@ const Planner = {
           const paidDays = clanRow.paidDays || before;
           // Moving the start to today (or earlier) starts the trip now and closes the refund window.
           const oldDeadline = Refunds.startTs(clanRow), newStartTs = new Date(s + 'T00:00:00').getTime();
-          if (newStartTs < oldDeadline && Date.now() < oldDeadline && Date.now() >= newStartTs) {
+          if (!CONFIG.beta && newStartTs < oldDeadline && Date.now() < oldDeadline && Date.now() >= newStartTs) {
             const go = await UI.confirm('Start the trip today?', `Moving the start date to ${Util.fmtDate(s)} means the trip has started. After this, cancelling gives NO refund (now: 80% back until ${Util.fmtDate(Util.ymd(new Date(oldDeadline)))}).`, { ok: 'Yes, change dates' });
             if (!go) { err.textContent = 'Dates not changed. Your 80% refund window stays open until the trip starts.'; return; }
           }
           if (newDays > paidDays) {
             const extra = newDays - paidDays, cost = CONFIG.pricePerPersonPerDay * clanRow.capacity * extra, dd = n => n + ' day' + (n === 1 ? '' : 's');
-            const go = await UI.confirm('Pay for the extra days?', `Your clan has paid for ${dd(paidDays)}. Making the trip ${dd(newDays)} adds ${dd(extra)}: ₹${CONFIG.pricePerPersonPerDay} × ${dd(extra)} × ${clanRow.capacity} spot${clanRow.capacity === 1 ? '' : 's'} = ${Util.inr(cost)}. The new dates are saved after payment.`, { ok: 'Pay ' + Util.inr(cost), danger: false });
+            const go = CONFIG.beta || await UI.confirm('Pay for the extra days?', `Your clan has paid for ${dd(paidDays)}. Making the trip ${dd(newDays)} adds ${dd(extra)}: ₹${CONFIG.pricePerPersonPerDay} × ${dd(extra)} × ${clanRow.capacity} spot${clanRow.capacity === 1 ? '' : 's'} = ${Util.inr(cost)}. The new dates are saved after payment.`, { ok: 'Pay ' + Util.inr(cost), danger: false });
             if (!go) { err.textContent = `Your clan is paid for ${dd(paidDays)}. Pay for the extra days, or keep the trip at ${dd(paidDays)} or fewer.`; return; }
             const res = await Payments.checkout({ amount: cost, title: `+${dd(extra)} · ${clanRow.name}`, purpose: 'clan_days', notes: { clanId: clanRow.id } });
             if (!res || res.status !== 'success') { err.textContent = 'Payment not completed, so the dates were not changed.'; return; }
             const cur = Clans.get(clanRow.id); cur.paidDays = newDays;
             cur.payments.push({ id: res.paymentId, amount: cost, mode: res.mode, status: res.status, purpose: `+${dd(extra)}`, ts: Date.now(), by: Auth.user.id });
             Clans.save(cur);
-            Clans.post(cur.id, { type: 'system', text: `${Auth.user.name} extended the trip to ${dd(newDays)} (paid ${Util.inr(cost)} for ${dd(extra)}${res.mode === 'simulated' ? ', simulated preview payment' : ''}).` });
+            Clans.post(cur.id, { type: 'system', text: `${Auth.user.name} extended the trip to ${dd(newDays)} (${CONFIG.beta ? 'free in beta' : `paid ${Util.inr(cost)} for ${dd(extra)}`}${res.mode === 'simulated' ? ', simulated preview payment' : ''}).` });
           }
           { const cur = Clans.get(clanRow.id); cur.refundBy = Date.now() < oldDeadline ? newStartTs : Math.min(oldDeadline, newStartTs); /* postponing before the start moves the deadline; once started it is locked */ Clans.save(cur); }
           if (newDays < before) shortenNote = `Trip shortened to ${newDays} day${newDays === 1 ? '' : 's'}. Paid days aren't refunded, but you can extend back up to ${paidDays} days at no extra cost.`;
@@ -2889,6 +2892,7 @@ const Payments = {
   isLive() { return !!(CONFIG.razorpay.keyId); },
   /** Returns { status:'success'|'failed', mode:'simulated'|'live', paymentId, amount } or null (dismissed). */
   async checkout({ amount, title, purpose, notes = {} }) {
+    if (CONFIG.beta || amount <= 0) return { status: 'success', mode: 'beta', paymentId: 'beta_' + Date.now().toString(36), amount: 0 };
     if (this.isLive()) {
       try { return await this.live({ amount, title, purpose, notes }); }
       catch (e) { UI.toast('Live payment unavailable: ' + e.message, 'err'); return null; }
@@ -3113,17 +3117,19 @@ const ClanPay = {
         <div class="tk-cut"></div>
         <div class="tk-line"><span>Number of travellers</span><b>${n}</b></div>
         <div class="tk-line"><span>Number of days</span><b>${d}</b></div>
-        <div class="tk-line"><span>Per person, per day</span><b>${Util.inr(CONFIG.pricePerPersonPerDay)}</b></div>
+        ${CONFIG.beta ? `<div class="tk-line"><span>Price</span><b>Free during beta</b></div>
+        <div class="tk-total"><span>Total</span><b>₹0</b></div>
+        <div class="formula">Envelora is in free beta, so clans cost nothing while we test.</div>` : `<div class="tk-line"><span>Per person, per day</span><b>${Util.inr(CONFIG.pricePerPersonPerDay)}</b></div>
         <div class="tk-total"><span>Total</span><b>${Util.inr(total)}</b></div>
-        <div class="formula">${n} traveller${n > 1 ? 's' : ''} × ${d} day${d > 1 ? 's' : ''} × ${Util.inr(CONFIG.pricePerPersonPerDay)} = ${Util.inr(total)}</div>
+        <div class="formula">${n} traveller${n > 1 ? 's' : ''} × ${d} day${d > 1 ? 's' : ''} × ${Util.inr(CONFIG.pricePerPersonPerDay)} = ${Util.inr(total)}</div>`}
       </div>
       <form class="card" id="cp-form" style="margin-top:16px" autocomplete="off" novalidate>
         <div class="field"><label class="f">Clan name</label><input class="input" id="cp-name" maxlength="32" value="${Util.esc(t.destination + ' Clan')}" /></div>
         <div class="field"><label class="f">Description (optional)</label><input class="input" id="cp-desc" maxlength="90" placeholder="Our ${Util.esc(t.destination)} trip, made with love." /></div>
-        <ul class="hint" style="padding-left:18px;margin:0 0 12px"><li>You become the clan <b>leader</b>; others join through your invite link.</li><li>Clan capacity = <b>${n}</b> paid traveller spot${n > 1 ? 's' : ''} (you can buy more later).</li></ul>
-        ${Payments.isLive() ? '' : `<div class="notice">${icon('info', 'sm')}<span><b>Preview mode:</b> Razorpay isn't connected yet. You'll see a simulated checkout — no money is charged.</span></div>`}
+        <ul class="hint" style="padding-left:18px;margin:0 0 12px"><li>You become the clan <b>leader</b>; others join through your invite link.</li><li>Clan capacity = <b>${n}</b> ${CONFIG.beta ? '' : 'paid '}traveller spot${n > 1 ? 's' : ''} (${CONFIG.beta ? 'add more any time' : 'you can buy more later'}).</li></ul>
+        ${CONFIG.beta ? `<div class="notice">${icon('info', 'sm')}<span><b>Free beta:</b> no payment needed. You can add more spots later for free too.</span></div>` : Payments.isLive() ? '' : `<div class="notice">${icon('info', 'sm')}<span><b>Preview mode:</b> Razorpay isn't connected yet. You'll see a simulated checkout — no money is charged.</span></div>`}
         <div class="err-msg" id="cp-err"></div>
-        <button class="btn gold block xl" id="cp-pay">${icon('shield', 'sm')}Pay ${Util.inr(total)} & Create Clan</button>
+        <button class="btn gold block xl" id="cp-pay">${icon('shield', 'sm')}${CONFIG.beta ? 'Create Clan · Free' : `Pay ${Util.inr(total)} & Create Clan`}</button>
       </form>`;
     $('#cp-form').onsubmit = async e => {
       e.preventDefault();
@@ -3266,8 +3272,8 @@ const Refunds = {
   open(c) {
     const u = Auth.user; if (Perm.role(c, u.id) !== 'leader') return UI.toast('Only the clan leader can cancel the trip.', 'err');
     const q = this.quote(c);
-    UI.sheet('Cancel trip & refund', `
-      <div class="rf-card">
+    UI.sheet(q.paid ? 'Cancel trip & refund' : 'Cancel trip', `
+      ${q.paid ? `      <div class="rf-card">
         <div class="rf-row"><span>Trip</span><b>${Util.esc(c.trip.destination)} · ${Util.fmtDate(c.trip.start)} – ${Util.fmtDate(c.trip.end)}</b></div>
         ${q.parts.map(p => `<div class="rf-row"><span>${Util.esc(p.purpose || 'Payment')}</span><b>${Util.inr(p.paid)}</b></div>`).join('')}
         <div class="rf-row tot"><span>Total paid</span><b>${Util.inr(q.paid)}</b></div>
@@ -3276,10 +3282,10 @@ const Refunds = {
       </div>
       <p class="au-legal" style="text-align:left">See the full <a href="${LEGAL}#refunds" target="_blank" rel="noopener">Refund &amp; Cancellation Policy</a>.</p>
       ${q.ok ? `<div class="notice">${icon('info', 'sm')}<span><b>80% refund</b> if you cancel before the trip starts${this.leftText(c) ? ` (starts in ${this.leftText(c)})` : ''}. After Day 1 begins there is no refund. Money goes back to the same UPI, card or bank account in 5–7 working days.</span></div>`
-        : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>${c.refundBy && Util.ymd(new Date(this.startTs(c))) !== c.trip.start ? ` (on ${Util.fmtDate(Util.ymd(new Date(this.startTs(c))))}; moving the dates later doesn't reopen refunds)` : ''}, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
+        : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>${c.refundBy && Util.ymd(new Date(this.startTs(c))) !== c.trip.start ? ` (on ${Util.fmtDate(Util.ymd(new Date(this.startTs(c))))}; moving the dates later doesn't reopen refunds)` : ''}, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}` : `<div class="notice">${icon('info', 'sm')}<span><b>Free beta:</b> nothing was paid for this clan, so there's nothing to refund.</span></div>`}
       <p class="hint">Cancelling closes the clan for all ${c.members.length} member${c.members.length > 1 ? 's' : ''}: the chat, photos, tickets and plans are deleted and everyone is told. Your trip plan stays on your home page as a draft.</p>
       ${q.simulated ? `<p class="hint" style="font-size:.78rem">These were preview payments, so this refund is a preview too — no real money moves until Razorpay is connected.</p>` : ''}
-      <button class="btn danger block" id="rfGo">${q.ok ? `Cancel trip & refund ${Util.inr(q.refund)}` : 'Cancel trip & close clan (no refund)'}</button>
+      <button class="btn danger block" id="rfGo">${!q.paid ? 'Cancel trip & close clan' : q.ok ? `Cancel trip & refund ${Util.inr(q.refund)}` : 'Cancel trip & close clan (no refund)'}</button>
       <button class="btn ghost block" id="rfKeep" style="margin-top:8px">Keep my trip</button>`, body => {
       $('#rfKeep', body).onclick = () => Nav.back();
       $('#rfGo', body) && ($('#rfGo', body).onclick = async () => {
@@ -3609,9 +3615,10 @@ const ClanSettings = {
           <div class="cap-now"><div><b>${c.capacity}</b><span>paid spots</span></div><div><b>${c.members.length}</b><span>joined</span></div><div><b>${Math.max(0, c.capacity - c.members.length)}</b><span>open</span></div></div>
           <p class="hint">${(() => { const sd = Clans.spotDays(c), started = Util.ymd(new Date()) >= c.trip.start, total = Trips.dayCount(c.trip);
             if (!sd) return 'The trip has ended, so no more spots can be added.';
+            if (CONFIG.beta) return 'Free during beta: add spots whenever you need them.';
             return started ? `The trip is on: a new spot is charged only for the <b>${sd} day${sd > 1 ? 's' : ''} left</b> (of ${total}). ₹${CONFIG.pricePerPersonPerDay} × ${sd} day${sd > 1 ? 's' : ''} per spot.`
               : `The trip hasn't started, so a new spot covers the <b>whole ${total}-day trip</b> (${Util.fmtDate(c.trip.start)} – ${Util.fmtDate(c.trip.end)}). ₹${CONFIG.pricePerPersonPerDay} × ${total} days per spot.`; })()}</p>
-          <div class="cap-opts"${Clans.spotDays(c) ? '' : ' hidden'}>${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} spot${n > 1 ? 's' : ''}</b><span>${Util.inr(CONFIG.pricePerPersonPerDay * Clans.spotDays(c) * n)} · capacity → ${c.capacity + n}</span></button>`).join('')}</div></div>` : ''}
+          <div class="cap-opts"${Clans.spotDays(c) ? '' : ' hidden'}>${[1, 2].map(n => `<button class="cap-opt" data-cap="${n}"><b>+${n} spot${n > 1 ? 's' : ''}</b><span>${CONFIG.beta ? 'Free' : Util.inr(CONFIG.pricePerPersonPerDay * Clans.spotDays(c) * n)} · capacity → ${c.capacity + n}</span></button>`).join('')}</div></div>` : ''}
 
         <div class="cs-panel"><h3>${icon('shield')}Your permissions · ${ROLE_LABEL[me.role]}</h3>
           <ul class="perm-list">${({
@@ -6046,7 +6053,7 @@ const Home = {
     const t = Trips.loadOwn(), u = Auth.user;
     $('#planBtn').innerHTML = `${icon('edit')}Plan My Own Trip`;
     const all = Trips.listOwn(), drafts = all.filter(x => !x.clanId);
-    $('#planHint').textContent = all.length ? `Start a new trip · ${drafts.length} draft${drafts.length === 1 ? '' : 's'}${all.length > drafts.length ? ` · ${all.length - drafts.length} in clan` : ''} saved below` : 'Free to plan · Clan from ₹39 per person per day';
+    $('#planHint').textContent = all.length ? `Start a new trip · ${drafts.length} draft${drafts.length === 1 ? '' : 's'}${all.length > drafts.length ? ` · ${all.length - drafts.length} in clan` : ''} saved below` : (CONFIG.beta ? 'Free beta · planning and Clans are free' : 'Free to plan · Clan from ₹' + CONFIG.listPrice + ' per person per day');
     // Trips: swipe right-to-left through every trip (drafts + clan trips), newest first
     if (all.length) {
       const today = Util.ymd(new Date());
@@ -6058,7 +6065,7 @@ const Home = {
         return `<article class="postcard trip-slide" ${k === 0 ? 'id="tripCard"' : ''} data-trip="${t.id}" tabindex="0" role="button" aria-label="Open ${Util.esc(t.destination)} trip">
           <div class="pc-img" data-reel="${Util.esc(t.destination)}" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><div class="reel" aria-hidden="true"></div><span class="greet">Greetings from</span><h3>${Util.esc(t.destination)}</h3>
             <span class="pc-badge">${badge}</span>
-            <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${(g && stateMapSvg(g.mapState || g.state)) || STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">₹39</span></div></div></div></div>
+            <div class="pc-stamp"><div class="stamp"><div class="st-in"><div class="st-ic">${(g && stateMapSvg(g.mapState || g.state)) || STAMP_ART[(g && g.art) || 'train'] || STAMP_ART.train}</div><span class="st-v">${CONFIG.beta ? 'FREE' : '₹' + CONFIG.listPrice}</span></div></div></div></div>
           <div class="pc-body"><div class="pc-meta"><b>${Util.fmtDate(t.start, { day: 'numeric', month: 'short' })} – ${Util.fmtDate(t.end, { day: 'numeric', month: 'short', year: 'numeric' })}</b> · ${days} day${days > 1 ? 's' : ''}${t.from ? ' · from ' + Util.esc(t.from) : ''}<br/>
             ${t.travellers.length} travellers · leader ${Util.esc(t.travellers[0].name)}<br/>${acts} planned activit${acts === 1 ? 'y' : 'ies'} · packing ${pk}%${until > 0 ? ` · <b>${until} day${until > 1 ? 's' : ''} to go</b>` : ''}</div>
             <div class="pc-acts">${!t.clanId ? `<button class="icon-btn sm" data-deltrip="${t.id}" aria-label="Delete this draft">${icon('trash', 'sm')}</button>` : ''}<span class="btn sm">${icon('arrowR', 'sm')}Open</span></div></div>
