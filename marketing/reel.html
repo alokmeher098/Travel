@@ -19,7 +19,7 @@ h1{font-family:Marcellus,serif;font-weight:400;color:#fff}
 .photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.05) 35%,rgba(0,0,0,.15) 60%,rgba(0,0,0,.85))}
 .phone{width:620px;height:1260px;border-radius:84px;background:#000;padding:20px;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 3px #333 inset}
 .phone .scr{width:100%;height:100%;border-radius:66px;overflow:hidden;position:relative;background:#efe6d2}
-.phone img{width:100%;display:block;position:absolute;left:0;top:0}
+.phone img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block;position:absolute;left:0;top:0}
 .dcard{width:920px;border-radius:60px;padding:18px;background:linear-gradient(#e9dcb8,#c9a75c)}
 .dcard .in{border-radius:46px;background:#0B0B0B;padding:54px 52px 40px;text-align:left}
 .dcard h2{font-family:Marcellus,serif;font-weight:400;font-size:66px;color:#f5ecd6}
@@ -137,7 +137,7 @@ function render(t) {
   show($('m1'), t, 5.6); show($('m2'), t, 5.9, 30, .6); show($('m3'), t, 6.6, 50, .6);
   // 4 phone slides up, chat scrolls
   show($('p1'), t, 8.5); const pk = seg(t, 8.6, 9.3); $('phone').style.transform = `translateY(${(1 - pk) * 700}px)`;
-  $('chatimg').style.transform = `translateY(${-260 * seg(t, 9.6, 10.9)}px)`;
+
   // 5 progress
   show($('d0'), t, 11.3); show($('d1'), t, 11.4); show($('dc'), t, 11.6, 80, .5);
   const steps = [12.3, 12.9]; let done = 0;
