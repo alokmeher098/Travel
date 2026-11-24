@@ -2538,12 +2538,43 @@ const Cloud = {
         if (JSON.stringify(Store.get(lk)) === JSON.stringify(r.v)) return;
         this.apply(lk, r.v); this.rerender();
       })
-      .subscribe(st => { if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setTimeout(() => this.started && this.listen(), 5000); });
+      .subscribe((st, err) => { this.rt = st; if (st !== 'SUBSCRIBED') console.warn('Envelora live updates:', st, err || ''); if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setTimeout(() => this.started && this.listen(), 5000); });
+    this.startPoll();
     this.chans.push(ch);
     // when the membership changes (I was added / removed), refresh
     window.addEventListener('online', this._online || (this._online = () => { if (this.uid) { this.started = false; this.start(); } }));
   },
+  /** Backup for live updates: check the open chat every second and all my clans every 30 s (tiny requests; paused when the app is in the background). */
+  seen: {},
+  startPoll() {
+    clearInterval(this.pollT);
+    let n = 0;
+    this.pollT = setInterval(async () => {
+      if (!this.started || document.hidden || this.polling) return;
+      this.polling = true;
+      n++;
+      const open = typeof Chat !== 'undefined' && Chat.clanId ? [Chat.clanId] : [];
+      const ids = n % 30 === 0 && Auth.user ? Clans.idsFor(Auth.user.id) : open;
+      if (!ids.length) { this.polling = false; return; }
+      try {
+        const { data } = await this.sb.from('clan_kv').select('clan_id,k,updated_at,updated_by').in('clan_id', ids);
+        for (const r of data || []) {
+          const key = r.clan_id + '|' + r.k;
+          if (this.seen[key] === r.updated_at) continue;
+          const first = !(key in this.seen); this.seen[key] = r.updated_at;
+          if (first && r.updated_by === this.uid) continue;
+          const lk = this.localClanKey(r.clan_id, r.k);
+          if (this.timers[lk]) continue;
+          const { data: row } = await this.sb.from('clan_kv').select('v').eq('clan_id', r.clan_id).eq('k', r.k).maybeSingle();
+          if (row && JSON.stringify(row.v) !== JSON.stringify(Store.get(lk))) this.applyClan(r.clan_id, r.k, row.v);
+        }
+      } catch (e) { /* offline: try again next tick */ }
+      finally { this.polling = false; }
+    }, 1000);
+    document.addEventListener('visibilitychange', this._vis || (this._vis = () => { if (!document.hidden && this.started) this.seen = {}; }));
+  },
   stop() {
+    clearInterval(this.pollT);
     Object.values(this.timers).forEach(clearTimeout); this.timers = {};
     this.chans.forEach(c => { try { this.sb.removeChannel(c); } catch (e) { } }); this.chans = [];
     this.started = false; this.uid = null;
