@@ -1774,6 +1774,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .lm-row{display:flex;align-items:center;gap:8px;border:1px solid var(--rule,#d9c9a3);background:var(--card,#fff);border-radius:99px;padding:5px 12px 5px 5px;white-space:nowrap;cursor:pointer;font:inherit}
 .lm-row span{display:flex;flex-direction:column;text-align:left;line-height:1.2}.lm-row small{color:var(--muted);font-size:.7rem}
 .cs-member{flex-wrap:wrap}.cs-member .ma{flex-basis:100%;justify-content:flex-start;padding-left:54px}.cs-member .ma:empty{display:none}.cs-member .ma .btn{flex:0 0 auto;font-size:.68rem;padding:7px 12px}.cs-member .info .role-b{display:inline-block;padding:2px 8px;border-radius:6px}
+html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavior:none}
+#chat .chat-scroll{min-height:0}
+#chat.kb .chat-chips,#chat.kb .today-card{display:none}
+#chat .ov-head,#chat .composer{flex:none;position:relative;z-index:4}
+.to-bottom{position:absolute;right:14px;bottom:calc(72px + var(--safe-b,0px));z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(13,27,42,.82);color:#f1e6cc;font-size:1.4rem;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1896,6 +1901,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="today-card" id="todayCard"></div>
     <div class="msgs" id="msgs"></div>
   </div>
+  <button class="to-bottom" id="chDown" type="button" aria-label="Go to newest message" hidden>⌄</button>
   <form class="composer" id="composer" autocomplete="off">
     <textarea id="chInput" rows="1" placeholder="Write a message…" aria-label="Message"></textarea>
     <button class="send-btn" type="submit" aria-label="Send" id="sendBtn"></button>
@@ -4426,7 +4432,23 @@ if (window.visualViewport) {
   };
   vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
 }
-$('#chInput').addEventListener('focus', () => setTimeout(() => { const sc = $('#chScroll'); if (sc) sc.scrollTop = sc.scrollHeight; }, 300));
+// WhatsApp-style: while typing, only the messages scroll; header + message box stay put.
+{
+  const chat = $('#chat'), sc = $('#chScroll'), inp = $('#chInput'), down = $('#chDown');
+  const toEnd = () => { sc.scrollTop = sc.scrollHeight; };
+  new MutationObserver(() => document.documentElement.classList.toggle('chat-open', chat.classList.contains('open'))).observe(chat, { attributes: true, attributeFilter: ['class'] });
+  inp.addEventListener('focus', () => { chat.classList.add('kb'); setTimeout(toEnd, 50); setTimeout(toEnd, 350); });
+  inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) chat.classList.remove('kb'); }, 150));
+  // the page itself must never slide when the keyboard opens
+  const pin = () => { if (chat.classList.contains('open') && (window.scrollY || document.documentElement.scrollTop)) window.scrollTo(0, 0); };
+  window.addEventListener('scroll', pin, { passive: true });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => { pin(); if (document.activeElement === inp) toEnd(); });
+  sc.addEventListener('scroll', () => { down.hidden = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 200; }, { passive: true });
+  down.addEventListener('pointerdown', e => e.preventDefault());
+  down.addEventListener('click', () => { toEnd(); requestAnimationFrame(toEnd); down.hidden = true; });
+  // keep focus in the box after tapping send (keyboard stays open, like WhatsApp)
+  $('#sendBtn').addEventListener('pointerdown', e => { if (document.activeElement === inp) e.preventDefault(); });
+}
 // Fold the Today card when typing so the chat gets the screen.
 $('#chInput').addEventListener('focus', () => { if (Chat.todayOpen) { Chat.todayOpen = false; Chat.renderToday(); } });
 $('#chInput').addEventListener('input', e => { const t = e.target; t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; });
