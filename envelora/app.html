@@ -7516,9 +7516,8 @@ const Intro = {
   // if (CONFIG.supabase.url) window.supabase = supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
   // NOTE: session is intentionally NOT restored — every fresh opening starts logged out.
 })();
+// keep the home Today card current (next activity moves on as the day goes)
+setInterval(() => { if (!document.hidden && $('#homeToday')) try { Home.renderToday(); } catch (e) { } }, 60000);
 </script>
 </body>
 </html>
-
-// keep the home Today card current (next activity moves on as the day goes)
-setInterval(() => { if (!document.hidden && $('#homeToday')) try { Home.renderToday(); } catch (e) { } }, 60000);
