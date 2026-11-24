@@ -645,6 +645,7 @@ details.grp[open] summary::after{content:"–"}
 .today-h small{margin-left:auto;color:var(--gold);font-size:.75rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-car{font-style:normal;color:var(--gold);font-size:.8rem;flex:none}
 .today-b{padding:10px 12px;max-height:min(42vh,340px);overflow:auto;overscroll-behavior:contain}
 .today-card.collapsed .today-b{display:none}
+.today-card.home-today{position:static;margin:0 0 14px;padding:0;background:none}.home-today .today-h{cursor:default}.home-today .today-b{max-height:none}
 .tl{display:flex;gap:10px;padding:6px 0;font-size:.86rem;border-bottom:1px dashed var(--line)}
 .tl:last-child{border:none}
 .tl .t{width:48px;font-weight:700;flex:none}
@@ -1814,6 +1815,7 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
 
   <main class="home" id="home">
     <section class="now-card" id="nowCard" aria-label="Today's date, time and weather"></section>
+    <div id="homeToday"></div>
     <article class="hero-letter">
       <div class="air t"></div>
       <div class="pm" aria-hidden="true">ENVELORA</div>
@@ -7125,6 +7127,7 @@ const Home = {
     const all = own.concat(joined.filter(t => t.end >= Util.ymd(new Date())));
     const canEditT = t => { if (!t.clanId) return true; const c = Clans.get(t.clanId); return !!(c && u && Perm.can(c, u.id, 'editTrip')); };
     $('#planHint').textContent = all.length ? `Start a new trip · ${drafts.length} draft${drafts.length === 1 ? '' : 's'}${all.length > drafts.length ? ` · ${all.length - drafts.length} in clan` : ''} saved below` : (CONFIG.beta ? 'Free beta · planning and Clans are free' : 'Free to plan · Clan from ₹' + CONFIG.listPrice + ' per person per day');
+    this.renderToday(all);
     // Trips: swipe right-to-left through every trip (drafts + clan trips), newest first
     if (all.length) {
       const today = Util.ymd(new Date());
@@ -7194,6 +7197,41 @@ const Home = {
       <button data-m="credits">${icon('info')}Credits</button>
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
+  },
+  /** While a trip is running, its Today card sits on the home page too (same data as the clan's Today). */
+  renderToday(list) {
+    const host = $('#homeToday'); if (!host) return;
+    if (!list) { const u = Auth.user, own = Trips.listOwn(); list = own.concat(u ? Clans.listFor(u.id).filter(c => c.trip && !own.some(x => x.clanId === c.id)).map(c => c.trip) : []); }
+    const today = Util.ymd(new Date());
+    const live = list.filter(t => t && t.days && t.days.length && t.start <= today && t.end >= today);
+    if (!live.length) { host.innerHTML = ''; this._todayHtml = ''; return; }
+    const html = `<div class="section-t"><h2>Today</h2><span class="hint">${live.length > 1 ? live.length + ' trips on' : 'Your trip is on'}</span></div>` + live.map(t => {
+      const info = Chat.todayInfo(t), nx = info.next, c = t.clanId && Clans.get(t.clanId);
+      const me = Auth.user && Trips.travellerFor(t, Auth.user.id);
+      return `<div class="today-card home-today" data-ht="${t.id}"><div class="today-in">
+        <div class="today-h">${icon('sun', 'sm')}<b>${Util.esc(t.destination)}</b><small>${Util.esc(info.label)}</small></div>
+        <div class="today-b">
+          ${nx ? `<div class="nx-box"><div class="lbl">Next up · ${nx.time ? Util.fmtTime(nx.time) : 'today'}</div>
+            <b style="font-family:var(--serif);font-size:1.05rem">${Util.esc(nx.title)}</b>
+            ${nx.place ? `<div class="hint">${icon('pin', 'sm')} ${Util.esc(nx.place)}</div>` : ''}
+            ${nx.pickup || nx.driver || nx.vehicleNo ? `<div class="nx-grid">
+              <div><span>Pickup</span><br/>${Util.esc(nx.pickup || '—')}${nx.cabTime ? ' · ' + Util.fmtTime(nx.cabTime) : ''}</div>
+              <div><span>Driver</span><br/>${Util.esc(nx.driver || '—')}${nx.driverPhone ? ` · <a href="tel:${Util.esc(nx.driverPhone)}">${Util.esc(nx.driverPhone)}</a>` : ''}</div></div>` : ''}
+            <div class="row" style="margin-top:8px"><button class="btn soft sm" data-hrem="${info.idx}|${nx.id}">${icon('bell', 'sm')}Remind me</button></div>
+          </div>` : `<p class="hint" style="margin:6px 0">${info.items.length ? 'All of today\'s plans are done. Rest well! 🌙' : 'No activities planned for today yet.'}</p>`}
+          ${info.items.map(a => `<div class="tl ${a === nx ? 'nx' : ''} ${info.isToday && a.time && a.time < info.nowT && a !== nx ? 'past' : ''}"><span class="t">${a.time ? Util.fmtTime(a.time) : '—'}</span><span><b>${Util.esc(a.title)}</b>${a.place ? '<br/><span class="hint">' + Util.esc(a.place) + '</span>' : ''}</span></div>`).join('')}
+          ${me ? `<div class="exp-status">${ExpensesUI.myStatus(t, me.id)}</div>` : ''}
+          <div class="row" style="margin-top:10px">${c && Auth.user && Clans.member(c, Auth.user.id) ? `<button class="btn sm" data-hchat="${c.id}">${icon('users', 'sm')}Clan chat</button>` : ''}<button class="btn ghost sm" data-hplan="${t.id}"${t.clanId ? ` data-tclan="${t.clanId}"` : ''} data-trip="${t.id}">${icon('book', 'sm')}Full plan</button></div>
+        </div></div></div>`;
+    }).join('');
+    if (html === this._todayHtml) return;
+    this._todayHtml = html; host.innerHTML = html;
+    host.onclick = e => {
+      const r = e.target.closest('[data-hrem]'), ch = e.target.closest('[data-hchat]'), pl = e.target.closest('[data-hplan]');
+      if (r) { const t = live.find(x => x.id === r.closest('[data-ht]').dataset.ht), [i, id] = r.dataset.hrem.split('|'); Alerts.remindActivity(t, +i, id); }
+      else if (ch) Chat.open(ch.dataset.hchat);
+      else if (pl) this.openTrip(pl);
+    };
   },
   /** Clan trips open in the clan itself: the leader edits the shared plan, members only view it. */
   openTrip(el) {
@@ -7448,3 +7486,6 @@ const Intro = {
 </script>
 </body>
 </html>
+
+// keep the home Today card current (next activity moves on as the day goes)
+setInterval(() => { if (!document.hidden && $('#homeToday')) try { Home.renderToday(); } catch (e) { } }, 60000);
