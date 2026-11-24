@@ -1,0 +1,189 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Marcellus&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4B26A;--goldl:#ecd8a6;--cream:#F1E6CC}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1920px;background:#0B0B0B;overflow:hidden;font-family:Jost,sans-serif;color:var(--cream)}
+.sc{position:absolute;inset:0;opacity:0}
+.cap{position:absolute;left:70px;right:70px;text-align:center;font:600 52px/1.25 Jost;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.6)}
+.cap b{color:var(--gold)}
+/* notebook */
+.desk{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 40%,#3a2b1d,#1a120b 75%)}
+.paper{position:absolute;left:120px;top:430px;width:840px;height:1060px;background:#fbf7ec;border-radius:10px;box-shadow:0 30px 60px rgba(0,0,0,.6);
+  background-image:linear-gradient(90deg,transparent 108px,#e8a2a2 108px 111px,transparent 111px),repeating-linear-gradient(#fbf7ec 0 66px,#b9cde0 66px 68px);transform-origin:50% 50%;overflow:hidden}
+.hand{position:absolute;left:140px;right:40px;font:600 50px/68px Caveat,cursive;color:#1f3a6b;white-space:nowrap;overflow:hidden}
+.strike{position:absolute;height:5px;background:#c0392b;border-radius:3px;transform:rotate(-2deg)}
+.scrib{position:absolute;font:700 46px Caveat;color:#c0392b;transform:rotate(-8deg)}
+.stain{position:absolute;right:80px;bottom:120px;width:190px;height:190px;border-radius:50%;border:16px solid rgba(140,90,40,.25)}
+.bub{position:absolute;max-width:720px;padding:24px 32px;border-radius:30px;background:#fff;color:#111;font:500 40px/1.3 Jost;box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.bub .who{font:700 30px Jost;margin-bottom:6px}
+.bub.r{right:60px;border-bottom-right-radius:8px}.bub.l{left:60px;border-bottom-left-radius:8px}
+/* envelope */
+.env{position:absolute;left:190px;top:700px;width:700px;height:460px}
+.env .back{position:absolute;inset:0;background:#e9dcb8;border-radius:16px}
+.env .front{position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,transparent 49.6%,#d9c79a 50%),linear-gradient(225deg,transparent 49.6%,#e2d2a8 50%);}
+.env .flap{position:absolute;left:0;right:0;top:0;height:300px;transform-origin:50% 0;background:linear-gradient(180deg,#d4c08f,#c9b27a);clip-path:polygon(0 0,100% 0,50% 100%);}
+.env .seal{position:absolute;left:50%;top:250px;width:120px;height:120px;margin-left:-60px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e6c77f,#a8812f);display:grid;place-items:center;font:400 64px Marcellus;color:#5a3f0f;box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.letter{position:absolute;left:240px;top:760px;width:600px;height:380px;background:#0B0B0B;border:3px solid var(--gold);border-radius:14px;display:grid;place-items:center}
+.word{font-family:Marcellus,serif;letter-spacing:.3em;font-size:64px;color:var(--cream);white-space:nowrap}.v{color:var(--gold)}
+.tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:50px;color:var(--goldl)}
+/* phone */
+.phone{position:absolute;left:230px;top:470px;width:620px;height:1260px;border-radius:84px;background:#000;padding:20px;box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 3px #333 inset}
+.phone .scr{width:100%;height:100%;border-radius:66px;overflow:hidden;position:relative;background:#efe6d2}
+.phone img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.dcard{position:absolute;left:80px;right:80px;top:520px;border-radius:56px;padding:18px;background:linear-gradient(#e9dcb8,#c9a75c)}
+.dcard .in{border-radius:44px;background:#0B0B0B;padding:50px 50px 36px}
+.dcard h2{font-family:Marcellus,serif;font-weight:400;font-size:62px;color:#f5ecd6}
+.lbl{display:flex;justify-content:space-between;font-size:28px;color:rgba(241,230,204,.7);margin:24px 0 12px}.lbl b{color:var(--gold)}
+.bar{height:16px;border-radius:99px;background:#222;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#ecd8a6,#D4B26A);border-radius:99px}
+.row{display:flex;gap:30px;padding:18px 22px;border-radius:22px;font-size:34px;line-height:1.3;border:2px solid transparent;margin-top:8px}
+.row .t{flex:none;width:170px;color:var(--gold)}.row small{display:block;margin-top:6px;color:var(--gold);font-size:27px}
+.feat{position:absolute;left:110px;right:110px;display:flex;align-items:center;gap:30px;padding:26px 36px;border-radius:30px;background:#141414;border:2px solid rgba(212,178,106,.35)}
+.feat .ic{font-size:70px}.feat b{font:600 48px Jost;color:#fff}.feat span{display:block;font-size:30px;color:rgba(241,230,204,.7);margin-top:4px}
+.photo{position:absolute;inset:0;overflow:hidden}.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,.05) 35%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.9))}
+.beta{display:inline-block;background:var(--gold);color:#111;font:700 32px/1 Jost;letter-spacing:.16em;padding:18px 34px;border-radius:99px}
+.gp{display:inline-flex;align-items:center;gap:24px;background:rgba(18,18,18,.9);border:2px solid rgba(241,230,204,.55);border-radius:26px;padding:22px 40px;text-align:left}
+.air{position:absolute;left:0;right:0;height:26px;z-index:9;background:repeating-linear-gradient(-45deg,#c9726b 0 40px,transparent 40px 80px,#2f3b4c 80px 120px,transparent 120px 160px)}
+</style></head><body>
+
+<!-- A: pen & paper -->
+<div class="sc" id="A">
+  <div class="desk"></div>
+  <div class="cap" style="top:170px" id="a0">Me, the trip leader,<br>planning with <b>pen &amp; paper</b> 📝</div>
+  <div class="paper" id="paper">
+    <div class="hand" style="top:66px;font-size:62px;color:#0e2a57" id="h0">Manali Trip ✈</div>
+    <div class="hand" style="top:200px" id="h1">Day 1 – leave Delhi 9 pm?? 8?</div>
+    <div class="hand" style="top:268px" id="h2">Day 2 – Solang / Rohtang ??</div>
+    <div class="hand" style="top:336px" id="h3">Hotel – ask Rahul</div>
+    <div class="hand" style="top:404px" id="h4">Cab no. – ?????</div>
+    <div class="hand" style="top:472px" id="h5">Money: Aman 2000, Sneha ?</div>
+    <div class="hand" style="top:540px" id="h6">Packing – jackets!!</div>
+    <div class="strike" id="s1" style="left:420px;top:236px;width:0"></div>
+    <div class="strike" id="s2" style="left:430px;top:304px;width:0"></div>
+    <div class="scrib" id="sc1" style="left:560px;top:600px">confused 😵</div>
+    <div class="stain"></div>
+  </div>
+</div>
+
+<!-- B: chaos messages -->
+<div class="sc" id="B">
+  <div class="desk"></div>
+  <div class="cap" style="top:170px" id="b0">Meanwhile, in the group chat…</div>
+  <div class="bub l" id="m1" style="top:420px"><div class="who" style="color:#2a7a4b">Rahul</div>Send the plan again 😩</div>
+  <div class="bub r" id="m2" style="top:640px"><div class="who" style="color:#8a3fb5">Sneha</div>Wait, which day is Solang??</div>
+  <div class="bub l" id="m3" style="top:860px"><div class="who" style="color:#b5473f">Aman</div>Who paid for the hotel?? 💸</div>
+  <div class="bub r" id="m4" style="top:1080px"><div class="who" style="color:#2f6bb5">Priya</div>Where is everyone? 📍</div>
+  <div class="bub l" id="m5" style="top:1300px"><div class="who" style="color:#2a7a4b">Rahul</div>Bro the cab driver is calling 📞</div>
+</div>
+
+<!-- C: crumple -->
+<div class="sc" id="C">
+  <div class="desk"></div>
+  <div class="paper" id="ball" style="left:120px;top:430px"></div>
+  <div class="cap" style="top:1500px;font-size:62px" id="c0">There has to be<br>a <b>better way</b>…</div>
+</div>
+
+<!-- D: envelope reveal -->
+<div class="sc" id="D">
+  <div class="tag" style="position:absolute;top:420px;left:0;right:0;text-align:center" id="d0">Open the envelope · Begin the journey</div>
+  <div class="letter" id="letter"><div class="word">EN<span class="v">V</span>ELORA</div></div>
+  <div class="env" id="env"><div class="back"></div><div class="front"></div><div class="flap" id="flap"></div><div class="seal" id="seal">V</div></div>
+  <div class="cap" style="top:1360px" id="d1">Plan the trip. <b>Travel as a clan.</b></div>
+</div>
+
+<!-- E: phone home -->
+<div class="sc" id="E">
+  <div class="cap" style="top:170px" id="e0">Plan <b>together</b>,<br>day by day 🗓️</div>
+  <div class="phone" id="ph1"><div class="scr"><img src="home.png" style="object-position:50% 22%"></div></div>
+</div>
+
+<!-- F: phone chat -->
+<div class="sc" id="F">
+  <div class="cap" style="top:170px" id="f0">Everyone in <b>one clan chat</b> 💬<br>no more lost plans</div>
+  <div class="phone" id="ph2"><div class="scr"><img src="chat.png"></div></div>
+</div>
+
+<!-- G: day progress -->
+<div class="sc" id="G">
+  <div class="cap" style="top:200px" id="g0">Always know<br><b>what's next</b> ⏰</div>
+  <div class="dcard" id="dc"><div class="in">
+    <h2>Day 2 in Manali</h2>
+    <div class="lbl"><span>Day 2 of 4 · Tuesday</span><b id="dn">0 of 5 done</b></div>
+    <div class="bar"><i id="bar" style="width:0"></i></div>
+    <div class="row" id="r1"><span class="t">7:00 am</span><span>Sunrise chai at Old Manali</span></div>
+    <div class="row" id="r2"><span class="t">8:30 am</span><span>Breakfast at the hotel</span></div>
+    <div class="row" id="r3"><span class="t">10:00 am</span><span>Cab to Solang · Ramesh<small id="arr">🚕 Arriving in 15 minutes</small></span></div>
+    <div class="row" id="r4"><span class="t">1:30 pm</span><span>Lunch: try siddu</span></div>
+    <div class="row" id="r5"><span class="t">4:00 pm</span><span>Hadimba Temple</span></div>
+  </div></div>
+</div>
+
+<!-- H: features -->
+<div class="sc" id="H">
+  <div class="cap" style="top:200px" id="k0">And so much more ✨</div>
+  <div class="feat" id="k1" style="top:430px"><span class="ic">💸</span><div><b>Fair expense split</b><span>Who owes whom, to the rupee</span></div></div>
+  <div class="feat" id="k2" style="top:680px"><span class="ic">📍</span><div><b>Live map</b><span>See your friends on the way</span></div></div>
+  <div class="feat" id="k3" style="top:930px"><span class="ic">🎮</span><div><b>Road-trip games</b><span>Fun for the long drives</span></div></div>
+  <div class="feat" id="k4" style="top:1180px"><span class="ic">🎟️</span><div><b>Tickets in one place</b><span>Train, flight &amp; entry tickets</span></div></div>
+</div>
+
+<!-- I: happy ending -->
+<div class="sc" id="I">
+  <div style="position:absolute;inset:0;background:radial-gradient(70% 45% at 50% 42%,rgba(212,178,106,.16),transparent 70%)"></div>
+  <div style="position:absolute;top:220px;left:0;right:0;text-align:center" id="i0">
+    <h1 style="font:400 110px/1.05 Marcellus;color:#fff">Less planning.<br><span style="color:var(--gold)">More travelling.</span></h1>
+  </div>
+  <div style="position:absolute;bottom:300px;left:0;right:0;text-align:center" id="i1">
+    <div class="word" style="font-size:80px">EN<span class="v">V</span>ELORA</div>
+    <div style="margin-top:44px"><span class="beta">FREE BETA</span></div>
+    <div style="margin-top:44px" id="i2"><div class="gp"><svg width="62" height="70" viewBox="0 0 58 64"><path d="M4 4 L54 32 L4 60 Z" fill="none" stroke="#D4B26A" stroke-width="6" stroke-linejoin="round"/></svg>
+      <div><div style="font:500 26px Jost;letter-spacing:.08em;color:rgba(241,230,204,.85)">COMING SOON ON</div><div style="font:600 52px/1.1 Jost;color:#fff">Google Play</div></div></div></div>
+  </div>
+</div>
+
+<div class="air" style="top:0"></div><div class="air" style="bottom:0"></div>
+<script>
+const $ = id => document.getElementById(id);
+const cl = x => Math.max(0, Math.min(1, x)), ease = x => 1 - Math.pow(1 - cl(x), 3), seg = (t, a, b) => ease((t - a) / (b - a));
+const S = { A: [0, 4.2], B: [4.2, 7.6], C: [7.6, 9.4], D: [9.4, 12.4], E: [12.4, 14.8], F: [14.8, 17.2], G: [17.2, 20.2], H: [20.2, 22.6], I: [22.6, 26] };
+const DUR = 26;
+function show(el, t, a, dy = 40, len = .45) { const k = seg(t, a, a + len); el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`; }
+function render(t) {
+  for (const [id, [a, b]] of Object.entries(S)) { const fin = seg(t, a, a + .3), fout = id === 'I' ? 1 : 1 - seg(t, b - .25, b); $(id).style.opacity = t >= a - .01 && t <= b + .01 ? Math.min(fin, fout) : 0; }
+  // A: handwriting appears (clip from left), strikes, scribble
+  show($('a0'), t, .1);
+  ['h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].forEach((id, i) => { const k = cl((t - .4 - i * .42) / .5); $(id).style.clipPath = `inset(0 ${100 - k * 100}% 0 0)`; });
+  $('s1').style.width = 300 * seg(t, 3.0, 3.25) + 'px'; $('s2').style.width = 280 * seg(t, 3.3, 3.55) + 'px';
+  $('sc1').style.opacity = seg(t, 3.6, 3.9);
+  $('paper').style.transform = `rotate(${-1.5 + Math.sin(t * 3) * .4}deg)`;
+  // B: chat bubbles pop
+  show($('b0'), t, 4.3); ['m1', 'm2', 'm3', 'm4', 'm5'].forEach((id, i) => { const k = seg(t, 4.6 + i * .5, 4.85 + i * .5); $(id).style.opacity = k; $(id).style.transform = `scale(${.6 + .4 * k})`; });
+  // C: crumple + toss
+  const cr = seg(t, 7.7, 8.5), toss = seg(t, 8.5, 9.2);
+  $('ball').style.transform = `translate(${toss * 700}px, ${-toss * 500}px) scale(${1 - .78 * cr}) rotate(${cr * 220 + toss * 400}deg)`;
+  $('ball').style.borderRadius = (cr * 50) + '%'; $('ball').style.filter = `brightness(${1 - cr * .25}) contrast(${1 + cr * .6})`;
+  show($('c0'), t, 8.2);
+  // D: envelope opens, letter rises
+  show($('d0'), t, 9.5); const fl = seg(t, 10.0, 10.6); $('flap').style.transform = `perspective(1200px) rotateX(${fl * 180}deg)`; $('flap').style.zIndex = fl > .5 ? 0 : 3;
+  $('seal').style.opacity = 1 - seg(t, 9.9, 10.1);
+  const up = seg(t, 10.6, 11.4); $('letter').style.transform = `translateY(${-up * 330}px) scale(${1 + up * .25})`; $('letter').style.zIndex = up > .3 ? 4 : 0;
+  $('env').style.transform = `translateY(${up * 160}px)`; $('env').style.opacity = 1 - seg(t, 11.3, 11.8);
+  show($('d1'), t, 11.4);
+  // E, F: phones slide up
+  show($('e0'), t, 12.5); $('ph1').style.transform = `translateY(${(1 - seg(t, 12.5, 13.2)) * 800}px)`;
+  show($('f0'), t, 14.9); $('ph2').style.transform = `translateY(${(1 - seg(t, 14.9, 15.6)) * 800}px) scale(${1 + .03 * cl((t - 15.6) / 1.5)})`;
+  // G: progress
+  show($('g0'), t, 17.3); show($('dc'), t, 17.5, 80, .5);
+  let done = 0; [[18.2, 'r1'], [18.7, 'r2']].forEach(([s, id]) => { const on = t >= s; if (on) done++; $(id).style.opacity = on ? .5 : 1; $(id).style.textDecoration = on ? 'line-through' : 'none'; });
+  $('bar').style.width = 40 * seg(t, 18.0, 19.0) + '%'; $('dn').textContent = done + ' of 5 done';
+  const now = t >= 19.1; $('r3').style.borderColor = now ? '#D4B26A' : 'transparent'; $('r3').style.background = now ? '#141414' : 'none'; $('arr').style.opacity = seg(t, 19.2, 19.6);
+  // H: features
+  show($('k0'), t, 20.3); ['k1', 'k2', 'k3', 'k4'].forEach((id, i) => { const k = seg(t, 20.6 + i * .35, 21 + i * .35); $(id).style.opacity = k; $(id).style.transform = `translateX(${(1 - k) * (i % 2 ? 300 : -300)}px)`; });
+  // I: ending
+  show($('i0'), t, 22.9, 40, .6); show($('i1'), t, 23.6, 50, .6);
+}
+window.render = render; window.DUR = DUR; render(0);
+</script>
+</body></html>
