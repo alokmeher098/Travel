@@ -2,7 +2,7 @@
 <html lang="en-IN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
 <meta name="theme-color" content="#0D1B2A" />
 <meta name="description" content="Envelora — plan group trips across India with your Clan. Letters, envelopes, postcards and memories." />
 <title>Envelora</title>
@@ -625,7 +625,8 @@ details.grp[open] summary::after{content:"–"}
 /* ==========================================================================
    10. CLAN CHAT
    ========================================================================== */
-#chat{background:#efe6d2}
+#chat{background:#efe6d2;top:var(--vvt,0px);bottom:auto;height:var(--vvh,100%);overscroll-behavior:contain}
+.chat-scroll{overscroll-behavior:contain}
 #chat .ov-head{background:var(--navy);color:var(--cream);border:none}
 #chat .ov-head h2{color:var(--cream)}
 #chat .ov-head small{color:rgba(241,230,204,.65)}
@@ -4414,6 +4415,17 @@ $('#chTitle').addEventListener('click', () => ClanSettings.open(Chat.clanId));
 $('#chSettings').addEventListener('click', () => ClanSettings.open(Chat.clanId));
 $('#composer').addEventListener('submit', e => { e.preventDefault(); const i = $('#chInput'); Chat.send(i.value); i.value = ''; i.style.height = ''; i.focus(); });
 $('#chInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('#composer').requestSubmit(); } });
+// Keep the chat (header + message box) inside the part of the screen the keyboard leaves visible.
+if (window.visualViewport) {
+  const vv = window.visualViewport, root = document.documentElement;
+  const fit = () => {
+    const sc = $('#chScroll'), near = sc && sc.scrollHeight - sc.scrollTop - sc.clientHeight < 80;
+    root.style.setProperty('--vvh', vv.height + 'px'); root.style.setProperty('--vvt', vv.offsetTop + 'px');
+    if (near && document.activeElement === $('#chInput')) requestAnimationFrame(() => sc.scrollTop = sc.scrollHeight);
+  };
+  vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
+}
+$('#chInput').addEventListener('focus', () => setTimeout(() => { const sc = $('#chScroll'); if (sc) sc.scrollTop = sc.scrollHeight; }, 300));
 // Fold the Today card when typing so the chat gets the screen.
 $('#chInput').addEventListener('focus', () => { if (Chat.todayOpen) { Chat.todayOpen = false; Chat.renderToday(); } });
 $('#chInput').addEventListener('input', e => { const t = e.target; t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight) + 'px'; });
