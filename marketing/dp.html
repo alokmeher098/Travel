@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+body{background:#333;display:flex;gap:40px;padding:40px;flex-wrap:wrap}
+.dp{width:1080px;height:1080px;background:#0B0B0B;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring{position:absolute;inset:70px;border-radius:50%;border:6px solid #D4B26A;box-shadow:inset 0 0 0 18px #0B0B0B,inset 0 0 0 21px rgba(212,178,106,.45)}
+svg .s{stroke:url(#g);fill:none;stroke-linecap:round}
+.word{font-family:Marcellus,serif;letter-spacing:.34em;color:#F1E6CC;font-size:84px;margin-top:40px;padding-left:.34em}
+.prev{width:300px;height:300px;border-radius:50%;overflow:hidden;background:#0B0B0B}
+.prev img{width:100%;height:100%}
+.small{width:110px;height:110px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3e2b4"/><stop offset=".5" stop-color="#D4B26A"/><stop offset="1" stop-color="#a8812f"/></linearGradient>
+  <radialGradient id="seal" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#f3dc9e"/><stop offset=".6" stop-color="#D4B26A"/><stop offset="1" stop-color="#8f6a22"/></radialGradient>
+</defs></svg>
+
+<!-- A: V mark in a gold ring -->
+<div class="dp" id="a">
+  <div class="ring"></div>
+  <svg width="520" height="600" viewBox="0 0 44 50" style="margin-top:20px">
+    <path class="s" d="M4 6 L22 42" stroke-width="1.7"/><path class="s" d="M40 4 L22 42" stroke-width="3"/>
+    <circle cx="22" cy="45.6" r="3.6" fill="url(#seal)"/>
+  </svg>
+</div>
+
+<!-- B: V mark + wordmark -->
+<div class="dp" id="b">
+  <div class="ring"></div>
+  <svg width="380" height="440" viewBox="0 0 44 50">
+    <path class="s" d="M4 6 L22 42" stroke-width="1.7"/><path class="s" d="M40 4 L22 42" stroke-width="3"/>
+    <circle cx="22" cy="45.6" r="3.6" fill="url(#seal)"/>
+  </svg>
+  <div class="word">ENVELORA</div>
+</div>
+</body></html>
