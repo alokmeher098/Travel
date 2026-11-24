@@ -4437,8 +4437,17 @@ if (window.visualViewport) {
   const chat = $('#chat'), sc = $('#chScroll'), inp = $('#chInput'), down = $('#chDown');
   const toEnd = () => { sc.scrollTop = sc.scrollHeight; };
   new MutationObserver(() => document.documentElement.classList.toggle('chat-open', chat.classList.contains('open'))).observe(chat, { attributes: true, attributeFilter: ['class'] });
-  inp.addEventListener('focus', () => { chat.classList.add('kb'); setTimeout(toEnd, 50); setTimeout(toEnd, 350); });
-  inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp) chat.classList.remove('kb'); }, 150));
+  // keyboard is open when the visible height drops well below the tallest height seen
+  let tall = window.visualViewport ? window.visualViewport.height : innerHeight;
+  const kbCheck = () => {
+    const h = window.visualViewport ? window.visualViewport.height : innerHeight;
+    if (h > tall) tall = h;
+    const open = h < tall - 150;
+    if (open !== chat.classList.contains('kb')) { chat.classList.toggle('kb', open); if (open) { toEnd(); setTimeout(toEnd, 250); } }
+  };
+  window.addEventListener('orientationchange', () => { tall = 0; setTimeout(kbCheck, 400); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', kbCheck); else window.addEventListener('resize', kbCheck);
+  inp.addEventListener('focus', () => { setTimeout(toEnd, 50); setTimeout(() => { kbCheck(); toEnd(); }, 400); });
   // the page itself must never slide when the keyboard opens
   const pin = () => { if (chat.classList.contains('open') && (window.scrollY || document.documentElement.scrollTop)) window.scrollTo(0, 0); };
   window.addEventListener('scroll', pin, { passive: true });
