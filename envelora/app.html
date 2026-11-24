@@ -1180,6 +1180,598 @@ details.grp[open] summary::after{content:"–"}
 .au-legal{margin:10px 0 0;font-size:.72rem;opacity:.75;text-align:center;line-height:1.4}.au-legal a{color:inherit;text-decoration:underline}
 #acctMenu .m-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;padding:11px 10px;border-radius:10px;font-weight:500}#acctMenu .m-link:hover{background:rgba(212,178,106,.15)}
 .beta-pill{margin-left:8px;font:600 .58rem/1 var(--sans);letter-spacing:.14em;padding:4px 7px;border-radius:99px;background:var(--gold);color:#111;vertical-align:middle}
+/* Leaflet 1.9.4 (BSD-2) */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+.leaflet-tile::selection {
+	background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+.leaflet-container img.leaflet-tile {
+	mix-blend-mode: plus-lighter;
+}
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+.leaflet-pane         { z-index: 400; }
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+.leaflet-default-icon-path { 
+	background-image: url(images/marker-icon.png);
+	}
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+	margin: -10px auto 0;
+	pointer-events: auto;
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+@media print {
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+/* Live map */
+.lm-wrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--rule,#d9c9a3)}
+.lm-map{height:min(52vh,420px);background:#e8e2d4}
+.lm-me{position:absolute;right:10px;bottom:22px;z-index:500;width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;cursor:pointer}
+.lm-ic{background:none;border:0}
+.lm-pin{width:36px;height:36px;border-radius:50%;background:hsl(var(--h),55%,42%);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center;color:#fff;font:700 12px/1 var(--sans,system-ui)}
+.lm-pin.me{background:#0D1B2A;box-shadow:0 0 0 6px rgba(212,178,106,.45),0 2px 8px rgba(0,0,0,.35)}
+.lm-pin.old{filter:grayscale(1);opacity:.6}
+.lm-list{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.lm-row{display:flex;align-items:center;gap:8px;border:1px solid var(--rule,#d9c9a3);background:var(--card,#fff);border-radius:99px;padding:5px 12px 5px 5px;white-space:nowrap;cursor:pointer;font:inherit}
+.lm-row span{display:flex;flex-direction:column;text-align:left;line-height:1.2}.lm-row small{color:var(--muted);font-size:.7rem}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1252,7 +1844,7 @@ details.grp[open] summary::after{content:"–"}
       <div class="brand-rule"></div>
       <p class="brand-tag">Open the envelope · Begin the journey</p>
     </div>
-    <p class="foot-note">Free beta · everything is free while we test. Login codes and live chat are still <b>simulated</b>.<br/>Data is stored only in this browser (localStorage).</p>
+    <p class="foot-note">Free beta · everything is free while we test. Your trips sync securely to servers in India.<br/>A copy stays on this phone so the app also works offline.</p>
   </main>
 </div>
 
@@ -1353,6 +1945,7 @@ details.grp[open] summary::after{content:"–"}
 </section>
 <div class="toast-wrap" id="toasts" aria-live="polite"></div>
 <input type="file" id="filePick" accept="image/*" class="vh-file" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script>
 'use strict';
 /* =============================================================================
@@ -1390,8 +1983,8 @@ const CONFIG = {
     // >>> SUPABASE INTEGRATION POINT
     // url: 'https://YOUR-PROJECT.supabase.co',
     // anonKey: 'public-anon-key',     // anon key is public; RLS policies must protect data
-    url: '',
-    anonKey: ''
+    url: 'https://prwvljhkgcpxjxtobcuv.supabase.co',      // Mumbai (ap-south-1)
+    anonKey: 'sb_publishable_O1NHihsd7SPuPDvAqL9Rgw_R0lcU9Z4'   // public key; Row Level Security protects the data
   },
   razorpay: {
     // >>> RAZORPAY INTEGRATION POINT
@@ -1755,6 +2348,226 @@ $('#scrim').addEventListener('click', () => UI.closeSheet());
 /** Policies page (Privacy, Terms, Refunds, Delivery, Contact) */
 const LEGAL = 'https://alokmeher098.github.io/Travel/envelora/legal.html';
 
+/* =============================================================================
+   CLOUD — Supabase login (email / mobile OTP) + sync of trips, clans, chat, tickets
+   The app keeps working from localStorage; every saved key that belongs to the
+   signed-in user or to one of their clans is mirrored to Supabase, and changes
+   from other phones arrive through Realtime and are written back locally.
+   ============================================================================= */
+const Cloud = {
+  sb: null, uid: null, applying: false, timers: {}, chans: [], started: false, warned: false,
+  on() { return !!this.sb; },
+  init() {
+    try {
+      if (!CONFIG.supabase.url || !CONFIG.supabase.anonKey || !window.supabase || !window.supabase.createClient) return;
+      this.sb = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'envelora.sb.auth' }
+      });
+      this.sb.auth.onAuthStateChange((ev, s) => { if (ev === 'SIGNED_OUT') this.stop(); else if (s && s.user) this.uid = s.user.id; });
+    } catch (e) { this.sb = null; }
+  },
+  /** The cloud session saved on this phone (read without waiting for the network). */
+  savedUser() {
+    try { const s = JSON.parse(localStorage.getItem('envelora.sb.auth') || 'null'); return (s && s.user) || null; } catch (e) { return null; }
+  },
+  err(e) {
+    const m = String((e && (e.message || e.error_description)) || e || '');
+    if (/rate limit|too many|security purposes/i.test(m)) return 'Too many codes asked for. Please wait a minute and try again.';
+    if (/phone.*(provider|disabled|not.*enabled)|unsupported phone|sms provider/i.test(m)) return 'Mobile OTP isn\'t switched on yet. Please use Email for now.';
+    if (/signups? not allowed/i.test(m)) return 'New sign-ups are closed right now.';
+    if (/expired|invalid/i.test(m)) return 'That code is wrong or has expired. Ask for a new one.';
+    if (/fetch|network|failed to/i.test(m)) return 'No internet connection. Check your network and try again.';
+    return m || 'Something went wrong. Please try again.';
+  },
+  phoneE164(v) { return '+91' + Util.normPhone(v); },
+  async sendOtp(type, value, name) {
+    const opts = { shouldCreateUser: true, data: name ? { name } : undefined };
+    const { error } = type === 'phone'
+      ? await this.sb.auth.signInWithOtp({ phone: this.phoneE164(value), options: opts })
+      : await this.sb.auth.signInWithOtp({ email: value.trim().toLowerCase(), options: opts });
+    if (error) throw new Error(this.err(error));
+  },
+  async verifyOtp(type, value, code) {
+    const { data, error } = await this.sb.auth.verifyOtp(type === 'phone'
+      ? { phone: this.phoneE164(value), token: code, type: 'sms' }
+      : { email: value.trim().toLowerCase(), token: code, type: 'email' });
+    if (error || !data || !data.user) return { ok: false, msg: error ? this.err(error) : '' };
+    this.uid = data.user.id;
+    return { ok: true, user: data.user };
+  },
+  async signOut() { this.stop(); try { await this.sb.auth.signOut(); } catch (e) { /* offline */ } },
+
+  /* ---------- which local keys are synced ---------- */
+  userKey(k) {
+    if (!this.uid) return null;
+    const p = `envelora.v1.acct.${this.uid}.`;
+    if (k.startsWith(p)) return k.slice(p.length);
+    if (k === 'envelora.v1.actLog.' + this.uid) return '@actLog';
+    return null;
+  },
+  localUserKey(k) { return k === '@actLog' ? 'envelora.v1.actLog.' + this.uid : `envelora.v1.acct.${this.uid}.${k}`; },
+  clanKey(k) {
+    let m = k.match(/^envelora\.v1\.clan\.(clan_\w+)$/); if (m) return [m[1], 'clan'];
+    m = k.match(/^envelora\.v1\.tickets\.(clan_\w+)$/); if (m) return [m[1], 'tickets'];
+    return null;
+  },
+  localClanKey(id, k) { return k === 'clan' ? KEYS.clan(id) : 'envelora.v1.tickets.' + id; },
+
+  /* ---------- local → cloud ---------- */
+  queue(k, del) {
+    if (!this.on() || !this.uid || this.applying || !this.started) return;
+    if (!this.userKey(k) && !this.clanKey(k)) return;
+    clearTimeout(this.timers[k]);
+    this.timers[k] = setTimeout(() => this.flush(k, del), del ? 50 : 500);
+  },
+  async flush(k, del, tries = 0) {
+    delete this.timers[k];
+    const uk = this.userKey(k), ck = this.clanKey(k);
+    let error = null;
+    try {
+      if (uk) {
+        if (del) ({ error } = await this.sb.from('user_kv').delete().eq('user_id', this.uid).eq('k', uk));
+        else ({ error } = await this.sb.from('user_kv').upsert({ user_id: this.uid, k: uk, v: Store.get(k), updated_at: new Date().toISOString() }));
+      } else if (ck) {
+        if (del) { if (ck[1] === 'clan') ({ error } = await this.sb.rpc('clan_delete', { p_clan: ck[0] })); }
+        else { const v = Store.get(k); if (v != null) ({ error } = await this.sb.rpc('clan_put', { p_clan: ck[0], p_k: ck[1], p_v: v })); }
+      }
+    } catch (e) { error = e; }
+    if (!error) {
+      // pick up anything others changed meanwhile (server merged the chat)
+      if (ck && !del && ck[1] === 'clan') {
+        const { data } = await this.sb.from('clan_kv').select('v').eq('clan_id', ck[0]).eq('k', 'clan').maybeSingle().then(r => r, () => ({}));
+        if (data && data.v && !this.timers[k] && JSON.stringify(data.v) !== JSON.stringify(Store.get(k))) { this.apply(k, data.v); this.rerender(); }
+      }
+      return;
+    }
+    if (/not a member|only the leader|not found/i.test(error.message || '')) return; // nothing to retry
+    if (tries < 4) { setTimeout(() => this.flush(k, del, tries + 1), 3000 * (tries + 1)); return; }
+    if (!this.warned) { this.warned = true; UI.toast('Could not save to the cloud. Your changes are kept on this phone and will sync when you are back online.', 'err'); }
+  },
+
+  /* ---------- cloud → local ---------- */
+  apply(k, v) {
+    this.applying = true;
+    try {
+      if (v === null || v === undefined) localStorage.removeItem(k);
+      else localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) { /* storage full */ }
+    this.applying = false;
+    try { window.dispatchEvent(new StorageEvent('storage', { key: k })); } catch (e) { /* old browser */ }
+  },
+  mergeMsgs(a, b) {
+    const map = new Map(); (a || []).concat(b || []).forEach(m => m && m.id && !map.has(m.id) && map.set(m.id, m));
+    return [...map.values()].sort((x, y) => (x.ts || 0) - (y.ts || 0)).slice(-500);
+  },
+  applyClan(id, k, v) {
+    const lk = this.localClanKey(id, k);
+    if (this.timers[lk]) return; // my own change is about to be saved; the merged copy comes back after it
+    this.apply(lk, v);
+    if (k === 'clan' && v && Auth.user && Clans.member(v, Auth.user.id) && !Clans.idsFor(Auth.user.id).includes(id)) Clans.linkAccount(Auth.user.id, id);
+    this.rerender();
+  },
+  rerender() {
+    clearTimeout(this.rr);
+    this.rr = setTimeout(() => { try { if (typeof Home !== 'undefined' && Auth.user) Home.render(); } catch (e) { /* ignore */ } }, 300);
+  },
+
+  /** After login: pull everything, push what only this phone has, then listen for changes. */
+  async start() {
+    if (!this.on() || !this.uid || this.started) return;
+    this.started = true;
+    try {
+      const { data: rows, error } = await this.sb.from('user_kv').select('k,v');
+      if (error) throw error;
+      const remote = new Map((rows || []).map(r => [r.k, r.v]));
+      remote.forEach((v, k) => {
+        const lk = this.localUserKey(k);
+        if (this.timers[lk] && k !== 'trips' && k !== 'clans') return; // changed on this phone just now
+        if (k === 'trips') { // keep trips that exist only on this phone
+          const loc = Store.get(lk, []) || [], ids = new Set((v || []).map(t => t.id));
+          const extra = loc.filter(t => t && !ids.has(t.id));
+          this.apply(lk, (v || []).concat(extra));
+          if (extra.length) this.queue(lk);
+        } else this.apply(lk, v);
+      });
+      // keys that only this phone has → upload
+      const pre = `envelora.v1.acct.${this.uid}.`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const lk = localStorage.key(i), uk = this.userKey(lk || '');
+        if (uk && !remote.has(uk)) this.queue(lk);
+      }
+      // clans I belong to
+      const { data: mem } = await this.sb.from('clan_members').select('clan_id').eq('user_id', this.uid);
+      const ids = (mem || []).map(m => m.clan_id);
+      const mine = Clans.idsFor(this.uid);
+      for (const id of mine) if (!ids.includes(id) && Store.get(KEYS.clan(id))) this.queue(KEYS.clan(id)); // made offline → upload
+      if (ids.length) {
+        const { data: cr } = await this.sb.from('clan_kv').select('clan_id,k,v').in('clan_id', ids);
+        (cr || []).forEach(r => { const lk = this.localClanKey(r.clan_id, r.k); if (!this.timers[lk]) this.apply(lk, r.v); });
+        const all = [...new Set(Clans.idsFor(this.uid).concat(ids))];
+        this.applying = true; Store.set(pre + 'clans', all); this.applying = false; this.queue(pre + 'clans');
+      }
+      this.listen();
+      this.rerender();
+    } catch (e) {
+      this.started = false;
+      if (!this.warned) { this.warned = true; UI.toast('Working offline — your trips will sync when you are back online.', 'info'); }
+      setTimeout(() => { this.warned = false; this.start(); }, 30000);
+    }
+  },
+  listen() {
+    this.chans.forEach(c => { try { this.sb.removeChannel(c); } catch (e) { } });
+    this.chans = [];
+    const ch = this.sb.channel('env-' + this.uid)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clan_kv' }, async p => {
+        const row = p.new && p.new.clan_id ? p.new : p.old;
+        if (!row || !row.clan_id) return;
+        if (p.eventType === 'DELETE') {
+          if (row.k === 'clan' || !row.k) { this.apply(KEYS.clan(row.clan_id), null); this.apply('envelora.v1.tickets.' + row.clan_id, null); this.rerender(); }
+          return;
+        }
+        if (p.new.updated_by === this.uid && !this.timers[this.localClanKey(row.clan_id, row.k)]) return; // my own write
+        const { data } = await this.sb.from('clan_kv').select('v').eq('clan_id', row.clan_id).eq('k', row.k).maybeSingle();
+        if (data) this.applyClan(row.clan_id, row.k, data.v);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_kv', filter: 'user_id=eq.' + this.uid }, p => {
+        const r = p.new && p.new.k ? p.new : null;
+        if (!r) return;
+        const lk = this.localUserKey(r.k);
+        if (this.timers[lk]) return; // my own pending change wins
+        if (JSON.stringify(Store.get(lk)) === JSON.stringify(r.v)) return;
+        this.apply(lk, r.v); this.rerender();
+      })
+      .subscribe(st => { if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') setTimeout(() => this.started && this.listen(), 5000); });
+    this.chans.push(ch);
+    // when the membership changes (I was added / removed), refresh
+    window.addEventListener('online', this._online || (this._online = () => { if (this.uid) { this.started = false; this.start(); } }));
+  },
+  stop() {
+    Object.values(this.timers).forEach(clearTimeout); this.timers = {};
+    this.chans.forEach(c => { try { this.sb.removeChannel(c); } catch (e) { } }); this.chans = [];
+    this.started = false; this.uid = null;
+  },
+
+  /** Invite link: check the secret token on the server, become a member, get the clan. */
+  async joinClan(clanId, token) {
+    const { data, error } = await this.sb.rpc('clan_join', { p_clan: clanId, p_token: token });
+    if (error) throw new Error(/invalid invite/i.test(error.message) ? 'This invite link is not valid any more.' : this.err(error));
+    if (!data) return null;
+    this.apply(KEYS.clan(clanId), data);
+    const { data: tk } = await this.sb.from('clan_kv').select('v').eq('clan_id', clanId).eq('k', 'tickets').maybeSingle();
+    if (tk) this.apply('envelora.v1.tickets.' + clanId, tk.v);
+    return data;
+  }
+};
+// mirror every save to the cloud
+(() => {
+  const set = Store.set.bind(Store), del = Store.del.bind(Store);
+  Store.set = (k, v) => { const ok = set(k, v); if (ok) Cloud.queue(k); return ok; };
+  Store.del = k => { del(k); Cloud.queue(k, true); };
+})();
+Cloud.init();
+
 /* -----------------------------------------------------------------------------
    DATA — sample Indian destination guides (prototype content)
    Each list item: [name, short note]
@@ -2023,7 +2836,8 @@ const Auth = {
   },
 
   /** Step 1 — request OTP. */
-  async sendOtp(type, value) {
+  async sendOtp(type, value, name) {
+    if (Cloud.on()) return Cloud.sendOtp(type, value, name);   // real SMS / email code from Supabase
     // >>> SUPABASE INTEGRATION POINT — OTP request
     // const { error } = type === 'phone'
     //   ? await supabase.auth.signInWithOtp({ phone: '+91' + Util.normPhone(value) })
@@ -2035,6 +2849,7 @@ const Auth = {
 
   /** Step 2 — verify the six-digit code. */
   async verifyOtp(type, value, code) {
+    if (Cloud.on()) { const r = await Cloud.verifyOtp(type, value, code); this.lastErr = r.msg || ''; if (r.ok) this.cloudUser = r.user; return r.ok; }
     // >>> SUPABASE INTEGRATION POINT — OTP verification
     // const { data, error } = await supabase.auth.verifyOtp(
     //   type === 'phone' ? { phone: '+91' + Util.normPhone(value), token: code, type: 'sms' }
@@ -2047,11 +2862,13 @@ const Auth = {
   /** Create or open the account for this contact and start the session. */
   login({ name, type, value }) {
     const accts = this.accounts();
-    let acc = this.findByContact(type, value);
+    const cu = Cloud.on() && Cloud.uid;
+    let acc = cu ? (accts[cu] || null) : this.findByContact(type, value);
     const isNew = !acc;
     if (!acc) {
-      acc = { id: Util.uid('acc'), name: name.trim(), phone: '', email: '', createdAt: Date.now() };
+      acc = { id: cu || Util.uid('acc'), name: name.trim(), phone: '', email: '', createdAt: Date.now() };
     }
+    if (cu) acc.cloud = true;
     acc.name = name.trim() || acc.name;
     if (type === 'phone') acc.phone = Util.normPhone(value); else acc.email = value.trim().toLowerCase();
     accts[acc.id] = acc;
@@ -2059,6 +2876,7 @@ const Auth = {
     this.user = acc; this.remember();
     const moved = this.transferGuestTrip();
     Clans.syncMemberProfile(acc);
+    if (cu) { Cloud.start(); const md = (this.cloudUser && this.cloudUser.user_metadata) || {}; if (md.name !== acc.name) Cloud.sb.auth.updateUser({ data: { name: acc.name } }).catch(() => { }); }
     return { acc, isNew, moved };
   },
 
@@ -2080,14 +2898,34 @@ const Auth = {
     return guest[0];
   },
 
-  logout() { this.user = null; Store.del(KEYS.session); },
+  logout() { this.user = null; Store.del(KEYS.session); if (Cloud.on()) Cloud.signOut(); },
   /** Keep the login on this device for 30 days after the last use. */
   SESSION_DAYS: 30,
   remember() { if (this.user) Store.set(KEYS.session, { id: this.user.id, at: Date.now() }); },
   restore() {
+    if (Cloud.on()) return this.restoreCloud();
     const s = Store.get(KEYS.session), acc = s && this.get(s.id);
     if (!acc || Date.now() - (s.at || 0) > this.SESSION_DAYS * 864e5) { Store.del(KEYS.session); return false; }
     this.user = acc; this.remember(); return true;
+  },
+
+  /** Supabase keeps the login on this phone; rebuild the account from it. */
+  restoreCloud() {
+    const su = Cloud.savedUser();
+    if (!su || !su.id) { Store.del(KEYS.session); return false; }
+    const accts = this.accounts(), md = su.user_metadata || {};
+    const acc = accts[su.id] || { id: su.id, name: md.name || (su.email ? su.email.split('@')[0] : 'Traveller'), phone: '', email: '', createdAt: Date.now() };
+    acc.cloud = true;
+    if (su.email) acc.email = su.email.toLowerCase();
+    if (su.phone) acc.phone = String(su.phone).replace(/^\+?91/, '');
+    accts[acc.id] = acc; this.saveAccounts(accts);
+    this.user = acc; Cloud.uid = su.id; this.remember();
+    // confirm the session with the server (refreshes it); log out if it is no longer valid
+    Cloud.sb.auth.getSession().then(({ data }) => {
+      if (data && data.session) { Cloud.uid = data.session.user.id; Cloud.start(); }
+      else if (this.user && this.user.id === su.id) { this.user = null; Store.del(KEYS.session); UI.toast('Please log in again.', 'info'); if (typeof App !== 'undefined') App.onAuthChange(null); }
+    }).catch(() => Cloud.start());
+    return true;
   },
 
   updateProfile({ name, phone, email }) {
@@ -2193,8 +3031,8 @@ const AuthUI = {
         if ($('#au-web', host).value) { newCap(); err.textContent = 'Could not send OTP. Try again.'; return; } // honeypot: only bots fill the hidden field
         st.name = name.value.trim(); st.value = val.value.trim();
         const btn = $('#au-send', host); UI.busy(btn, true, 'Sending OTP…');
-        try { await Auth.sendOtp(st.type, st.value); stepTwo(); }
-        catch (ex) { UI.busy(btn, false); newCap(); err.textContent = 'Could not send OTP. Try again.'; }
+        try { await Auth.sendOtp(st.type, st.value, st.name); stepTwo(); }
+        catch (ex) { UI.busy(btn, false); newCap(); err.textContent = Cloud.on() ? ex.message : 'Could not send OTP. Try again.'; }
       });
     };
     const stepTwo = () => {
@@ -2204,7 +3042,7 @@ const AuthUI = {
         <p class="sub">Enter the 6-digit code sent to<br/><b>${Util.esc(shown)}</b></p>
         <form novalidate autocomplete="off">
           <div class="otp-boxes">${'<input inputmode="numeric" maxlength="1" autocomplete="off" aria-label="OTP digit" />'.repeat(6)}</div>
-          <div class="demo-otp">DEMO MODE — no SMS/email is sent. Use OTP <b>${CONFIG.demoOtp}</b></div>
+          ${Cloud.on() ? `<div class="hint" style="text-align:center;margin:-4px 0 8px">${st.type === 'phone' ? 'Check your SMS.' : 'Check your inbox (and Spam folder).'} The code is valid for a few minutes.</div>` : `<div class="demo-otp">DEMO MODE — no SMS/email is sent. Use OTP <b>${CONFIG.demoOtp}</b></div>`}
           <div class="err-msg" id="au-err" style="text-align:center"></div>
           <button class="btn gold block" type="submit" id="au-verify">Verify & Continue</button>
           <div class="auth-foot"><button type="button" class="link-btn" id="au-resend" disabled>Resend in 30s</button> · <button type="button" class="link-btn" id="au-change">Change details</button></div>
@@ -2218,7 +3056,7 @@ const AuthUI = {
       setTimeout(() => boxes[0].focus(), 60);
       let left = 30; const rs = $('#au-resend', host);
       const tick = setInterval(() => { if (!host.isConnected || !rs.isConnected) return clearInterval(tick); left--; if (left <= 0) { clearInterval(tick); rs.disabled = false; rs.textContent = 'Resend OTP'; } else rs.textContent = `Resend in ${left}s`; }, 1000);
-      rs.addEventListener('click', async () => { rs.disabled = true; rs.textContent = 'Sending…'; await Auth.sendOtp(st.type, st.value); UI.toast('Demo OTP re-sent (simulated).', 'info'); rs.textContent = 'Sent'; });
+      rs.addEventListener('click', async () => { rs.disabled = true; rs.textContent = 'Sending…'; try { await Auth.sendOtp(st.type, st.value, st.name); UI.toast(Cloud.on() ? 'A new code is on its way.' : 'Demo OTP re-sent (simulated).', 'info'); rs.textContent = 'Sent'; } catch (ex) { UI.toast(ex.message, 'err'); rs.disabled = false; rs.textContent = 'Resend OTP'; } });
       $('#au-change', host).addEventListener('click', () => { clearInterval(tick); stepOne(); });
       let busy = false;
       $('form', host).addEventListener('submit', async e => {
@@ -2227,7 +3065,7 @@ const AuthUI = {
         if (code.length !== 6) { err.textContent = 'Enter all 6 digits.'; return; }
         busy = true; const btn = $('#au-verify', host); UI.busy(btn, true, 'Verifying…');
         const ok = await Auth.verifyOtp(st.type, st.value, code);
-        if (!ok) { busy = false; UI.busy(btn, false); err.textContent = 'Incorrect OTP. (Demo OTP is ' + CONFIG.demoOtp + ')'; boxes.forEach(b => b.value = ''); boxes[0].focus(); return; }
+        if (!ok) { busy = false; UI.busy(btn, false); err.textContent = Cloud.on() ? (Auth.lastErr || 'Incorrect code. Try again.') : 'Incorrect OTP. (Demo OTP is ' + CONFIG.demoOtp + ')'; boxes.forEach(b => b.value = ''); boxes[0].focus(); return; }
         clearInterval(tick);
         const res = Auth.login({ name: st.name, type: st.type, value: st.value });
         onDone && onDone(res);
@@ -3033,6 +3871,7 @@ const Clans = {
     if (!c) return { ok: false, reason: 'missing' };
     if (this.member(c, user.id)) { this.linkAccount(user.id, c.id); return { ok: true, reason: 'already', clan: c }; }
     if (c.members.length >= c.capacity) return { ok: false, reason: 'full', clan: c };
+    c.removed = (c.removed || []).filter(x => x !== user.id);
     c.members.push({ accountId: user.id, name: user.name, contact: Auth.contactOf(user), role: 'member', joinedAt: Date.now() });
     // Link to a matching traveller (same name or contact), else a placeholder, else add new.
     const t = c.trip, lc = s => String(s || '').toLowerCase().trim();
@@ -3047,6 +3886,7 @@ const Clans = {
   removeMember(c, accId) {
     const m = this.member(c, accId); if (!m) return;
     c.members = c.members.filter(x => x !== m);
+    c.removed = [...new Set((c.removed || []).concat(accId))]; // tells the server this member left on purpose
     const tv = Trips.travellerFor(c.trip, accId); if (tv) tv.accountId = null;
     this.save(c); this.unlinkAccount(accId, c.id);
   },
@@ -3182,7 +4022,7 @@ const Invite = {
         <button type="button" data-sh="copy">${icon('copy')}Copy</button>
         <button type="button" data-sh="native">${icon('share')}Share</button>
       </div>
-      <p class="hint" style="margin-top:8px">Prototype note: until Supabase is connected, invite links resolve only in this browser (open the link in a new tab to try the join flow).</p>`;
+      ${Cloud.on() ? '' : `<p class="hint" style="margin-top:8px">Prototype note: until Supabase is connected, invite links resolve only in this browser (open the link in a new tab to try the join flow).</p>`}`;
   },
   bindShare(host, c) {
     $$('[data-sh]', host).forEach(b => b.onclick = async () => {
@@ -3205,6 +4045,7 @@ const Invite = {
   /** Invite landing card inside the intro (after the envelope opens). */
   renderCard(host) {
     const p = this.pending, c = p && Clans.get(p.clanId);
+    if (p && (!c || c.token !== p.token) && Cloud.on()) return this.renderCloudCard(host);
     if (!c || c.token !== p.token) {
       host.innerHTML = `<div class="glass inv-card"><h2>Invite not found</h2><p class="sub">This invite link is invalid or the clan isn't available on this device. In this prototype clans are stored in the browser that created them — realtime invites need the Supabase backend.</p><button class="btn gold block" id="inv-go">Continue to Envelora</button></div>`;
       $('#inv-go', host).onclick = () => { this.pending = null; Intro.showAuth(); };
@@ -3227,7 +4068,28 @@ const Invite = {
       AuthUI.render(box, { title: 'Join ' + c.name, sub: 'Register or log in with your name and phone/email to join.', cta: 'Send OTP', onDone: r => this.complete(c.id, r, host) });
     };
   },
-  complete(clanId, r, host) {
+  /** Invite opened on another phone: the clan lives in the cloud, so log in first, then join. */
+  renderCloudCard(host) {
+    host.innerHTML = `<div class="glass inv-card">
+      <p class="sub" style="margin-bottom:6px">You've received an invitation ✉️</p>
+      <div class="shield"><div class="sh-o"></div><div class="sh-i">🧭</div></div>
+      <h2>Join your travel clan</h2><p class="sub">${Auth.user ? 'Tap Join to see the trip and chat with your group.' : 'Log in with your mobile or email to see the trip and join your group.'}</p>
+      <div class="err-msg" id="inv-err" style="margin-bottom:10px"></div>
+      <button class="btn gold block xl" id="inv-join">${icon('shield', 'sm')}Join Clan</button>
+      <div class="auth-foot"><button class="link-btn" id="inv-skip">Not now</button></div></div>`;
+    $('#inv-skip', host).onclick = () => { this.pending = null; if (Auth.user) { App.onAuthChange(null, true); Intro.finish(); } else Intro.showAuth(); };
+    const go = r => this.complete(this.pending.clanId, r, host);
+    $('#inv-join', host).onclick = () => {
+      if (Auth.user) return go({ acc: Auth.user, isNew: false });
+      const box = document.createElement('div'); box.className = 'glass'; host.innerHTML = ''; host.appendChild(box);
+      AuthUI.render(box, { title: 'Join the clan', sub: 'Log in or register with your mobile or email to join.', cta: 'Send OTP', onDone: go });
+    };
+  },
+  async complete(clanId, r, host) {
+    if (Cloud.on() && this.pending && this.pending.clanId === clanId) {
+      try { UI.toast('Joining…', 'info'); const got = await Cloud.joinClan(clanId, this.pending.token); if (!got) throw new Error('This clan is no longer available.'); }
+      catch (e) { UI.toast(e.message, 'err'); this.pending = null; App.onAuthChange(r); Intro.finish(); return; }
+    }
     const res = Clans.join(clanId, Auth.user);
     if (!res.ok && res.reason === 'full') {
       host.innerHTML = `<div class="glass inv-card"><h2>Clan is full</h2><p class="sub">This clan is full. Ask your clan leader to increase capacity.</p><button class="btn gold block" id="inv-home">Go to my home</button></div>`;
@@ -3238,6 +4100,7 @@ const Invite = {
     this.pending = null;
     App.onAuthChange(r, true);
     Intro.finish();
+    if (Cloud.on()) Cloud.flush(KEYS.clan(clanId));   // save my membership right away
     UI.toast(res.reason === 'already' ? 'You are already in this clan.' : `Welcome to ${res.clan.name}!`);
     setTimeout(() => Chat.open(clanId), 450);
   }
@@ -3367,7 +4230,7 @@ const Chat = {
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
     $('#sendBtn').innerHTML = icon('send');
-    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live Location'], ['photos', 'camera', 'Photos'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
+    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live map'], ['photos', 'camera', 'Photos'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
     if ((typeof Tickets !== 'undefined')) Tickets.banner();
@@ -3471,37 +4334,8 @@ const Chat = {
       draw();
     });
   },
-  liveLocation(c) {
-    const pos = m => { const h = Util.hue(m.accountId); return { x: 14 + (h * 7) % 72, y: 22 + (h * 13) % 60 }; };
-    const sharing = (c.sharing || []);
-    UI.sheet('Live location', `
-      <div class="notice">${icon('info', 'sm')}<span><b>Preview only.</b> Real-time GPS sharing needs device location permission plus a backend (Supabase Realtime). Pins below are illustrative, not real positions.</span></div>
-      <div class="map-prev" id="mapPrev">
-        <div class="road" style="left:0;right:0;top:46%;height:12px"></div><div class="road" style="top:0;bottom:0;left:58%;width:10px"></div>
-        ${c.members.map(m => { const p = pos(m); return `<div class="pin" style="left:${p.x}%;top:${p.y}%;opacity:${sharing.includes(m.accountId) ? 1 : .45}">${Util.avatar(m.name, 'sm')}<span class="pl">${Util.esc(m.name.split(' ')[0])}${sharing.includes(m.accountId) ? ' · live' : ''}</span></div>`; }).join('')}
-      </div>
-      <p class="hint" style="margin-top:10px">Destination: <b>${Util.esc(c.trip.destination)}</b> · ${sharing.length} of ${c.members.length} sharing (preview)</p>
-      <button class="btn gold block" id="locToggle">${sharing.includes(Auth.user.id) ? 'Stop sharing (preview)' : 'Share my live location (preview)'}</button>
-      <button class="btn ghost block" id="locTest" style="margin-top:8px">${icon('pin', 'sm')}Test my device location (stays on this device)</button>
-      <div class="hint" id="locOut" style="margin-top:8px"></div>`, body => {
-      $('#locToggle', body).onclick = () => {
-        const cur = Clans.get(c.id); cur.sharing = cur.sharing || [];
-        const on = cur.sharing.includes(Auth.user.id);
-        cur.sharing = on ? cur.sharing.filter(x => x !== Auth.user.id) : [...cur.sharing, Auth.user.id];
-        Clans.save(cur);
-        Clans.post(c.id, { type: 'system', text: `📍 ${Auth.user.name} ${on ? 'stopped' : 'started'} sharing live location (preview — not real GPS).` });
-        this.liveLocation(Clans.get(c.id));
-      };
-      $('#locTest', body).onclick = () => {
-        const out = $('#locOut', body);
-        if (!navigator.geolocation) { out.textContent = 'Geolocation is not supported in this browser.'; return; }
-        out.textContent = 'Requesting permission…';
-        navigator.geolocation.getCurrentPosition(
-          p => out.innerHTML = `Your device reports <b>${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)}</b> (±${Math.round(p.coords.accuracy)} m). Not shared with anyone.`,
-          e => out.textContent = 'Location unavailable: ' + e.message, { timeout: 10000 });
-      };
-    });
-  },
+  liveLocation(c) { LiveMap.open(c); },
+
   photos(c) {
     const ph = c.photos || [];
     const canDel = p => p.by === Auth.user.id || Perm.can(c, Auth.user.id, 'editInfo');
@@ -4942,6 +5776,140 @@ const Tickets = {
 };
 setTimeout(() => Tickets.tick(), 3000);
 setInterval(() => Tickets.tick(), 30000);
+
+/* =============================================================================
+   LIVE MAP — clan members share their live location on a real map
+   (OpenStreetMap tiles + Leaflet; positions through Supabase Realtime)
+   ============================================================================= */
+const LiveMap = {
+  map: null, marks: {}, chan: null, watch: null, last: null, clanId: null, tick: null,
+  LEAFLET: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js',
+  shareKey: id => 'envelora.v1.liveShare.' + id,
+  sharing(id) { return !!Store.get(this.shareKey(id)); },
+  load() {
+    if (window.L) return Promise.resolve();
+    return this._p || (this._p = new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = this.LEAFLET; s.onload = res; s.onerror = () => { this._p = null; rej(new Error('Map could not load. Check your internet.')); };
+      document.head.appendChild(s);
+    }));
+  },
+  ago(ts) {
+    const s = Math.max(0, (Date.now() - new Date(ts).getTime()) / 1000);
+    return s < 60 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : 'over a day ago';
+  },
+  async open(c) {
+    this.clanId = c.id;
+    const cloud = Cloud.on() && Cloud.uid;
+    UI.sheet('Live map', `
+      <div class="lm-wrap"><div id="lmMap" class="lm-map" role="application" aria-label="Map of clan members"></div>
+        <button class="lm-me" id="lmMe" type="button" aria-label="Show me">${icon('pin', 'sm')}</button></div>
+      <div class="lm-list" id="lmList"></div>
+      ${cloud ? '' : `<div class="notice">${icon('info', 'sm')}<span>Log in to share your location with your clan. Without login only you can see yourself.</span></div>`}
+      <button class="btn gold block" id="lmShare" style="margin-top:10px"></button>
+      <p class="hint" style="margin-top:8px">Your location is shared only with members of <b>${Util.esc(c.name)}</b>, only while Envelora is open on your phone. Tap Stop sharing any time and your dot is removed.</p>`, async body => {
+      this.paintBtn(body);
+      $('#lmShare', body).onclick = () => this.sharing(c.id) ? this.stop(c.id, true) : this.start(c);
+      $('#lmMe', body).onclick = () => { if (this.last && this.map) this.map.setView([this.last.lat, this.last.lng], 15); else this.locateOnce(); };
+      try { await this.load(); } catch (e) { $('#lmMap', body).innerHTML = `<p class="hint" style="padding:16px">${Util.esc(e.message)}</p>`; return; }
+      const g = guideFor(c.trip.destination);
+      this.map = L.map($('#lmMap', body), { zoomControl: true, attributionControl: true }).setView([22.5, 79], 5);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(this.map);
+      this.marks = {};
+      setTimeout(() => this.map && this.map.invalidateSize(), 250);
+      if (cloud) { await this.pull(c.id); this.subscribe(c.id); }
+      if (this.sharing(c.id)) this.start(c, true);
+      this.tick = setInterval(() => this.renderList(), 30000);
+    }, () => this.close());
+  },
+  close() {
+    clearInterval(this.tick);
+    if (this.chan) { try { Cloud.sb.removeChannel(this.chan); } catch (e) { } this.chan = null; }
+    if (this.map) { this.map.remove(); this.map = null; }
+    // keep sending while the app is open if sharing is on; stop the GPS when the map closes and nobody asked to share
+    if (!this.sharing(this.clanId)) this.unwatch();
+  },
+  paintBtn(body) {
+    const b = $('#lmShare', body || document); if (!b) return;
+    b.innerHTML = this.sharing(this.clanId) ? `${icon('pin', 'sm')}Stop sharing my location` : `${icon('pin', 'sm')}Share my live location`;
+    b.classList.toggle('danger', this.sharing(this.clanId)); b.classList.toggle('gold', !this.sharing(this.clanId));
+  },
+  people: {},
+  async pull(id) {
+    const { data } = await Cloud.sb.from('live_locs').select('user_id,name,lat,lng,acc,updated_at').eq('clan_id', id);
+    this.people = {}; (data || []).forEach(r => this.people[r.user_id] = r);
+    this.draw(true);
+  },
+  subscribe(id) {
+    this.chan = Cloud.sb.channel('loc-' + id + '-' + Date.now())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'live_locs', filter: 'clan_id=eq.' + id }, p => {
+        if (p.eventType === 'DELETE') { const uid = p.old && p.old.user_id; if (uid) delete this.people[uid]; else return this.pull(id); }
+        else if (p.new) this.people[p.new.user_id] = p.new;
+        this.draw(false);
+      }).subscribe();
+  },
+  draw(fit) {
+    if (!this.map || !window.L) return;
+    const seen = new Set();
+    Object.values(this.people).forEach(r => {
+      seen.add(r.user_id);
+      const me = r.user_id === (Auth.user && Auth.user.id), old = Date.now() - new Date(r.updated_at).getTime() > 15 * 60e3;
+      const html = `<div class="lm-pin${me ? ' me' : ''}${old ? ' old' : ''}" style="--h:${Util.hue(r.user_id)}"><span>${Util.esc(Util.initials ? Util.initials(r.name || '?') : (r.name || '?').slice(0, 2).toUpperCase())}</span></div>`;
+      const ic = L.divIcon({ html, className: 'lm-ic', iconSize: [36, 36], iconAnchor: [18, 18] });
+      const tip = `<b>${Util.esc(me ? 'You' : r.name || 'Member')}</b><br>${this.ago(r.updated_at)}${r.acc ? ' · ±' + Math.round(r.acc) + ' m' : ''}`;
+      if (this.marks[r.user_id]) { this.marks[r.user_id].setLatLng([r.lat, r.lng]).setIcon(ic).setPopupContent(tip); }
+      else this.marks[r.user_id] = L.marker([r.lat, r.lng], { icon: ic }).addTo(this.map).bindPopup(tip);
+    });
+    Object.keys(this.marks).forEach(k => { if (!seen.has(k)) { this.map.removeLayer(this.marks[k]); delete this.marks[k]; } });
+    const pts = Object.values(this.people).map(r => [r.lat, r.lng]);
+    if (fit && pts.length) pts.length === 1 ? this.map.setView(pts[0], 14) : this.map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 });
+    this.renderList();
+  },
+  renderList() {
+    const el = $('#lmList'); if (!el) return;
+    const rows = Object.values(this.people).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    el.innerHTML = rows.length ? rows.map(r => `<button class="lm-row" data-u="${Util.esc(r.user_id)}">${Util.avatar(r.name || '?', 'sm')}<span><b>${Util.esc(r.user_id === (Auth.user && Auth.user.id) ? 'You' : r.name || 'Member')}</b><small>${this.ago(r.updated_at)}</small></span></button>`).join('')
+      : '<p class="hint" style="margin:8px 0 0">Nobody is sharing right now.</p>';
+    $$('.lm-row', el).forEach(b => b.onclick = () => { const r = this.people[b.dataset.u]; if (r && this.map) { this.map.setView([r.lat, r.lng], 16); this.marks[r.user_id] && this.marks[r.user_id].openPopup(); } });
+  },
+  locateOnce() {
+    if (!navigator.geolocation) return UI.toast('Location is not available on this device.', 'err');
+    navigator.geolocation.getCurrentPosition(p => { this.last = { lat: p.coords.latitude, lng: p.coords.longitude }; this.map && this.map.setView([this.last.lat, this.last.lng], 15); },
+      e => UI.toast('Location permission is off. Allow it in your browser settings.', 'err'), { enableHighAccuracy: true, timeout: 12000 });
+  },
+  start(c, quiet) {
+    if (!navigator.geolocation) return UI.toast('Location is not available on this device.', 'err');
+    this.clanId = c.id;
+    this.unwatch();
+    let sent = 0;
+    this.watch = navigator.geolocation.watchPosition(async p => {
+      const cur = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy };
+      const moved = !this.last ? 1e9 : this.dist(this.last, cur);
+      const first = !this.sharing(c.id);
+      if (first) { Store.set(this.shareKey(c.id), 1); this.paintBtn(); if (!quiet) Clans.post(c.id, { type: 'system', text: `📍 ${Auth.user.name} started sharing live location.` }); }
+      this.last = cur;
+      if (Cloud.on() && Cloud.uid) {
+        if (Date.now() - sent < 15000 && moved < 30 && !first) return; // save data: every 15 s or after 30 m
+        sent = Date.now();
+        const row = { clan_id: c.id, user_id: Cloud.uid, name: Auth.user.name.slice(0, 60), lat: cur.lat, lng: cur.lng, acc: Math.round(cur.acc), updated_at: new Date().toISOString() };
+        const { error } = await Cloud.sb.from('live_locs').upsert(row);
+        if (error) UI.toast('Could not share location: ' + Cloud.err(error), 'err');
+        this.people[Cloud.uid] = row;
+      } else this.people.me = { user_id: Auth.user ? Auth.user.id : 'me', name: Auth.user ? Auth.user.name : 'You', lat: cur.lat, lng: cur.lng, acc: cur.acc, updated_at: new Date().toISOString() };
+      this.draw(first);
+    }, e => {
+      UI.toast(e.code === 1 ? 'Location permission is off. Allow location for this site in your browser settings.' : 'Could not get your location: ' + e.message, 'err');
+      this.stop(c.id, false);
+    }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+  },
+  async stop(id, announce) {
+    this.unwatch(); Store.del(this.shareKey(id)); this.paintBtn();
+    if (Cloud.on() && Cloud.uid) { await Cloud.sb.from('live_locs').delete().eq('clan_id', id).eq('user_id', Cloud.uid); delete this.people[Cloud.uid]; }
+    delete this.people.me; this.draw(false);
+    if (announce && Auth.user) Clans.post(id, { type: 'system', text: `📍 ${Auth.user.name} stopped sharing live location.` });
+  },
+  unwatch() { if (this.watch != null) navigator.geolocation.clearWatch(this.watch); this.watch = null; },
+  dist(a, b) { const R = 6371e3, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng); const h = Math.sin(dLa / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+};
 
 /* =============================================================================
    GAMES — six playable prototypes with player selection, scores, restart,
