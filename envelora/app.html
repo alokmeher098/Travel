@@ -645,6 +645,19 @@ details.grp[open] summary::after{content:"–"}
 .today-h small{margin-left:auto;color:var(--gold);font-size:.75rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.today-car{font-style:normal;color:var(--gold);font-size:.8rem;flex:none}
 .today-b{padding:10px 12px;max-height:min(42vh,340px);overflow:auto;overscroll-behavior:contain}
 .today-card.collapsed .today-b{display:none}
+.fp{display:flex;flex-direction:column;gap:14px}
+.fp-day{background:#0d0d0d;color:#f3ead6;border-radius:18px;padding:16px;border:2px solid rgba(212,178,106,.35)}
+.fp-day.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,178,106,.18)}
+.fp-day h3{font-family:var(--serif);font-weight:500;font-size:1.35rem;margin:0 0 6px;color:#f3ead6;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fp-tag{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#111;border-radius:99px;padding:3px 8px;font-weight:700}
+.fp-sub{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:#bdb4a2}.fp-sub b{color:var(--gold);white-space:nowrap}
+.fp-bar{height:6px;border-radius:9px;background:#2a2a2a;margin:8px 0 10px;overflow:hidden}.fp-bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#ecd9a8,var(--gold))}
+.fp-it{display:flex;gap:12px;padding:8px 10px;font-size:.9rem;border-radius:12px}
+.fp-it .t{width:64px;flex:none;color:var(--gold);font-weight:600;font-size:.82rem;padding-top:1px}
+.fp-it small{display:block;color:#a59c8a;font-size:.76rem;margin-top:2px}.fp-it small .i{width:12px;height:12px;vertical-align:-2px}
+.fp-it b{font-weight:500}
+.fp-it.done{opacity:.5}.fp-it.done b{text-decoration:line-through}
+.fp-it.nx{border:1.5px solid var(--gold);background:#141414}.fp-it .fp-cab{color:var(--gold)}
 .today-card.home-today{position:static;margin:0 0 14px;padding:0;background:none}.home-today .today-h{cursor:default}.home-today .today-b{max-height:none}
 .tl{display:flex;gap:10px;padding:6px 0;font-size:.86rem;border-bottom:1px dashed var(--line)}
 .tl:last-child{border:none}
@@ -7230,8 +7243,27 @@ const Home = {
       const r = e.target.closest('[data-hrem]'), ch = e.target.closest('[data-hchat]'), pl = e.target.closest('[data-hplan]');
       if (r) { const t = live.find(x => x.id === r.closest('[data-ht]').dataset.ht), [i, id] = r.dataset.hrem.split('|'); Alerts.remindActivity(t, +i, id); }
       else if (ch) Chat.open(ch.dataset.hchat);
-      else if (pl) this.openTrip(pl);
+      else if (pl) this.fullPlan(live.find(x => x.id === pl.dataset.hplan));
     };
+  },
+  /** Day-by-day plan only (no expenses or packing), opened from the home Today card. */
+  fullPlan(t) {
+    if (!t) return;
+    const today = Util.ymd(new Date()), nowT = Util.pad(new Date().getHours()) + ':' + Util.pad(new Date().getMinutes()), n = t.days.length;
+    const day = (d, i) => {
+      const items = d.items.slice().sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
+      const isT = d.date === today, past = d.date < today;
+      const done = a => past || (isT && a.time && a.time < nowT);
+      const nx = isT ? items.find(a => !done(a)) : null, nDone = items.filter(done).length;
+      const pct = items.length ? Math.round(nDone / items.length * 100) : (past ? 100 : 0);
+      return `<section class="fp-day${isT ? ' on' : ''}${past ? ' past' : ''}"${isT ? ' id="fpToday"' : ''}>
+        <h3>Day ${i + 1} in ${Util.esc(t.destination)}${isT ? ' <span class="fp-tag">Today</span>' : ''}</h3>
+        <div class="fp-sub"><span>Day ${i + 1} of ${n} · ${Util.fmtDate(d.date, { weekday: 'long', day: 'numeric', month: 'short' })}</span>${items.length && (isT || past) ? `<b>${nDone} of ${items.length} done</b>` : `<b>${items.length} plan${items.length === 1 ? '' : 's'}</b>`}</div>
+        <div class="fp-bar"><i style="width:${pct}%"></i></div>
+        ${items.length ? items.map(a => `<div class="fp-it${done(a) ? ' done' : ''}${a === nx ? ' nx' : ''}"><span class="t">${a.time ? Util.fmtTime(a.time) : '—'}</span><span><b>${done(a) ? '✓ ' : ''}${Util.esc(a.title)}</b>${a.place ? `<small>${icon('pin', 'sm')} ${Util.esc(a.place)}</small>` : ''}${a === nx && (a.driver || a.vehicleNo || a.pickup) ? `<small class="fp-cab">🚕 ${Util.esc([a.pickup && 'Pickup: ' + a.pickup, a.driver, a.vehicleNo].filter(Boolean).join(' · '))}</small>` : ''}</span></div>`).join('') : '<p class="hint" style="margin:8px 0 0">Nothing planned for this day yet.</p>'}
+      </section>`;
+    };
+    UI.sheet('Trip to ' + t.destination, `<div class="fp">${t.days.map(day).join('')}</div>`, () => { const e = $('#fpToday'); e && e.scrollIntoView({ block: 'start' }); });
   },
   /** Clan trips open in the clan itself: the leader edits the shared plan, members only view it. */
   openTrip(el) {
