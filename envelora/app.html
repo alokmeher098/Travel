@@ -6993,7 +6993,7 @@ const Reels = {
         if (!p || !box.isConnected) return;
         // still, DSLR-style photo (no motion)
         box.classList.add('has-reel'); reel.innerHTML = `<div class="lp still"><img class="lp-img" src="${Util.esc(p.src)}" alt="${Util.esc(p.place || box.dataset.reel)}" decoding="async"/><div class="lp-vig"></div></div>`;
-        Home.creditNote && Home.creditNote();
+        // credits live in the menu only
       }).catch(() => { });
     });
   }
