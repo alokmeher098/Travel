@@ -136,4 +136,8 @@ end $$;
 revoke all on function public.clan_put(text,text,jsonb), public.clan_join(text,text), public.clan_delete(text), public.is_clan_member(text) from public, anon;
 grant execute on function public.clan_put(text,text,jsonb), public.clan_join(text,text), public.clan_delete(text), public.is_clan_member(text) to authenticated;
 
+-- table access for the app (rows are still protected by the RLS rules above)
+grant select, insert, update, delete on public.user_kv, public.live_locs to authenticated;
+grant select on public.clan_kv, public.clan_members to authenticated;
+
 alter publication supabase_realtime add table public.clan_kv, public.live_locs;
