@@ -1177,6 +1177,8 @@ details.grp[open] summary::after{content:"–"}
 .phc-h{margin:16px 0 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.phc-st{padding:10px 0;border-top:1px solid rgba(13,27,42,.08);font-size:.8rem;display:flex;flex-direction:column;gap:4px}.phc-st>span{color:var(--muted)}.phc-st a{color:inherit;text-decoration:underline}.phc-st .phc{border:0;padding:4px 0}
 .sy-cr{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .guide-hero.has-photo{background-size:cover!important;background-position:center!important;min-height:190px}.guide-hero.has-photo .big{display:none}.guide-hero.has-photo h2,.guide-hero.has-photo p{text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.au-legal{margin:10px 0 0;font-size:.72rem;opacity:.75;text-align:center;line-height:1.4}.au-legal a{color:inherit;text-decoration:underline}
+#acctMenu .m-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;padding:11px 10px;border-radius:10px;font-weight:500}#acctMenu .m-link:hover{background:rgba(212,178,106,.15)}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1747,6 +1749,9 @@ const Autocomplete = {
 document.addEventListener('click', e => { if (e.target.closest('[data-nav-back]')) Nav.back(); });
 $('#scrim').addEventListener('click', () => UI.closeSheet());
 
+/** Policies page (Privacy, Terms, Refunds, Delivery, Contact) */
+const LEGAL = 'https://alokmeher098.github.io/Travel/envelora/legal.html';
+
 /* -----------------------------------------------------------------------------
    DATA — sample Indian destination guides (prototype content)
    Each list item: [name, short note]
@@ -2121,6 +2126,7 @@ const AuthUI = {
               <input class="input" id="au-cap" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="= ?" /></div></div>
           <div class="err-msg" id="au-err"></div>
           <button class="btn gold block" type="submit" id="au-send">${Util.esc(cta)}</button>
+          <p class="au-legal">By continuing you agree to our <a href="${LEGAL}#terms" target="_blank" rel="noopener">Terms</a> and <a href="${LEGAL}#privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
           ${onSkip ? `<div class="auth-foot"><button type="button" class="link-btn" id="au-skip">Explore first — log in later</button></div>` : ''}
         </form>`;
       const cwrap = $('#au-cwrap', host);
@@ -3268,6 +3274,7 @@ const Refunds = {
         <div class="rf-row"><span>${q.ok ? 'Cancellation fee (20%)' : 'Not refundable (trip has started)'}</span><b>− ${Util.inr(q.kept)}</b></div>
         <div class="rf-row big"><span>You get back</span><b>${Util.inr(q.refund)}</b></div>
       </div>
+      <p class="au-legal" style="text-align:left">See the full <a href="${LEGAL}#refunds" target="_blank" rel="noopener">Refund &amp; Cancellation Policy</a>.</p>
       ${q.ok ? `<div class="notice">${icon('info', 'sm')}<span><b>80% refund</b> if you cancel before the trip starts${this.leftText(c) ? ` (starts in ${this.leftText(c)})` : ''}. After Day 1 begins there is no refund. Money goes back to the same UPI, card or bank account in 5–7 working days.</span></div>`
         : `<div class="notice">${icon('info', 'sm')}<span><b>The trip has already started</b>${c.refundBy && Util.ymd(new Date(this.startTs(c))) !== c.trip.start ? ` (on ${Util.fmtDate(Util.ymd(new Date(this.startTs(c))))}; moving the dates later doesn't reopen refunds)` : ''}, so it can't be refunded. The clan closes automatically 12 hours after the last day and everyone gets their Envelora Wrap.</span></div>`}
       <p class="hint">Cancelling closes the clan for all ${c.members.length} member${c.members.length > 1 ? 's' : ''}: the chat, photos, tickets and plans are deleted and everyone is told. Your trip plan stays on your home page as a draft.</p>
@@ -6105,6 +6112,7 @@ const Home = {
       <button data-m="login">${icon('login')}${u ? 'Log In (switch account)' : 'Log In'}</button>
       ${u ? `<button data-m="pay">${icon('wallet')}Payments & refunds</button>` : ''}
       ${u ? `<button data-m="out">${icon('logout')}Sign Out</button>` : ''}
+      <a class="m-link" href="${LEGAL}" target="_blank" rel="noopener">${icon('info')}Terms & policies</a>
       <button data-m="credits">${icon('info')}Credits</button>
       <button data-m="about">${icon('info')}About this prototype</button>`;
     m.hidden = false; $('#acctBtn').setAttribute('aria-expanded', 'true');
