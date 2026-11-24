@@ -155,7 +155,7 @@ html,body{width:1080px;height:1920px;background:#0B0B0B;overflow:hidden;font-fam
 const $ = id => document.getElementById(id);
 const cl = x => Math.max(0, Math.min(1, x)), ease = x => 1 - Math.pow(1 - cl(x), 3), seg = (t, a, b) => ease((t - a) / (b - a));
 const S = { A: [0, 4.2], B: [4.2, 7.6], C: [7.6, 10.2], D: [10.2, 13.2], E: [13.2, 15.6], F: [15.6, 18], G: [18, 21], H: [21, 23.4], I: [23.4, 26.8] };
-const DUR = 26.8;
+const DUR = 28.6;
 function show(el, t, a, dy = 40, len = .45) { const k = seg(t, a, a + len); el.style.opacity = k; el.style.transform = `translateY(${(1 - k) * dy}px)`; }
 function render(t) {
   for (const [id, [a, b]] of Object.entries(S)) { const fin = seg(t, a, a + .3), fout = id === 'I' ? 1 : 1 - seg(t, b - .25, b); $(id).style.opacity = t >= a - .01 && t <= b + .01 ? Math.min(fin, fout) : 0; }
