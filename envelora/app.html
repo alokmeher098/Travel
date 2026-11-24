@@ -1776,9 +1776,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .cs-member{flex-wrap:wrap}.cs-member .ma{flex-basis:100%;justify-content:flex-start;padding-left:54px}.cs-member .ma:empty{display:none}.cs-member .ma .btn{flex:0 0 auto;font-size:.68rem;padding:7px 12px}.cs-member .info .role-b{display:inline-block;padding:2px 8px;border-radius:6px}
 html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavior:none}
 #chat .chat-scroll{min-height:0}
-#chat.kb .chat-chips,#chat.kb .today-card{display:none}
 #chat .ov-head,#chat .composer{flex:none;position:relative;z-index:4}
 .to-bottom{position:absolute;right:14px;bottom:calc(72px + var(--safe-b,0px));z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(13,27,42,.82);color:#f1e6cc;font-size:1.4rem;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+.cs-member.tappable{cursor:pointer}.cs-member .m-more{margin-left:auto;font-size:1.3rem;color:rgba(241,230,204,.6);padding:0 4px;transition:transform .2s}.cs-member.open{border-color:rgba(212,178,106,.55);background:rgba(212,178,106,.08)}.cs-member.open .m-more{transform:rotate(90deg)}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -4550,7 +4550,7 @@ const ClanSettings = {
     if (Perm.can(c, uid, 'demote', m.accountId)) acts.push(`<button class="btn ghost sm" data-ma="demote" data-id="${m.accountId}">Remove co-leader</button>`);
     if (Perm.can(c, uid, 'transferLeader', m.accountId)) acts.push(`<button class="btn ghost sm" data-ma="leader" data-id="${m.accountId}">${icon('crown', 'sm')}Make leader</button>`);
     if (Perm.can(c, uid, 'remove', m.accountId)) acts.push(`<button class="btn ghost sm" data-ma="remove" data-id="${m.accountId}" style="color:#ffb4a8">Remove</button>`);
-    return `<div class="cs-member">${Util.avatar(m.name)}<div class="info"><b>${Util.esc(m.name)}${m.accountId === uid ? ' (you)' : ''}</b><span>Joined ${Util.fmtDT(m.joinedAt)}</span><div style="margin-top:4px"><span class="role-b ${m.role}">${ROLE_LABEL[m.role]}</span></div></div>${acts.length ? `<div class="ma">${acts.join('')}</div>` : ''}</div>`;
+    return `<div class="cs-member${acts.length ? ' tappable' : ''}"${acts.length ? ` role="button" tabindex="0" aria-expanded="false" data-mrow="${m.accountId}"` : ''}>${Util.avatar(m.name)}<div class="info"><b>${Util.esc(m.name)}${m.accountId === uid ? ' (you)' : ''}</b><span>Joined ${Util.fmtDT(m.joinedAt)}</span><div style="margin-top:4px"><span class="role-b ${m.role}">${ROLE_LABEL[m.role]}</span></div></div>${acts.length ? `<span class="m-more" aria-hidden="true">⋯</span><div class="ma" hidden>${acts.join('')}</div>` : ''}</div>`;
   },
   bind(c) {
     const u = Auth.user, body = $('#csBody');
@@ -4599,6 +4599,17 @@ const ClanSettings = {
       this.render(); UI.toast(`Capacity increased to ${fresh.capacity}.`);
     });
     $$('[data-ma]', body).forEach(b => b.onclick = () => UI.armed(b, () => this.memberAction(b.dataset.ma, b.dataset.id)));
+    // tap a member to show what you can do with them (leader: everyone; co-leader: members; members: nothing)
+    $$('[data-mrow]', body).forEach(row => {
+      const toggle = e => {
+        if (e.target.closest('[data-ma]')) return;
+        const box = row.querySelector('.ma'), open = box.hidden;
+        $$('[data-mrow] .ma', body).forEach(x => { x.hidden = true; x.parentElement.setAttribute('aria-expanded', 'false'); x.parentElement.classList.remove('open'); });
+        box.hidden = !open; row.setAttribute('aria-expanded', String(open)); row.classList.toggle('open', open);
+      };
+      row.addEventListener('click', toggle);
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } });
+    });
     $('#csCancel') && ($('#csCancel').onclick = () => Refunds.open(Clans.get(c.id)));
     $('#csLeave') && ($('#csLeave').onclick = e => UI.armed(e.currentTarget, () => {
       const cur = Clans.get(c.id); Clans.removeMember(cur, u.id);
