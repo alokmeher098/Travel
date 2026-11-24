@@ -2403,7 +2403,7 @@ const Cloud = {
     if (/phone.*(provider|disabled|not.*enabled)|unsupported phone|sms provider/i.test(m)) return 'Mobile OTP isn\'t switched on yet. Please use Email for now.';
     if (/signups? not allowed/i.test(m)) return 'New sign-ups are closed right now.';
     if (/expired|invalid/i.test(m)) return 'That code is wrong or has expired. Ask for a new one.';
-    if (/fetch|network|failed to/i.test(m)) return 'No internet connection. Check your network and try again.';
+    if (/fetch|network|failed to|load failed/i.test(m)) return navigator.onLine === false ? 'No internet connection. Check your network and try again.' : 'Couldn\'t reach the Envelora server from this network. Try Wi-Fi, or set Private DNS to one.one.one.one (Settings → Network → Private DNS), then try again.';
     return m || 'Something went wrong. Please try again.';
   },
   phoneE164(v) { return '+91' + Util.normPhone(v); },
