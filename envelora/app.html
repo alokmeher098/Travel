@@ -2457,7 +2457,7 @@ const Cloud = {
         if (del) ({ error } = await this.sb.from('user_kv').delete().eq('user_id', this.uid).eq('k', uk));
         else ({ error } = await this.sb.from('user_kv').upsert({ user_id: this.uid, k: uk, v: Store.get(k), updated_at: new Date().toISOString() }));
       } else if (ck) {
-        if (del) { if (ck[1] === 'clan') ({ error } = await this.sb.rpc('clan_delete', { p_clan: ck[0] })); }
+        if (del) { if (ck[1] === 'clan') { await ClanPhotos.purge(ck[0]); ({ error } = await this.sb.rpc('clan_delete', { p_clan: ck[0] })); } }
         else { const v = Store.get(k); if (v != null) ({ error } = await this.sb.rpc('clan_put', { p_clan: ck[0], p_k: ck[1], p_v: v })); }
       }
     } catch (e) { error = e; }
@@ -2626,6 +2626,87 @@ const Cloud = {
   Store.del = k => { del(k); Cloud.queue(k, true); };
 })();
 Cloud.init();
+
+/* =============================================================================
+   CLAN PHOTOS — the image files live in Supabase Storage (private bucket
+   "clan-photos", readable only by clan members); the clan record keeps a small
+   reference { id, path, by, name, ts } so every member's phone sees the album.
+   Without the cloud (guest/offline) the photo stays inline as `data`.
+   ============================================================================= */
+const ClanPhotos = {
+  BUCKET: 'clan-photos', BLANK: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+  mem: {}, urls: {}, pending: {},
+  init() { try { this.urls = JSON.parse(localStorage.getItem('envelora.photoUrls') || '{}') || {}; } catch (e) { this.urls = {}; } },
+  keep() { try { localStorage.setItem('envelora.photoUrls', JSON.stringify(this.urls)); } catch (e) { } },
+  list(c) { return ((c && c.photos) || []).slice().sort((a, b) => (b.ts || 0) - (a.ts || 0)); },
+  find(c, id) { return ((c && c.photos) || []).find(p => p.id === id); },
+  src(p) {
+    if (!p) return '';
+    if (p.data) return p.data;
+    if (this.mem[p.path]) return this.mem[p.path];
+    const u = this.urls[p.path]; return u && u.exp > Date.now() ? u.u : '';
+  },
+  /** <img> attributes; real address is filled in by hydrate() (keeps chat HTML stable, no blink) */
+  attr(p) { return p.data ? `src="${p.data}"` : `src="${this.BLANK}" data-sp="${Util.esc(p.path || '')}"`; },
+  async sign(paths) {
+    paths = [...new Set(paths)].filter(x => x && !this.pending[x]);
+    if (!paths.length || !Cloud.on()) return;
+    paths.forEach(x => this.pending[x] = 1);
+    try {
+      const { data } = await Cloud.sb.storage.from(this.BUCKET).createSignedUrls(paths, 7 * 86400);
+      (data || []).forEach(r => { if (r && r.signedUrl && r.path) this.urls[r.path] = { u: r.signedUrl, exp: Date.now() + 6 * 86400e3 }; });
+      this.keep();
+    } catch (e) { /* offline: try again on the next render */ }
+    finally { paths.forEach(x => delete this.pending[x]); }
+  },
+  /** Put real image addresses into every <img data-sp> under root (signing missing ones). */
+  hydrate(root) {
+    if (!root) return;
+    const imgs = [...root.querySelectorAll('img[data-sp]')], miss = [];
+    const fill = () => imgs.forEach(im => { const s = this.src({ path: im.dataset.sp }); if (s && im.getAttribute('src') !== s) im.src = s; });
+    imgs.forEach(im => { if (!this.src({ path: im.dataset.sp })) miss.push(im.dataset.sp); });
+    fill();
+    if (miss.length) this.sign(miss).then(fill);
+  },
+  /** Share a photo (JPEG data URL) with the clan. Returns the photo reference. */
+  async add(clanId, dataUrl, extra = {}) {
+    const c = Clans.get(clanId); if (!c) throw new Error('Clan not found.');
+    if ((c.photos || []).length >= 60) throw new Error('This album is full (60 photos). Delete a few first.');
+    const p = { id: Util.uid('ph'), by: Auth.user.id, name: Auth.user.name, ts: Date.now(), ...extra };
+    if (Cloud.on() && Auth.user && Auth.user.cloud) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const path = `${clanId}/${p.id}.jpg`;
+      const { error } = await Cloud.sb.storage.from(this.BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+      if (error) throw new Error(/fetch|network|failed/i.test(error.message || '') ? 'No internet connection. Check your network and try again.' : 'Could not upload the photo. Please try again.');
+      p.path = path; this.mem[path] = dataUrl;
+    } else p.data = dataUrl;
+    const cur = Clans.get(clanId); cur.photos = [p, ...(cur.photos || [])];
+    if (!Clans.save(cur)) throw new Error('Phone storage is full.');
+    return p;
+  },
+  async remove(clanId, p) {
+    const cur = Clans.get(clanId); if (!cur) return;
+    cur.photos = (cur.photos || []).filter(x => x.id !== p.id);
+    cur.photosGone = [...new Set([...(cur.photosGone || []), p.id])].slice(-300);
+    Clans.save(cur);
+    if (p.path && Cloud.on()) try { await Cloud.sb.storage.from(this.BUCKET).remove([p.path]); } catch (e) { }
+  },
+  /** Clan deleted: remove its photo files too (best effort; only members may). */
+  async purge(clanId) {
+    try {
+      const { data } = await Cloud.sb.storage.from(this.BUCKET).list(clanId, { limit: 1000 });
+      const paths = (data || []).map(f => clanId + '/' + f.name);
+      if (paths.length) await Cloud.sb.storage.from(this.BUCKET).remove(paths);
+    } catch (e) { }
+  },
+  /** An address the editor canvas can use (same-origin data or CORS-enabled signed URL). */
+  async url(p) {
+    if (!p) return '';
+    if (!this.src(p) && p.path) await this.sign([p.path]);
+    return this.src(p);
+  }
+};
+ClanPhotos.init();
 
 /* -----------------------------------------------------------------------------
    DATA — sample Indian destination guides (prototype content)
@@ -4354,10 +4435,11 @@ const Chat = {
       let cls = '';
       if (m.type === 'score') { cls = 'score'; content = `🏆 <b>${Util.esc(m.game)}</b><br/>${(m.scores || []).map((s, i) => `${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '•'} ${Util.esc(s.name)} — <b>${s.score}</b>`).join('<br/>')}`; }
       if (m.type === 'alert') { cls = 'alert'; content = `🔔 <b>Clan alert</b><br/>${content}`; }
-      if (m.type === 'photo') { const ph = (c.photos || []).find(p => p.id === m.photoId); content = ph ? `<img src="${ph.data}" alt="Shared photo" />${content}` : '<i class="hint">Photo removed</i>'; }
+      if (m.type === 'photo') { const ph = (c.photos || []).find(p => p.id === m.photoId); content = ph ? `<img ${ClanPhotos.attr(ph)} alt="Shared photo" data-open-ph="${ph.id}" />${content}` : '<i class="hint">Photo removed</i>'; }
       return sep + `<div class="msg ${mine ? 'me' : ''}">${mine ? '' : Util.avatar(m.name, 'sm')}<div class="bub ${cls}">${mine ? '' : `<div class="who" style="color:${col}">${Util.esc(m.name)}</div>`}${content}<div class="ts">${Util.fmtClock(m.ts)}${mine ? ' ✓✓' : ''}</div></div></div>`;
     }).join('') || `<div class="empty"><div class="em">💌</div><h4>Say hello to your clan</h4></div>`;
     if (html !== this._msgHtml) { this._msgHtml = html; box.innerHTML = html; } // redraw only when something changed (no blink)
+    ClanPhotos.hydrate(box);
     if (scroll || atBottom) requestAnimationFrame(() => sc.scrollTop = sc.scrollHeight);
     this.lastCount = c.messages.length;
   },
@@ -4405,47 +4487,49 @@ const Chat = {
   liveLocation(c) { LiveMap.open(c); },
 
   photos(c) {
-    const ph = c.photos || [];
+    const ph = ClanPhotos.list(c);
     const canDel = p => p.by === Auth.user.id || Perm.can(c, Auth.user.id, 'editInfo');
     UI.sheet('Clan photos', `
-      <div class="notice">${icon('info', 'sm')}<span>Photos are saved on this phone for now. Shared albums for the whole clan are coming soon.</span></div>
+      <div class="notice">${icon('info', 'sm')}<span>Photos you add here are shared with everyone in <b>${Util.esc(c.name)}</b>. Only clan members can see them.</span></div>
       <button class="btn gold block" id="phUp">${icon('camera', 'sm')}Upload a photo</button>
       <p class="hint" style="margin:8px 0">${ph.length} photo${ph.length === 1 ? '' : 's'} · tap a photo to preview</p>
-      <div class="photo-grid">${ph.map(p => `<div class="ph" data-ph="${p.id}"><img src="${p.data}" alt="Photo by ${Util.esc(p.name)}"/><span class="by">${Util.esc(p.name.split(' ')[0])}</span></div>`).join('')}
+      <div class="photo-grid">${ph.map(p => `<div class="ph" data-ph="${p.id}"><img ${ClanPhotos.attr(p)} alt="Photo by ${Util.esc(p.name)}"/><span class="by">${Util.esc(p.name.split(' ')[0])}</span></div>`).join('')}
       ${Array.from({ length: Math.max(0, 6 - ph.length) }, () => `<div class="ph">📷</div>`).join('')}</div>`, body => {
+      ClanPhotos.hydrate(body);
       $('#phUp', body).onclick = async () => {
         const f = await Util.pickImage(); if (!f) return;
         if (!/^image\//.test(f.type)) return UI.toast('Please choose an image file.', 'err');
-        const btn = $('#phUp', body); UI.busy(btn, true, 'Uploading (local preview)…');
+        const btn = $('#phUp', body); UI.busy(btn, true, 'Uploading…');
         try {
-          // >>> SUPABASE INTEGRATION POINT — supabase.storage.from('clan-photos').upload(`${clanId}/${uuid}.jpg`, file)
-          const data = await Util.imageToDataUrl(f, 720, .72);
-          const cur = Clans.get(c.id); cur.photos = cur.photos || [];
-          if (cur.photos.length >= 30) { UI.busy(btn, false); return UI.toast('You can keep up to 30 photos per clan for now.', 'err'); }
-          const p = { id: Util.uid('ph'), by: Auth.user.id, name: Auth.user.name, data, ts: Date.now() };
-          cur.photos.unshift(p);
-          if (!Clans.save(cur)) { UI.busy(btn, false); return; }
+          let data; try { data = await Util.imageToDataUrl(f, 1280, .8); } catch (e) { throw new Error('Could not read that image.'); }
+          const p = await ClanPhotos.add(c.id, data);
           Clans.post(c.id, { type: 'photo', photoId: p.id, text: '' });
           UI.toast('Photo shared with the clan.');
           this.photos(Clans.get(c.id));
-        } catch (e) { UI.busy(btn, false); UI.toast('Could not read that image.', 'err'); }
+        } catch (e) { UI.busy(btn, false); UI.toast(e.message || 'Could not upload the photo.', 'err'); }
       };
       body.querySelector('.photo-grid').onclick = e => {
-        const el = e.target.closest('[data-ph]'); if (!el) return;
-        const p = (Clans.get(c.id).photos || []).find(x => x.id === el.dataset.ph); if (!p) return;
-        UI.sheet('Photo', `<img src="${p.data}" alt="" style="border-radius:14px;width:100%"/><p class="hint" style="margin-top:8px">Shared by ${Util.esc(p.name)} · ${Util.fmtDT(p.ts)}</p>
-          <div class="row"><button class="btn ghost" id="phBack">Back to album</button><button class="btn gold" id="phEdit">${icon('edit', 'sm')}Edit</button>${canDel(p) ? `<button class="btn danger" id="phDel">${icon('trash', 'sm')}Delete</button>` : ''}</div>`, b2 => {
+        const el = e.target.closest('[data-ph]'); if (el) this.viewPhoto(c, el.dataset.ph);
+      };
+    });
+  },
+  viewPhoto(c, id) {
+    const canDel = p => p.by === Auth.user.id || Perm.can(Clans.get(c.id), Auth.user.id, 'editInfo');
+    { const p = ClanPhotos.find(Clans.get(c.id), id); if (!p) return UI.toast('This photo was deleted.', 'err');
+        UI.sheet('Photo', `<img ${ClanPhotos.attr(p)} alt="" style="border-radius:14px;width:100%;min-height:120px;background:rgba(13,27,42,.06)"/><p class="hint" style="margin-top:8px">Shared by ${Util.esc(p.name)} · ${Util.fmtDT(p.ts)}</p>
+          <div class="row"><button class="btn ghost" id="phBack">Album</button><button class="btn gold" id="phEdit">${icon('edit', 'sm')}Edit</button>${canDel(p) ? `<button class="btn danger" id="phDel">${icon('trash', 'sm')}Delete</button>` : ''}</div>`, b2 => {
+          ClanPhotos.hydrate(b2);
           $('#phBack', b2).onclick = () => this.photos(Clans.get(c.id));
           $('#phEdit', b2).onclick = () => Nav.back(() => Studio.open(Clans.get(c.id), p));
           $('#phDel', b2) && ($('#phDel', b2).onclick = e2 => UI.armed(e2.currentTarget, () => {
-            const cur = Clans.get(c.id); cur.photos = cur.photos.filter(x => x.id !== p.id); Clans.save(cur);
-            this.renderMessages(); this.photos(cur); UI.toast('Photo deleted.');
+            ClanPhotos.remove(c.id, p); this._msgHtml = null;
+            this.renderMessages(); this.photos(Clans.get(c.id)); UI.toast('Photo deleted.');
           }));
         });
-      };
-    });
+    }
   }
 };
+$('#msgs').addEventListener('click', e => { const im = e.target.closest('[data-open-ph]'); if (im && Chat.clanId) Chat.viewPhoto(Chat.clan(), im.dataset.openPh); });
 $('#chChips').addEventListener('click', e => { const b = e.target.closest('[data-chip]'); if (b) Chat.chip(b.dataset.chip); });
 $('#chTitle').addEventListener('click', () => ClanSettings.open(Chat.clanId));
 $('#chSettings').addEventListener('click', () => ClanSettings.open(Chat.clanId));
@@ -4863,23 +4947,24 @@ const Studio = {
   open(c, photo) {
     this.c = c;
     UI.openOverlay('studio', () => this.cleanup());
-    if (photo) return this.photo(photo.data);
+    if (photo) { ClanPhotos.url(photo).then(u => u ? this.photo(u) : (UI.toast('Could not load that photo. Check your internet.', 'err'), this.home())); return; }
     this.home();
   },
   cleanup() { this.stopVideo && this.stopVideo(); this.stopVideo = null; $('#stBody').innerHTML = ''; },
   home() {
     this.cleanup();
-    const ph = (Clans.get(this.c.id).photos || []).slice(0, 12);
+    const ph = ClanPhotos.list(Clans.get(this.c.id)).slice(0, 12);
     $('#stTitle').textContent = 'Studio'; $('#stSub').textContent = 'Edit photos and videos from the trip';
     $('#stBody').innerHTML = `<div class="st-pick">
       <label class="st-big" for="stPhotoIn"><span>🖼️</span><b>Edit a photo</b><small>Crop, filters, text, stickers, frames</small></label>
       <label class="st-big" for="stVidIn"><span>🎬</span><b>Edit a video</b><small>Trim, filters, text, speed — renders a new video</small></label>
       <input type="file" id="stPhotoIn" accept="image/*" hidden /><input type="file" id="stVidIn" accept="video/*" hidden /></div>
-      ${ph.length ? `<h3 class="st-h">Or edit a clan photo</h3><div class="st-album">${ph.map(p => `<button data-ph="${p.id}"><img src="${p.data}" alt="Clan photo by ${Util.esc(p.name)}"/></button>`).join('')}</div>` : ''}
+      ${ph.length ? `<h3 class="st-h">Or edit a clan photo</h3><div class="st-album">${ph.map(p => `<button data-ph="${p.id}"><img ${ClanPhotos.attr(p)} alt="Clan photo by ${Util.esc(p.name)}"/></button>`).join('')}</div>` : ''}
       <p class="hint st-note">Editing happens on your phone. Nothing is uploaded until you choose to share.</p>`;
     $('#stPhotoIn').onchange = e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = () => this.photo(r.result); r.readAsDataURL(f); } };
     $('#stVidIn').onchange = e => { const f = e.target.files[0]; if (f) this.video(f); };
-    const al = $('.st-album'); if (al) al.onclick = e => { const b = e.target.closest('[data-ph]'); if (b) this.photo((Clans.get(this.c.id).photos || []).find(p => p.id === b.dataset.ph).data); };
+    ClanPhotos.hydrate($('#stBody'));
+    const al = $('.st-album'); if (al) al.onclick = async e => { const b = e.target.closest('[data-ph]'); if (!b) return; const u = await ClanPhotos.url(ClanPhotos.find(Clans.get(this.c.id), b.dataset.ph)); if (u) this.photo(u); else UI.toast('Could not load that photo. Check your internet.', 'err'); };
   },
   /* Tool panel shared by photo and video. `kind` controls extras. */
   tools(kind) {
@@ -5005,16 +5090,13 @@ const Studio = {
       $('#stClan').onclick = async e => {
         const b = e.currentTarget; UI.busy(b, true, 'Posting…');
         const [, out] = await render(), k = Math.min(1, 900 / Math.max(out.width, out.height)), sm = document.createElement('canvas'); sm.width = Math.round(out.width * k); sm.height = Math.round(out.height * k); sm.getContext('2d').drawImage(out, 0, 0, sm.width, sm.height);
-        const cur = Clans.get(this.c.id); cur.photos = cur.photos || [];
-        if (cur.photos.length >= 30) { UI.busy(b, false); return UI.toast('You can keep up to 30 photos per clan for now.', 'err'); }
-        const p = { id: Util.uid('ph'), edited: true, by: Auth.user.id, name: Auth.user.name, data: sm.toDataURL('image/jpeg', .78), ts: Date.now() };
-        cur.photos.unshift(p);
-        if (!Clans.save(cur)) { UI.busy(b, false); return; }
+        let p; try { p = await ClanPhotos.add(this.c.id, sm.toDataURL('image/jpeg', .8), { edited: true }); } catch (er) { UI.busy(b, false); return UI.toast(er.message || 'Could not post the photo.', 'err'); }
         Clans.post(this.c.id, { type: 'photo', photoId: p.id, text: '✨ Edited in Studio' }); UI.busy(b, false); UI.toast('Posted to the clan album and chat.');
         Chat.renderMessages && Chat.renderMessages();
       };
     };
     img.onerror = () => UI.toast('Could not open that photo.', 'err');
+    if (/^https?:/.test(dataUrl)) img.crossOrigin = 'anonymous';
     img.src = dataUrl;
   },
 
@@ -5437,7 +5519,7 @@ const Wraps = {
   /** Activity log per account: 'story' (read), 'visit' (arrived), 'edit' (Studio export). */
   log(k, t) { if (!Auth.user) return; const key = 'envelora.v1.actLog.' + Auth.user.id, l = Store.get(key, []) || []; if (k !== 'edit' && l.some(x => x.k === k && x.t === t && Util.ymd(x.ts) === Util.ymd(Date.now()))) return; l.push({ k, t, ts: Date.now() }); Store.set(key, l.slice(-400)); },
   acts(acc, t) { return (Store.get('envelora.v1.actLog.' + acc, []) || []).filter(x => Util.ymd(x.ts) >= t.start && Util.ymd(x.ts) <= t.end); },
-  thumb(src, size = 360) { return new Promise(res => { const i = new Image(); i.onload = () => { const k = size / Math.max(i.width, i.height), c = document.createElement('canvas'); c.width = Math.round(i.width * Math.min(1, k)); c.height = Math.round(i.height * Math.min(1, k)); c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .72)); }; i.onerror = () => res(null); i.src = src; }); },
+  thumb(src, size = 360) { return new Promise(res => { const i = new Image(); i.onload = () => { const k = size / Math.max(i.width, i.height), c = document.createElement('canvas'); c.width = Math.round(i.width * Math.min(1, k)); c.height = Math.round(i.height * Math.min(1, k)); c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .72)); }; i.onerror = () => res(null); if (/^https?:/.test(src || '')) i.crossOrigin = 'anonymous'; i.src = src; }); },
   fmtLeft(ms) { const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 60e3); return h ? `${h}h ${m}m` : `${m} min`; },
 
   /* ---------- scheduler ---------- */
@@ -5520,7 +5602,7 @@ const Wraps = {
     const badge = BADGES.filter(([k]) => me[k] > 0 && rank(k) === 1).sort((a, b) => (me[b[0]] / Math.max(1, top(b[0])[b[0]])) - (me[a[0]] / Math.max(1, top(a[0])[a[0]])))[0] || ['', '✨', 'The Good Vibes', 'Every trip needs someone who just makes it better.'];
     // Keep small copies of your photos (they vanish with the clan).
     const own = (c.photos || []).filter(p => p.by === acc), src = (own.length ? own : (c.photos || [])).slice(0, 6), pics = [];
-    for (const p of src) { const th = await this.thumb(p.data, 720); if (th) pics.push(th); }
+    for (const p of src) { const th = await this.thumb(await ClanPhotos.url(p), 720); if (th) pics.push(th); }
     return {
       pics, ownPics: own.length > 0,
       id: Util.uid('wrap'), clanId: c.id, clanName: c.name, photo: c.photo || null, destination: t.destination, from: t.from || '', start: t.start, end: t.end, days, created: Date.now(),
