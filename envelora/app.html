@@ -1192,7 +1192,7 @@ details.grp[open] summary::after{content:"–"}
 .phc-h{margin:16px 0 4px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.phc-st{padding:10px 0;border-top:1px solid rgba(13,27,42,.08);font-size:.8rem;display:flex;flex-direction:column;gap:4px}.phc-st>span{color:var(--muted)}.phc-st a{color:inherit;text-decoration:underline}.phc-st .phc{border:0;padding:4px 0}
 .sy-cr{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .guide-hero.has-photo{background-size:cover!important;background-position:center!important;min-height:190px}.guide-hero.has-photo .big{display:none}.guide-hero.has-photo h2,.guide-hero.has-photo p{text-shadow:0 1px 8px rgba(0,0,0,.5)}
-.au-legal{margin:10px 0 0;font-size:.72rem;opacity:.75;text-align:center;line-height:1.4}.au-legal a{color:inherit;text-decoration:underline}
+.au-legal{margin:10px 0 0;font-size:.72rem;opacity:.75;text-align:center;line-height:1.4}.au-consent{display:flex;gap:8px;align-items:flex-start;text-align:left;opacity:.9;cursor:pointer}.au-consent input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:var(--gold)}.au-legal a{color:inherit;text-decoration:underline}
 #acctMenu .m-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;padding:11px 10px;border-radius:10px;font-weight:500}#acctMenu .m-link:hover{background:rgba(212,178,106,.15)}
 .beta-pill{margin-left:8px;font:600 .58rem/1 var(--sans);letter-spacing:.14em;padding:4px 7px;border-radius:99px;background:var(--gold);color:#111;vertical-align:middle}
 /* Leaflet 1.9.4 (BSD-2) */
@@ -2049,6 +2049,12 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const Util = {
   uid(p = 'id') { return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); },
   token(n = 10) { const c = 'abcdefghjkmnpqrstuvwxyz23456789'; let s = ''; const a = new Uint32Array(n); (window.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : a.forEach((_, i) => a[i] = Math.random() * 1e9); a.forEach(v => s += c[v % c.length]); return s; },
+  /** Safe address for src/href: base64 image/PDF data, blob:, or https. Anything else becomes ''. */
+  url(u) {
+    const s = String(u ?? '');
+    if (/^data:(image\/(png|jpe?g|webp|gif)|application\/pdf);base64,[A-Za-z0-9+\/=\s]+$/i.test(s) || /^blob:https?:\/\/[^\s"'<>]+$/i.test(s) || /^blob:null\/[\w-]+$/i.test(s) || /^https:\/\/[^\s"'<>\\]+$/i.test(s)) return this.esc(s);
+    return '';
+  },
   esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); },
   inr(n, dec) {
     const v = Number(n) || 0;
@@ -2370,6 +2376,7 @@ document.addEventListener('click', e => { if (e.target.closest('[data-nav-back]'
 $('#scrim').addEventListener('click', () => UI.closeSheet());
 
 /** Policies page (Privacy, Terms, Refunds, Delivery, Contact) */
+const CONSENT_VERSION = '2026-11-25'; // bump when the Privacy Policy changes in an important way
 const LEGAL = 'https://alokmeher098.github.io/Travel/envelora/legal.html';
 
 /* =============================================================================
@@ -2378,6 +2385,39 @@ const LEGAL = 'https://alokmeher098.github.io/Travel/envelora/legal.html';
    signed-in user or to one of their clans is mirrored to Supabase, and changes
    from other phones arrive through Realtime and are written back locally.
    ============================================================================= */
+/* Data from the server can be written by any clan member, so it is never trusted:
+   ids are reduced to safe characters, image/link fields must be safe addresses,
+   lists must be lists, numbers must be numbers, roles must be real roles. */
+const Safe = {
+  ID: /^(id|[a-z]+Id|accountId|by|uid|path|paidBy|from_id|to_id)$/,
+  IMG: /^(photo|data|thumb|src|img|avatar|signedUrl|cover)$/,
+  LIST: /^(messages|members|photos|photosGone|days|items|expenses|packing|travellers|files|scores|shared|removed|payments|pics|places|tags)$/,
+  NUM: /^(ts|amount|capacity|score|size|joinedAt|createdAt|updatedAt|lat|lng|steps|pct)$/,
+  clean(v, key = '', depth = 0) {
+    if (depth > 12) return null;
+    if (Array.isArray(v)) return v.slice(0, 5000).map(x => this.clean(x, key, depth + 1));
+    if (v && typeof v === 'object') {
+      const o = {};
+      for (const k of Object.keys(v).slice(0, 300)) {
+        if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+        let x = this.clean(v[k], k, depth + 1);
+        if (this.LIST.test(k) && x != null && !Array.isArray(x)) x = [];
+        if (k === 'forWho' && x !== 'all' && !Array.isArray(x)) x = 'all';
+        if (k === 'role' && !['leader', 'co', 'member'].includes(x)) x = 'member';
+        o[k] = x;
+      }
+      return o;
+    }
+    if (typeof v === 'string') {
+      if (this.ID.test(key)) return v.replace(/[^\w.:\/@+-]/g, '_').slice(0, 120);
+      if (this.IMG.test(key)) return Util.url(v) ? v : '';
+      if (this.NUM.test(key)) { const n = Number(v); return isFinite(n) ? n : 0; }
+      return v.slice(0, 20000);
+    }
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    return v;
+  }
+};
 const Cloud = {
   sb: null, uid: null, applying: false, timers: {}, chans: [], started: false, warned: false,
   on() { return !!this.sb; },
@@ -2476,6 +2516,7 @@ const Cloud = {
 
   /* ---------- cloud → local ---------- */
   apply(k, v) {
+    v = Safe.clean(v);
     this.applying = true;
     try {
       if (v === null || v === undefined) localStorage.removeItem(k);
@@ -2614,6 +2655,7 @@ const Cloud = {
     if (error) throw new Error(/invalid invite/i.test(error.message) ? 'This invite link is not valid any more.' : this.err(error));
     if (!data) return null;
     this.apply(KEYS.clan(clanId), data);
+    return Store.get(KEYS.clan(clanId));
     const { data: tk } = await this.sb.from('clan_kv').select('v').eq('clan_id', clanId).eq('k', 'tickets').maybeSingle();
     if (tk) this.apply('envelora.v1.tickets.' + clanId, tk.v);
     return data;
@@ -2647,7 +2689,7 @@ const ClanPhotos = {
     const u = this.urls[p.path]; return u && u.exp > Date.now() ? u.u : '';
   },
   /** <img> attributes; real address is filled in by hydrate() (keeps chat HTML stable, no blink) */
-  attr(p) { return p.data ? `src="${p.data}"` : `src="${this.BLANK}" data-sp="${Util.esc(p.path || '')}"`; },
+  attr(p) { return p.data ? `src="${Util.url(p.data)}"` : `src="${this.BLANK}" data-sp="${Util.esc(p.path || '')}"`; },
   async sign(paths) {
     paths = [...new Set(paths)].filter(x => x && !this.pending[x]);
     if (!paths.length || !Cloud.on()) return;
@@ -3015,6 +3057,7 @@ const Auth = {
     this.saveAccounts(accts);
     this.user = acc; this.remember();
     const moved = this.transferGuestTrip();
+    if (this.consentGiven) { Store.set(`envelora.v1.acct.${acc.id}.consent`, { version: CONSENT_VERSION, ts: this.consentGiven, adult: true, via: type }); this.consentGiven = 0; }
     Clans.syncMemberProfile(acc);
     if (cu) { Cloud.start(); const md = (this.cloudUser && this.cloudUser.user_metadata) || {}; if (md.name !== acc.name) Cloud.sb.auth.updateUser({ data: { name: acc.name } }).catch(() => { }); }
     return { acc, isNew, moved };
@@ -3107,7 +3150,7 @@ const AuthUI = {
               <input class="input" id="au-cap" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="= ?" /></div></div>
           <div class="err-msg" id="au-err"></div>
           <button class="btn gold block" type="submit" id="au-send">${Util.esc(cta)}</button>
-          <p class="au-legal">By continuing you agree to our <a href="${LEGAL}#terms" target="_blank" rel="noopener">Terms</a> and <a href="${LEGAL}#privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+          <label class="au-legal au-consent"><input type="checkbox" id="au-ok" /> <span>I am 18 or older, and I agree to the <a href="${LEGAL}#terms" target="_blank" rel="noopener">Terms</a> and the <a href="${LEGAL}#privacy" target="_blank" rel="noopener">Privacy Policy</a>, including Envelora using my name, contact and trip details to run my trips and clans.</span></label>
           ${onSkip ? `<div class="auth-foot"><button type="button" class="link-btn" id="au-skip">Explore first — log in later</button></div>` : ''}
         </form>`;
       const cwrap = $('#au-cwrap', host);
@@ -3169,6 +3212,8 @@ const AuthUI = {
           return;
         }
         if ($('#au-web', host).value) { newCap(); err.textContent = 'Could not send OTP. Try again.'; return; } // honeypot: only bots fill the hidden field
+        const okc = $('#au-ok', host); if (okc && !okc.checked) { err.textContent = 'Please tick the box to confirm you are 18+ and agree to the Terms and Privacy Policy.'; okc.focus(); return; }
+        Auth.consentGiven = Date.now();
         st.name = name.value.trim(); st.value = val.value.trim();
         const btn = $('#au-send', host); UI.busy(btn, true, 'Sending OTP…');
         try { await Auth.sendOtp(st.type, st.value, st.name); stepTwo(); }
@@ -3901,7 +3946,7 @@ const Payments = {
       rzp.open();
     });
   },
-  loadScript(src) { return new Promise((res, rej) => { if ($(`script[src="${src}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('script blocked')); document.head.appendChild(s); }); },
+  loadScript(src) { return new Promise((res, rej) => { if ($(`script[src="${Util.url(src)}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('script blocked')); document.head.appendChild(s); }); },
 
   /** PREVIEW MODE — no API key configured. Nothing is charged. */
   simulate({ amount, title }) {
@@ -4194,7 +4239,7 @@ const Invite = {
     const lead = c.members.find(m => m.role === 'leader'), full = c.members.length >= c.capacity, days = Clans.days(c);
     host.innerHTML = `<div class="glass inv-card">
       <p class="sub" style="margin-bottom:6px">You've received an invitation ✉️</p>
-      <div class="shield"><div class="sh-o"></div><div class="sh-i">${c.photo ? `<img src="${c.photo}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji}</div></div>
+      <div class="shield"><div class="sh-o"></div><div class="sh-i">${c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji}</div></div>
       <h2>${Util.esc(c.name)}</h2><p class="sub">${Util.esc(c.desc)}</p>
       <div class="inv-meta"><div><b>${Util.esc(c.trip.destination)}</b>Destination</div><div><b>${days} day${days > 1 ? 's' : ''}</b>${Util.fmtDate(c.trip.start)} – ${Util.fmtDate(c.trip.end)}</div>
       <div><b>${Util.esc(lead ? lead.name : '—')}</b>Clan leader</div><div><b>${c.members.length}/${c.capacity}</b>Members</div></div>
@@ -4365,7 +4410,7 @@ const Chat = {
   },
   render() {
     const c = this.clan(); if (!c) return;
-    $('#chPhoto').innerHTML = c.photo ? `<img src="${c.photo}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji;
+    $('#chPhoto').innerHTML = c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji;
     $('#chName').textContent = c.name;
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
@@ -4602,7 +4647,7 @@ const ClanSettings = {
     $('#csHome').innerHTML = icon('back');
     $('#csBody').innerHTML = `
       <div class="cs-hero">
-        <div class="shield"><div class="sh-o"></div><div class="sh-i">${c.photo ? `<img src="${c.photo}" alt="Clan photo">` : emoji}</div>
+        <div class="shield"><div class="sh-o"></div><div class="sh-i">${c.photo ? `<img src="${Util.url(c.photo)}" alt="Clan photo">` : emoji}</div>
           ${can('editInfo') ? `<label class="icon-btn dark cam" id="csPhoto" for="csPhotoIn" role="button" aria-label="Change group photo" style="background:var(--navy)">${icon('camera', 'sm')}</label><input type="file" id="csPhotoIn" accept="image/*" class="vh-file" />` : ''}</div>
         <h2>${Util.esc(c.name)}</h2>
         <p class="desc">${Util.esc(c.desc)}</p>
@@ -4682,7 +4727,7 @@ const ClanSettings = {
         cur.photo = data; if (!Clans.save(cur)) return;
         Clans.post(c.id, { type: 'system', text: `${u.name} changed the group photo.` });
         // Refresh every place the group photo shows: settings, chat header and messages, home cards.
-        this.render(); const ph = $('#chPhoto'); if (ph && Chat.clan() && Chat.clan().id === c.id) { ph.innerHTML = `<img src="${data}" alt="">`; Chat.renderMessages && Chat.renderMessages(); }
+        this.render(); const ph = $('#chPhoto'); if (ph && Chat.clan() && Chat.clan().id === c.id) { ph.innerHTML = `<img src="${Util.url(data)}" alt="">`; Chat.renderMessages && Chat.renderMessages(); }
         Home.render && Home.render(); UI.toast('Group photo updated.');
       } catch (e) { UI.toast('Could not read that image.', 'err'); }
     });
@@ -5365,7 +5410,7 @@ const Stories = {
   },
   list(ps, head) {
     const L = $('#syList');
-    L.innerHTML = ps.length ? `<h3 class="sy-h">${head}</h3><div class="sy-list">${ps.map(p => `<button class="sy-item" data-t="${Util.esc(p.title)}">${p.thumb ? `<img src="${p.thumb}" alt="" loading="lazy"/>` : '<span class="sy-ph">🏛️</span>'}<span><b>${Util.esc(p.title)}</b><small>${Util.esc(p.desc)}${p.m != null ? ` · ${p.m < 1000 ? Math.round(p.m) + ' m' : (p.m / 1000).toFixed(1) + ' km'}` : ''}</small></span></button>`).join('')}</div>`
+    L.innerHTML = ps.length ? `<h3 class="sy-h">${head}</h3><div class="sy-list">${ps.map(p => `<button class="sy-item" data-t="${Util.esc(p.title)}">${p.thumb ? `<img src="${Util.url(p.thumb)}" alt="" loading="lazy"/>` : '<span class="sy-ph">🏛️</span>'}<span><b>${Util.esc(p.title)}</b><small>${Util.esc(p.desc)}${p.m != null ? ` · ${p.m < 1000 ? Math.round(p.m) + ' m' : (p.m / 1000).toFixed(1) + ' km'}` : ''}</small></span></button>`).join('')}</div>`
       : '<p class="hint">No famous places found here. Try searching by name.</p>';
     L.onclick = e => { const b = e.target.closest('[data-t]'); if (b) this.story(b.dataset.t, head.startsWith('Results') ? this.query : ''); };
   },
@@ -5424,7 +5469,7 @@ const Stories = {
           <label class="sy-rate">🐢<input type="range" id="syRate" min="0.6" max="1.4" step="0.1" value="${Store.get('envelora.v1.ttsRate') || 1}" aria-label="Reading speed"/>🐇</label></div>
         ${about}
         <article class="sy-text" dir="${used === 'ur' ? 'rtl' : 'auto'}" lang="${used}"><h3>${this.t(3)}</h3>${secs.map(s => `${s.head ? `<h4>${Util.esc(s.head)}</h4>` : ''}${s.body.split('\n').map(p => `<p>${Util.esc(p)}</p>`).join('')}`).join('') || '<p class="hint">No story text found.</p>'}</article>
-        <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${src}">Read full article</a></div>
+        <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost sm" id="syBack">← All places</button><a class="btn soft sm" target="_blank" rel="noopener" href="${Util.url(src)}">Read full article</a></div>
 `;
       Stories.remember({ title: pg.title, url: src, pics: pics.map(x => ({ src: x.src, author: x.author, lic: x.lic, licUrl: x.licUrl, page: x.page })) });
       this.bindLang(() => this.story(enTitle, q));
@@ -5463,7 +5508,7 @@ const Stories = {
   arrive(hit) {
     let el = $('#syArrive');
     if (!el) { el = document.createElement('div'); el.id = 'syArrive'; el.className = 'sy-arrive'; el.setAttribute('role', 'alert'); document.body.appendChild(el); }
-    el.innerHTML = `${hit.thumb ? `<img src="${hit.thumb}" alt=""/>` : '<span class="sy-ph">🏛️</span>'}<div class="sy-ar-t"><small>📍 You've reached</small><b>${Util.esc(hit.title)}</b></div>
+    el.innerHTML = `${hit.thumb ? `<img src="${Util.url(hit.thumb)}" alt=""/>` : '<span class="sy-ph">🏛️</span>'}<div class="sy-ar-t"><small>📍 You've reached</small><b>${Util.esc(hit.title)}</b></div>
       <div class="sy-ar-b"><button class="btn soft sm" data-a="read">📖 Read story</button><button class="btn gold sm" data-a="listen">🔊 Listen</button></div><button class="sy-ar-x" data-a="x" aria-label="Dismiss">✕</button>`;
     el.hidden = false; if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
     el.onclick = e => { const a = e.target.closest('[data-a]'); if (!a) return; el.hidden = true; if (a.dataset.a !== 'x') this.openFor(hit.title, a.dataset.a === 'listen'); };
@@ -5621,7 +5666,7 @@ const Wraps = {
     S.push(['g3', '🥾', m.steps ? `<small>You walked</small><h2 class="big">${Steps.fmt(m.steps)}</h2><p>steps · ${km.toFixed(1)} km</p><p class="wv-sub">That's Marine Drive ${Math.max(1, Math.round(km / 3.6))}× over${w.ranks.steps === 1 && w.members > 1 ? ' · #1 walker in the clan 👑' : ''}</p>` : `<small>Your steps</small><h2>Taking it easy</h2><p>Turn on the step counter on your next trip to see how far you go.</p>`]);
     S.push(['g4', '💬', `<small>In the group chat</small><h2 class="big">${m.msgs}</h2><p>message${m.msgs === 1 ? '' : 's'} from you${w.members > 1 ? ` · #${w.ranks.msgs} chatter` : ''}</p>${m.emoji ? `<p class="wv-sub">Your go-to emoji: <span style="font-size:2rem">${m.emoji}</span></p>` : ''}`]);
     if (m.photos || w.clanPhotos) S.push(['g5', '📸', `<small>Memories</small><h2 class="big">${m.photos}</h2><p>photo${m.photos === 1 ? '' : 's'} you shared</p><p class="wv-sub">out of ${w.clanPhotos} in the clan album</p>`]);
-    if ((w.pics || []).length) S.push(['g5 photo', '', `<small>${w.ownPics ? 'Your favourite frames' : 'The clan album'}</small><div class="wv-collage n${Math.min(6, w.pics.length)}">${w.pics.map(u => `<img src="${u}" alt=""/>`).join('')}</div>`]);
+    if ((w.pics || []).length) S.push(['g5 photo', '', `<small>${w.ownPics ? 'Your favourite frames' : 'The clan album'}</small><div class="wv-collage n${Math.min(6, w.pics.length)}">${w.pics.map(u => `<img src="${Util.url(u)}" alt=""/>`).join('')}</div>`]);
     if (m.edits) S.push(['g8', '🎨', `<small>In the Studio</small><h2 class="big">${m.edits}</h2><p>photo${m.edits === 1 ? '' : 's'} &amp; video${m.edits === 1 ? '' : 's'} you edited</p><p class="wv-sub">Filters, frames and stickers, all yours.</p>`]);
     if ((m.places || []).length) S.push(['g3', '📍', `<small>Famous places you explored</small><h2 class="big">${m.places.length}</h2><ul class="wv-places">${m.places.slice(0, 6).map(t => `<li>🏛️ ${Util.esc(t)}</li>`).join('')}${m.places.length > 6 ? `<li>+${m.places.length - 6} more</li>` : ''}</ul>`]);
     if (w.clanSpent) S.push(['g6', '💸', `<small>The money</small><h2 class="big">${Util.inr(m.paid)}</h2><p>paid by you</p><p class="wv-sub">Your share: ${Util.inr(m.share)} · Clan total: ${Util.inr(w.clanSpent)}</p>`]);
@@ -5798,7 +5843,7 @@ const Tickets = {
   type(id) { return this.TYPES.find(x => x[0] === id) || this.TYPES[this.TYPES.length - 1]; },
   canManage(c) { return Perm.can(c, Auth.user && Auth.user.id, 'tickets'); },
   when(t) { return t.date ? new Date(t.date + 'T' + (t.time || '23:59')).getTime() : Infinity; },
-  forMe(t, uid) { return !t.forWho || t.forWho === 'all' || t.forWho.includes(uid); },
+  forMe(t, uid) { return !Array.isArray(t.forWho) || t.forWho.includes(uid); },
   usedBy(t, uid) { return !!(t.used && t.used[uid]); },
   label(t) { const ty = this.type(t.type); return t.title || (t.from || t.to ? `${t.from || '…'} → ${t.to || '…'}` : t.place || ty[2]); },
   whenText(t) { return t.date ? Util.fmtDate(t.date, { weekday: 'short', day: 'numeric', month: 'short' }) + (t.time ? ' · ' + Util.fmtTime(t.time) : '') : 'No date'; },
@@ -5825,7 +5870,7 @@ const Tickets = {
           <div class="tk-ic">${ty[1]}</div>
           <div class="tk-main"><small>${ty[2]}${t.ref ? ' · ' + Util.esc(t.ref) : ''}</small><b>${Util.esc(this.label(t))}</b>
             <span>${this.whenText(t)}${t.place && t.place !== this.label(t) ? ' · ' + Util.esc(t.place) : ''}</span>
-            <em>${t.forWho && t.forWho !== 'all' ? 'For ' + t.forWho.map(name).join(', ') : 'For everyone'}${t.seats ? ' · Seats ' + Util.esc(t.seats) : ''}${used ? ' · ✓ used' : ''}${!mine ? ' · not for you' : ''}</em></div>
+            <em>${Array.isArray(t.forWho) ? 'For ' + t.forWho.map(name).join(', ') : 'For everyone'}${t.seats ? ' · Seats ' + Util.esc(t.seats) : ''}${used ? ' · ✓ used' : ''}${!mine ? ' · not for you' : ''}</em></div>
           <button class="btn soft sm" data-tks="${t.id}">Show</button></div>`;
       }).join('') : `<div class="tk-empty"><span>🎟️</span><b>${this.view === 'used' ? 'No used tickets yet' : 'No tickets yet'}</b><small>${mg ? 'Add bus, train or flight tickets, parking slips, entry passes and hotel bookings, so everyone has them ready.' : 'Tickets added by the leader will appear here.'}</small></div>`}
       <p class="hint" style="font-size:.76rem;margin-top:10px">You get a reminder 2 hours before each ticket. Tickets are shared with everyone in the clan.</p>`;
@@ -5862,7 +5907,7 @@ const Tickets = {
     </form>`;
     const f = $('#tkForm', host);
     const syncType = () => { const r = this.ROUTE.includes(t.type); $('.tk-route', f).hidden = !r; $('.tk-place', f).hidden = r; $$('[data-ty]', f).forEach(b => b.classList.toggle('on', b.dataset.ty === t.type)); };
-    const drawFiles = () => { $('#tkFiles', f).innerHTML = files.map((x, i) => `<div>${/^image/.test(x.mime) ? `<img src="${x.data}" alt=""/>` : '<span class="pdf">PDF</span>'}<small>${Util.esc(x.name)}</small><button type="button" data-rf="${i}" aria-label="Remove file">${icon('close', 'sm')}</button></div>`).join('') + (files.length ? `<p class="hint">${this.mb(this.size(files))} of ${this.mb(this.MAX_TOTAL)}</p>` : ''); };
+    const drawFiles = () => { $('#tkFiles', f).innerHTML = files.map((x, i) => `<div>${/^image/.test(x.mime) ? `<img src="${Util.url(x.data)}" alt=""/>` : '<span class="pdf">PDF</span>'}<small>${Util.esc(x.name)}</small><button type="button" data-rf="${i}" aria-label="Remove file">${icon('close', 'sm')}</button></div>`).join('') + (files.length ? `<p class="hint">${this.mb(this.size(files))} of ${this.mb(this.MAX_TOTAL)}</p>` : ''); };
     syncType(); drawFiles();
     f.onclick = e => {
       const b = e.target.closest('[data-ty]'); if (b) { t.type = b.dataset.ty; syncType(); }
@@ -5914,7 +5959,7 @@ const Tickets = {
           ${t.seats ? `<div><span>Seats</span><b>${Util.esc(t.seats)}</b></div>` : ''}
           ${t.place ? `<div><span>Place</span><b>${Util.esc(t.place)}</b></div>` : ''}
           ${t.notes ? `<div><span>Notes</span><b>${Util.esc(t.notes)}</b></div>` : ''}</div>
-        ${(t.files || []).map((f, i) => /^image/.test(f.mime) ? `<img class="tk-img" src="${f.data}" alt="Ticket ${i + 1}"/>` : `<div class="tk-pdf"><span>PDF</span><b>${Util.esc(f.name)}</b><div class="row" style="gap:8px"><button class="btn gold sm" data-pdf="${i}">Open PDF</button><button class="btn soft sm" data-dl="${i}">Download</button></div></div>`).join('') || '<p class="hint" style="text-align:center">No file attached — show the PNR / booking number above.</p>'}
+        ${(t.files || []).map((f, i) => /^image/.test(f.mime) ? `<img class="tk-img" src="${Util.url(f.data)}" alt="Ticket ${i + 1}"/>` : `<div class="tk-pdf"><span>PDF</span><b>${Util.esc(f.name)}</b><div class="row" style="gap:8px"><button class="btn gold sm" data-pdf="${i}">Open PDF</button><button class="btn soft sm" data-dl="${i}">Download</button></div></div>`).join('') || '<p class="hint" style="text-align:center">No file attached — show the PNR / booking number above.</p>'}
         <p class="hint" style="text-align:center;font-size:.76rem">Added by ${Util.esc(t.byName || 'the leader')}. Turn your screen brightness up when you show this at the gate.</p>
         <div class="tk-vact"><button class="btn ${used ? 'soft' : 'gold'}" id="tkvUsed">${used ? '↺ Mark as not used' : '✓ Mark as used'}</button>
           ${mg ? `<button class="btn soft" id="tkvEdit">${icon('edit', 'sm')}Edit</button><button class="btn soft" id="tkvDel" style="color:var(--danger)">${icon('trash', 'sm')}Delete</button>` : ''}</div>
@@ -7149,9 +7194,9 @@ const Explore = {
     if (!photo) return `<div class="lp lp-${kind} lp-scene">${Reels.scene(kind)}</div>`;
     const src = Util.esc(photo.src), water = ['wave', 'boat'].includes(kind), wind = ['tea', 'mountain', 'temple', 'wave'].includes(kind);
     return `<div class="lp lp-${kind}"><div class="lp-move" style="animation-delay:${-(name.length % 7) * 1.7}s">
-        <img class="lp-img" src="${src}" alt="${Util.esc(name)}" loading="lazy" decoding="async"/>
-        ${full && water ? `<img class="lp-img lp-water" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
-        ${full && wind ? `<img class="lp-img lp-wind" src="${src}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
+        <img class="lp-img" src="${Util.url(src)}" alt="${Util.esc(name)}" loading="lazy" decoding="async"/>
+        ${full && water ? `<img class="lp-img lp-water" src="${Util.url(src)}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
+        ${full && wind ? `<img class="lp-img lp-wind" src="${Util.url(src)}" alt="" aria-hidden="true" loading="lazy"/>` : ''}
       </div><div class="lp-light"></div>${full ? this.birds() + (['wave', 'boat', 'palace', 'temple', 'camel'].includes(kind) ? this.walkers(kind === 'camel' ? 2 : 3) : '') : ''}</div>`;
   },
   /** Credits for the photos currently shown on trip cards. */
@@ -7267,7 +7312,7 @@ const Home = {
     const clans = u ? Clans.listFor(u.id) : [];
     $('#homeClans').innerHTML = clans.length ? `<div class="section-t"><h2>Your clan${clans.length > 1 ? 's' : ''}</h2></div>` + clans.map(c => {
       const m = Clans.member(c, u.id), last = c.messages[c.messages.length - 1];
-      return `<div class="clan-card" data-clan="${c.id}" role="button" tabindex="0"><div class="grp-photo">${c.photo ? `<img src="${c.photo}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji}</div>
+      return `<div class="clan-card" data-clan="${c.id}" role="button" tabindex="0"><div class="grp-photo">${c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji}</div>
         <div style="flex:1;min-width:0"><h3>${Util.esc(c.name)}</h3><div class="m">${c.members.length}/${c.capacity} members · ${ROLE_LABEL[m.role]} · ${Util.esc(c.trip.destination)}</div>
         ${last ? `<div class="m" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.type === 'system' ? '' : Util.esc((last.name || '').split(' ')[0]) + ': '}${Util.esc(last.type === 'score' ? '🏆 ' + last.game + ' scores' : last.type === 'photo' ? '📷 Photo' : last.text)}</div>` : ''}</div>${icon('arrowR')}</div>`;
     }).join('') : '';
@@ -7289,6 +7334,7 @@ const Home = {
       <button data-m="login">${icon('login')}${u ? 'Log In (switch account)' : 'Log In'}</button>
       ${u ? `<button data-m="pay">${icon('wallet')}Payments & refunds</button>` : ''}
       ${u ? `<button data-m="out">${icon('logout')}Sign Out</button>` : ''}
+      <button data-m="privacy">${icon('shield')}Privacy & my data</button>
       <a class="m-link" href="${LEGAL}" target="_blank" rel="noopener">${icon('info')}Terms & policies</a>
       <button data-m="credits">${icon('info')}Credits</button>
       <button data-m="about">${icon('info')}About Envelora</button>`;
@@ -7369,6 +7415,48 @@ const Home = {
       <h4 class="phc-h">Trip photos</h4>${list.length ? list.map(p => row(p, p.place)).join('') : '<p class="muted">No trip photos are showing right now.</p>'}
       <h4 class="phc-h">Place stories</h4>${st.length ? st.map(c => `<div class="phc-st"><b>${Util.esc(c.title)}</b><span>Text from the Wikipedia article “<a href="${Util.esc(c.url)}" target="_blank" rel="noopener">${Util.esc(c.title)}</a>” by Wikipedia contributors, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated.</span>${(c.pics || []).map(p => row(p)).join('')}</div>`).join('') : '<p class="muted">Stories you read will be credited here.</p>'}`);
   },
+  /** DPDP: see, download or erase your data; contact the Grievance Officer. */
+  privacy() {
+    const u = Auth.user, cons = u && Store.get(`envelora.v1.acct.${u.id}.consent`);
+    UI.sheet('Privacy & my data', `
+      <p class="muted" style="margin:0 0 10px">Under India's Digital Personal Data Protection Act you can see your data, take a copy, correct it, erase it, and raise a grievance.</p>
+      <div class="card" style="margin-bottom:10px"><h4 style="margin:0 0 6px">What we keep</h4>
+        <p class="hint" style="margin:0">Your name and ${u && u.phone ? 'mobile number' : 'email'}, your trips, and what you share in your clans (chat, photos, tickets, expenses). Stored on servers in Mumbai, India, with a copy on this phone. Your location is shared only while you use the Live map. We never sell your data or show ads.</p>
+        ${cons ? `<p class="hint" style="margin:8px 0 0">✓ You agreed to the Privacy Policy on ${Util.fmtDT(cons.ts)}.</p>` : ''}</div>
+      ${u ? `<button class="btn soft block" id="pvEdit" style="margin-bottom:8px">${icon('edit', 'sm')}Correct my details</button>
+      <button class="btn soft block" id="pvDl" style="margin-bottom:8px">${icon('share', 'sm')}Download a copy of my data</button>
+      <button class="btn ghost block" id="pvDel" style="color:var(--danger);margin-bottom:12px">${icon('trash', 'sm')}Delete my account and data</button>` : `<p class="hint">Log in to download or delete your account data. As a guest, your trips are only on this phone; use “Erase Envelora data on this phone” in About Envelora to remove them.</p>`}
+      <p class="hint" style="margin:0">Questions or complaints? Write to our <a href="${LEGAL}#contact" target="_blank" rel="noopener">Grievance Officer</a>. We reply within 30 days. Read the full <a href="${LEGAL}#privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>`, body => {
+      if (!u) return;
+      $('#pvEdit', body).onclick = () => Nav.back(() => this.menuAction('edit'));
+      $('#pvDl', body).onclick = () => {
+        const mine = {}; Object.keys(localStorage).filter(k => k.startsWith(`envelora.v1.acct.${u.id}.`)).forEach(k => { try { mine[k.split('.').slice(4).join('.')] = JSON.parse(localStorage.getItem(k)); } catch (e) { } });
+        const clans = Clans.listFor(u.id).map(c => ({ clan: c, tickets: Store.get('envelora.v1.tickets.' + c.id, []) }));
+        const out = { exportedAt: new Date().toISOString(), account: { id: u.id, name: u.name, phone: u.phone || '', email: u.email || '' }, yourData: mine, trips: Trips.all(), clans };
+        const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }), a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = `envelora-my-data-${Util.ymd(new Date())}.json`; document.body.append(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000); UI.toast('Your data file is downloading.');
+      };
+      $('#pvDel', body).onclick = async () => {
+        const lead = Clans.listFor(u.id).filter(c => (Clans.member(c, u.id) || {}).role === 'leader');
+        const ok = await UI.confirm('Delete your account?', `This permanently deletes your account, your trips and your consent record. You will leave ${Clans.listFor(u.id).length || 'all'} clan(s)${lead.length ? `; as leader, your role passes to another member (a clan with no one else is deleted)` : ''}. Your messages stay in the chat as “Deleted user”. This cannot be undone.`, { ok: 'Delete everything' });
+        if (!ok) return;
+        UI.toast('Deleting your account…', 'info');
+        try {
+          if (Cloud.on() && u.cloud) {
+            const mineFiles = Clans.listFor(u.id).flatMap(c => (c.photos || []).filter(p => p.by === u.id && p.path).map(p => p.path));
+            if (mineFiles.length) await Cloud.sb.storage.from(ClanPhotos.BUCKET).remove(mineFiles).catch(() => { });
+            const { error } = await Cloud.sb.rpc('delete_my_account');
+            if (error) throw error;
+          }
+          Cloud.stop && Cloud.stop();
+          try { await Cloud.sb.auth.signOut({ scope: 'local' }); } catch (e) { }
+          Object.keys(localStorage).filter(k => k.startsWith('envelora')).forEach(k => localStorage.removeItem(k));
+          UI.toast('Your account and data were deleted.'); setTimeout(() => location.replace(location.pathname), 900);
+        } catch (e) { UI.toast(Cloud.err ? Cloud.err(e) : 'Could not delete right now. Please try again.', 'err'); }
+      };
+    });
+  },
   closeMenu() { $('#acctMenu').hidden = true; $('#acctBtn').setAttribute('aria-expanded', 'false'); },
   async menuAction(k) {
     this.closeMenu();
@@ -7399,6 +7487,7 @@ const Home = {
       });
     }
     if (k === 'credits') this.credits();
+    if (k === 'privacy') this.privacy();
     if (k === 'about') UI.sheet('About Envelora', `
       <p><b>Envelora</b> is a group trip planner made for India. Plan the trip, then travel as a Clan.</p>
       <ul class="hint" style="font-size:.9rem;padding-left:18px">
@@ -7425,7 +7514,7 @@ $('#logoBtn').addEventListener('click', () => Nav.home(() => window.scrollTo({ t
 $('#clanBtn').addEventListener('click', () => {
   const cl = Auth.user ? Clans.listFor(Auth.user.id) : [];
   if (cl.length === 1) return Chat.open(cl[0].id);
-  UI.sheet('Your clans', cl.map(c => `<div class="clan-card" data-pick="${c.id}"><div class="grp-photo">${c.photo ? `<img src="${c.photo}" alt="">` : '🧭'}</div><div style="flex:1"><h3>${Util.esc(c.name)}</h3><div class="m">${c.members.length}/${c.capacity} · ${Util.esc(c.trip.destination)}</div></div></div>`).join(''), body => {
+  UI.sheet('Your clans', cl.map(c => `<div class="clan-card" data-pick="${c.id}"><div class="grp-photo">${c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : '🧭'}</div><div style="flex:1"><h3>${Util.esc(c.name)}</h3><div class="m">${c.members.length}/${c.capacity} · ${Util.esc(c.trip.destination)}</div></div></div>`).join(''), body => {
     $$('[data-pick]', body).forEach(el => el.onclick = () => UI.closeSheet(() => Chat.open(el.dataset.pick)));
   });
 });
