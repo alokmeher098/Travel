@@ -139,7 +139,7 @@ begin
         order by ph->>'id', pri
       ) y
     ), '[]'::jsonb));
-    if jsonb_array_length(p_v->'photos') > 60 then raise exception 'album full'; end if;
+    if jsonb_array_length(p_v->'photos') > 2000 then raise exception 'album full'; end if;
   end if;
 
   insert into public.clan_kv (clan_id, k, v, created_by, updated_by, updated_at)
