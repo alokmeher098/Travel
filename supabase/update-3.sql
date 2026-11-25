@@ -1,12 +1,11 @@
 -- Envelora update 3: security hardening + DPDP (delete my account)
--- Run AFTER update-2.sql. Paste all of this into Supabase → SQL Editor → Run. Safe to run more than once.
+-- Paste all of this into Supabase → SQL Editor → Run. Safe to run more than once.
 --
 -- What it fixes:
 --  * The server now enforces clan roles itself (a modified app can't make itself leader,
 --    edit the trip plan, rewrite other people's messages, or post as someone else).
 --  * Only the leader / co-leaders can change tickets.
 --  * Size limits so nobody can flood a clan with huge data.
---  * A photo file can be deleted only by the person who uploaded it, or the leader / co-leaders.
 --  * Functions can't be called by people who aren't logged in.
 --  * delete_my_account(): DPDP right to erasure.
 
@@ -157,12 +156,6 @@ begin
     delete from public.live_locs l where l.clan_id = p_clan and not exists (select 1 from public.clan_members m where m.clan_id = p_clan and m.user_id = l.user_id);
   end if;
 end $function$;
-
--- photo files: delete only your own, unless you're the leader / a co-leader
-drop policy if exists "clan photos: members delete" on storage.objects;
-create policy "clan photos: members delete" on storage.objects for delete to authenticated
-  using (bucket_id = 'clan-photos' and public.is_clan_member((storage.foldername(name))[1])
-         and (owner_id = (select auth.uid())::text or public.clan_role((storage.foldername(name))[1]) in ('leader','co')));
 
 -- DPDP: erase my account and my data
 create or replace function public.delete_my_account()

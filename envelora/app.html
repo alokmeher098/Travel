@@ -4495,7 +4495,7 @@ const Chat = {
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
     $('#sendBtn').innerHTML = icon('send');
-    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live map'], ['photos', 'camera', 'Photos'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
+    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live map'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
     if ((typeof Tickets !== 'undefined')) Tickets.banner();
@@ -4560,7 +4560,7 @@ const Chat = {
       let cls = '';
       if (m.type === 'score') { cls = 'score'; content = `🏆 <b>${Util.esc(m.game)}</b><br/>${(m.scores || []).map((s, i) => `${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '•'} ${Util.esc(s.name)} — <b>${s.score}</b>`).join('<br/>')}`; }
       if (m.type === 'alert') { cls = 'alert'; content = `🔔 <b>Clan alert</b><br/>${content}`; }
-      if (m.type === 'photo') { const ph = (c.photos || []).find(p => p.id === m.photoId); content = ph ? (ClanPhotos.isVideo(ph) ? ClanPhotos.html(ph, 'chat-vid') : `<img ${ClanPhotos.attr(ph)} alt="Shared photo" data-open-ph="${ph.id}" />`) + content : '<i class="hint">Photo removed</i>'; }
+      if (m.type === 'photo') { const ph = (c.photos || []).find(p => p.id === m.photoId); content = `<i class="hint">📷 ${ph && ClanPhotos.isVideo(ph) ? 'Video' : 'Photo'} (sharing photos is off for now)</i>` + (content ? '<br/>' + content : ''); }
       return sep + `<div class="msg ${mine ? 'me' : ''}">${mine ? '' : Util.avatar(m.name, 'sm')}<div class="bub ${cls}">${mine ? '' : `<div class="who" style="color:${col}">${Util.esc(m.name)}</div>`}${content}<div class="ts">${Util.fmtClock(m.ts)}${mine ? ' ✓✓' : ''}</div></div></div>`;
     }).join('') || `<div class="empty"><div class="em">💌</div><h4>Say hello to your clan</h4></div>`;
     if (html !== this._msgHtml) { this._msgHtml = html; box.innerHTML = html; } // redraw only when something changed (no blink)
@@ -4585,7 +4585,6 @@ const Chat = {
     if (k === 'today') { this.todayOpen = true; this.renderToday(); $('#chScroll').scrollTo({ top: 0, behavior: 'smooth' }); }
     if (k === 'loc') this.liveLocation(c);
     if (k === 'tickets') Tickets.open(c);
-    if (k === 'photos') this.photos(c);
     if (k === 'games') Games.open();
     if (k === 'studio') Studio.open(c);
     if (k === 'steps') Steps.open(c);
@@ -5083,7 +5082,7 @@ const Studio = {
   cleanup() { this.stopVideo && this.stopVideo(); this.stopVideo = null; $('#stBody').innerHTML = ''; },
   home() {
     this.cleanup();
-    const ph = ClanPhotos.list(Clans.get(this.c.id), 'photo').slice(0, 12);
+    const ph = [];
     $('#stTitle').textContent = 'Studio'; $('#stSub').textContent = 'Edit photos and videos from the trip';
     $('#stBody').innerHTML = `<div class="st-pick">
       <label class="st-big" for="stPhotoIn"><span>🖼️</span><b>Edit a photo</b><small>Crop, filters, text, stickers, frames</small></label>
@@ -5208,7 +5207,7 @@ const Studio = {
     const img = new Image(), s = this.fresh();
     img.onload = () => {
       $('#stBody').innerHTML = `<div class="st-stage"><canvas id="stCv"></canvas></div>
-        <div class="st-actions"><button class="btn ghost sm" id="stBack">← Back</button><button class="btn soft sm" id="stShare">${icon('share', 'sm')}Save</button><button class="btn gold sm" id="stClan">${icon('send', 'sm')}Post</button></div>
+        <div class="st-actions"><button class="btn ghost sm" id="stBack">← Back</button><button class="btn soft sm" id="stShare">${icon('share', 'sm')}Save</button></div>
         <div class="st-tools" id="stTools">${this.tools('photo')}</div>`;
       const cv = $('#stCv'), ctx = cv.getContext('2d');
       const redraw = () => { const [w, h] = this.outSize(img.naturalWidth, img.naturalHeight, s, 1080); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } this.draw(ctx, img, img.naturalWidth, img.naturalHeight, w, h, s); };
@@ -5217,13 +5216,6 @@ const Studio = {
       const render = () => new Promise(res => { const [w, h] = this.outSize(img.naturalWidth, img.naturalHeight, s, 2048), out = document.createElement('canvas'); out.width = w; out.height = h; this.draw(out.getContext('2d'), img, img.naturalWidth, img.naturalHeight, w, h, s); out.toBlob(b => res([b, out]), 'image/jpeg', .9); });
       $('#stBack').onclick = () => this.home();
       $('#stShare').onclick = async e => { const b = e.currentTarget; UI.busy(b, true, 'Rendering…'); const [blob] = await render(); UI.busy(b, false); this.share(blob, 'envelora-photo-' + Date.now() + '.jpg'); };
-      $('#stClan').onclick = async e => {
-        const b = e.currentTarget; UI.busy(b, true, 'Posting…');
-        const [, out] = await render(), k = Math.min(1, 900 / Math.max(out.width, out.height)), sm = document.createElement('canvas'); sm.width = Math.round(out.width * k); sm.height = Math.round(out.height * k); sm.getContext('2d').drawImage(out, 0, 0, sm.width, sm.height);
-        let p; try { p = await ClanPhotos.add(this.c.id, sm.toDataURL('image/jpeg', .8), { edited: true }); } catch (er) { UI.busy(b, false); return UI.toast(er.message || 'Could not post the photo.', 'err'); }
-        Clans.post(this.c.id, { type: 'photo', photoId: p.id, text: '✨ Edited in Studio' }); UI.busy(b, false); UI.toast('Posted to the clan album and chat.');
-        Chat.renderMessages && Chat.renderMessages();
-      };
     };
     img.onerror = () => UI.toast('Could not open that photo.', 'err');
     if (/^https?:/.test(dataUrl)) img.crossOrigin = 'anonymous';
@@ -5279,10 +5271,9 @@ const Studio = {
           stream.getTracks().forEach(t => t.kind === 'video' && t.stop());
           const blob = new Blob(chunks, { type: (mime || 'video/webm').split(';')[0] }), ext = blob.type.includes('mp4') ? 'mp4' : 'webm', ou = URL.createObjectURL(blob);
           $('#stOut').innerHTML = `<div class="st-done"><b>✅ Your video is ready</b> <span class="hint">${(blob.size / 1048576).toFixed(1)} MB · ${ext.toUpperCase()}</span><video src="${ou}" controls playsinline></video>
-            <div class="row" style="gap:8px"><button class="btn gold sm" id="stVShare">${icon('share', 'sm')}Share</button><button class="btn soft sm" id="stVSave">⬇ Save</button>${this.c ? `<button class="btn soft sm" id="stVClan">${icon('send', 'sm')}Post to clan</button>` : ''}</div></div>`;
+            <div class="row" style="gap:8px"><button class="btn gold sm" id="stVShare">${icon('share', 'sm')}Share</button><button class="btn soft sm" id="stVSave">⬇ Save</button></div></div>`;
           $('#stVShare').onclick = () => this.share(blob, 'envelora-video-' + Date.now() + '.' + ext);
           $('#stVSave').onclick = () => this.save(blob, 'envelora-video-' + Date.now() + '.' + ext);
-          $('#stVClan') && ($('#stVClan').onclick = async e => { const b = e.currentTarget; UI.busy(b, true, 'Posting…'); try { const p = await ClanPhotos.add(this.c.id, blob, { edited: true }); Clans.post(this.c.id, { type: 'photo', photoId: p.id, text: '🎬 Edited in Studio' }); UI.busy(b, false); UI.toast('Posted to the clan album and chat.'); } catch (er) { UI.busy(b, false); UI.toast(er.message || 'Could not post the video.', 'err'); } });
           v.muted = s.mute; $('#stOut').scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
         // Seek to the trim start (seeked may not fire if we are already there).
@@ -5922,7 +5913,7 @@ const Tickets = {
     ['parking', '🅿️', 'Parking'], ['entry', '🎟️', 'Entry ticket'], ['hotel', '🏨', 'Hotel'], ['event', '🎫', 'Event / activity'], ['other', '📄', 'Other']
   ],
   ROUTE: ['train', 'bus', 'flight', 'cab'],
-  MAX_FILE: 20 * 1048576, MAX_TOTAL: 150 * 1048576, // per file · per clan (all tickets)
+  MAX_IMG: 120 * 1024, MAX_TOTAL: 3 * 1048576, // one small screenshot per ticket · all tickets of a clan (synced via the free database)
   key(cid) { return 'envelora.v1.tickets.' + cid; },
   list(cid) { return Store.get(this.key(cid), []) || []; },
   saveList(cid, l) { return Store.set(this.key(cid), l); },
@@ -5936,7 +5927,14 @@ const Tickets = {
   fsize(f) { return +f.size || (f.blob ? f.blob.size : f.data ? f.data.length * .75 : 0); },
   size(files) { return files.reduce((a, f) => a + this.fsize(f), 0); },
   clanUsed(cid, exceptId) { return this.list(cid).filter(t => t.id !== exceptId).reduce((a, t) => a + this.size(t.files || []), 0); },
-  mb(n) { return ClanPhotos.mb(n); },
+  mb(n) { return n >= 1048576 ? +(n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; },
+  /** Shrink a ticket photo/screenshot to about 120 KB (readable, small enough to sync for free). */
+  async small(file) {
+    let max = 1400, q = .8, d = await Util.imageToDataUrl(file, max, q);
+    for (let i = 0; i < 8 && d.length * .75 > this.MAX_IMG; i++) { if (q > .5) q -= .1; else max = Math.round(max * .8); d = await Util.imageToDataUrl(file, max, q); }
+    if (d.length * .75 > this.MAX_IMG) throw new Error('too big');
+    return d;
+  },
   /** the file's bytes: kept on this phone (downloaded once) */
   async fileBlob(f) { if (f.blob) return f.blob; if (f.path) return ClanPhotos.blob(f.path); return this.dataBlob(f); },
   /** download every ticket file meant for me, so tickets open offline at the station */
@@ -5992,8 +5990,9 @@ const Tickets = {
         <label><input type="checkbox" id="tkAll" ${t.forWho === 'all' ? 'checked' : ''}/> Everyone</label>
         ${c.members.map(m => `<label><input type="checkbox" data-who="${m.accountId}" ${t.forWho === 'all' || (t.forWho || []).includes(m.accountId) ? 'checked' : ''}/> ${Util.esc(m.name.split(' ')[0])}</label>`).join('')}</div></div>
       <div class="field"><label for="tkNotes">Notes</label><input class="input" id="tkNotes" value="${Util.esc(t.notes || '')}" placeholder="e.g. Board from gate 2, carry ID"/></div>
-      <div class="field"><label>Ticket file (photo, screenshot or PDF)</label>
-        <label class="btn soft block" for="tkFile">${icon('camera', 'sm')}Upload photo or PDF</label><input type="file" id="tkFile" class="vh-file" accept="image/*,application/pdf" multiple/>
+      <div class="field"><label>Ticket screenshot</label>
+        <label class="btn soft block" for="tkFile">${icon('camera', 'sm')}Add ticket screenshot</label><input type="file" id="tkFile" class="vh-file" accept="image/*"/>
+        <p class="hint" style="margin:6px 0 0;font-size:.76rem">One photo or screenshot per ticket, shared with the clan. Got a PDF? Take a screenshot of it.</p>
         <div id="tkFiles" class="tk-files"></div></div>
       <p id="tkErr" class="err-msg" role="alert"></p>
       <div class="row" style="gap:8px"><button type="button" class="btn ghost" id="tkCancel">Cancel</button><button class="btn gold" style="flex:1" id="tkSave">${old ? 'Save changes' : 'Add ticket'}</button></div>
@@ -6001,7 +6000,7 @@ const Tickets = {
     const f = $('#tkForm', host);
     const syncType = () => { const r = this.ROUTE.includes(t.type); $('.tk-route', f).hidden = !r; $('.tk-place', f).hidden = r; $$('[data-ty]', f).forEach(b => b.classList.toggle('on', b.dataset.ty === t.type)); };
     const thumb = x => x.blob ? `<img src="${x.url || (x.url = URL.createObjectURL(x.blob))}" alt=""/>` : x.path ? `<img src="${ClanPhotos.BLANK}" data-sp="${Util.esc(x.path)}" alt=""/>` : `<img src="${Util.url(x.data)}" alt=""/>`;
-    const drawFiles = () => { setTimeout(() => ClanPhotos.hydrate($('#tkFiles', f)), 0); $('#tkFiles', f).innerHTML = files.map((x, i) => `<div>${/^image/.test(x.mime) ? thumb(x) : '<span class="pdf">PDF</span>'}<small>${Util.esc(x.name)}</small><button type="button" data-rf="${i}" aria-label="Remove file">${icon('close', 'sm')}</button></div>`).join('') + (files.length ? `<p class="hint">${this.mb(this.size(files))} in this ticket · ${this.mb(this.clanUsed(this.clan().id, old && old.id) + this.size(files))} of ${this.mb(this.MAX_TOTAL)} used by this clan</p>` : ''); };
+    const drawFiles = () => { setTimeout(() => ClanPhotos.hydrate($('#tkFiles', f)), 0); $('#tkFiles', f).innerHTML = files.map((x, i) => `<div>${/^image/.test(x.mime) ? thumb(x) : '<span class="pdf">PDF</span>'}<small>${Util.esc(x.name)}</small><button type="button" data-rf="${i}" aria-label="Remove file">${icon('close', 'sm')}</button></div>`).join('') + (files.length ? `<p class="hint">${this.mb(this.size(files))} · clan tickets use ${this.mb(this.clanUsed(this.clan().id, old && old.id) + this.size(files))} of ${this.mb(this.MAX_TOTAL)}</p>` : ''); };
     syncType(); drawFiles();
     f.onclick = e => {
       const b = e.target.closest('[data-ty]'); if (b) { t.type = b.dataset.ty; syncType(); }
@@ -6011,20 +6010,19 @@ const Tickets = {
     $$('[data-who]', f).forEach(x => x.onchange = () => { $('#tkAll', f).checked = $$('[data-who]', f).every(y => y.checked); });
     $('#tkFile', f).onchange = async e => {
       const err = $('#tkErr', f); err.textContent = '';
-      for (const file of [...e.target.files]) {
-        try {
-          if (/^image\//.test(file.type)) { const blob = await (await fetch(await Util.imageToDataUrl(file, 1800, .85))).blob(); files.push({ name: file.name, mime: 'image/jpeg', blob, size: blob.size }); }
-          else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
-            if (file.size > this.MAX_FILE) { err.textContent = `"${file.name}" is ${this.mb(file.size)}. A PDF can be up to ${this.mb(this.MAX_FILE)}.`; continue; }
-            files.push({ name: file.name, mime: 'application/pdf', blob: file.slice(0, file.size, 'application/pdf'), size: file.size });
-          } else err.textContent = 'Please choose a photo or a PDF.';
-        } catch (x) { err.textContent = `Couldn't read "${file.name}".`; }
+      const file = e.target.files[0];
+      if (file) {
+        if (!/^image\//.test(file.type)) err.textContent = 'Please choose a photo or screenshot of the ticket. For a PDF, take a screenshot of it.';
+        else {
+          try { const data = await this.small(file); files = [{ name: file.name, mime: 'image/jpeg', data, size: Math.round(data.length * .75) }]; }
+          catch (x) { err.textContent = `Couldn't use "${file.name}". Try a cropped screenshot of just the ticket.`; }
+          if (files.length && this.clanUsed(this.clan().id, old && old.id) + this.size(files) > this.MAX_TOTAL) { files = []; err.textContent = `This clan's tickets are full (${this.mb(this.MAX_TOTAL)}). Delete an old ticket first.`; }
+        }
       }
-      if (this.clanUsed(this.clan().id, old && old.id) + this.size(files) > this.MAX_TOTAL) { files = files.slice(0, -1); err.textContent = `Not enough space: this clan can keep up to ${this.mb(this.MAX_TOTAL)} of tickets. Delete an old ticket first.`; }
       e.target.value = ''; drawFiles();
     };
     $('#tkCancel', f).onclick = () => this.renderList();
-    f.onsubmit = async e => {
+    f.onsubmit = e => {
       e.preventDefault(); const err = $('#tkErr', f);
       const who = $('#tkAll', f).checked ? 'all' : $$('[data-who]', f).filter(x => x.checked).map(x => x.dataset.who);
       Object.assign(t, { from: $('#tkFrom', f).value.trim(), to: $('#tkTo', f).value.trim(), place: $('#tkPlace', f).value.trim(), title: $('#tkTitle', f).value.trim(), date: $('#tkDate', f).value, time: $('#tkTime', f).value, ref: $('#tkRef', f).value.trim(), seats: $('#tkSeats', f).value.trim(), notes: $('#tkNotes', f).value.trim(), forWho: who, files });
@@ -6033,20 +6031,7 @@ const Tickets = {
       if (who !== 'all' && !who.length) { err.textContent = 'Choose at least one member.'; return; }
       if (!t.date) { err.textContent = 'Pick the date of travel or visit.'; return; }
       const cur = this.clan(); if (!this.canManage(cur)) { err.textContent = 'Only the leader or co-leaders can add tickets.'; return; }
-      const sb = $('#tkSave', f); if (sb) UI.busy(sb, true, 'Saving…');
-      try {
-        let used = this.clanUsed(cur.id, old && old.id);
-        for (const x of files) {
-          if (!x.blob) continue;
-          const path = `${cur.id}/tickets/${Util.uid('tf')}.${x.mime === 'application/pdf' ? 'pdf' : 'jpg'}`;
-          await ClanPhotos.upload(cur.id, x.blob, path, this.MAX_TOTAL, used, 'ticket');
-          used += x.size; x.path = path; delete x.blob; if (x.url) { URL.revokeObjectURL(x.url); delete x.url; }
-        }
-      } catch (er) { if (sb) UI.busy(sb, false); err.textContent = er.message || 'Could not upload the ticket file.'; return; }
-      if (sb) UI.busy(sb, false);
-      const gone = old ? (old.files || []).filter(o => o.path && !files.some(x => x.path === o.path)).map(o => o.path) : [];
-      if (gone.length && Cloud.on()) { Cloud.sb.storage.from(ClanPhotos.BUCKET).remove(gone).catch(() => { }); gone.forEach(p => DeviceFiles.del(p)); }
-      t.files = files.map(x => ({ name: x.name, mime: x.mime, size: this.fsize(x), ...(x.path ? { path: x.path } : { data: x.data }) }));
+      t.files = files.filter(x => x.data).map(x => ({ name: x.name, mime: x.mime, size: this.fsize(x), data: x.data }));
       const l = this.list(cur.id);
       if (old) { const i = l.findIndex(x => x.id === old.id); l[i] = Object.assign(t, { editedAt: Date.now() }); }
       else l.push(Object.assign(t, { id: Util.uid('tk'), by: Auth.user.id, byName: Auth.user.name, at: Date.now(), used: {} }));
