@@ -4495,7 +4495,7 @@ const Chat = {
     $('#chCount').textContent = `${c.members.length} member${c.members.length > 1 ? 's' : ''} · ${c.members.map(m => m.name.split(' ')[0]).join(', ')}`;
     $('#chSettings').innerHTML = icon('settings');
     $('#sendBtn').innerHTML = icon('send');
-    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live map'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['studio', 'edit', 'Studio'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
+    $('#chChips').innerHTML = [['today', 'sun', 'Today'], ['tickets', 'ticket', 'Tickets'], ['loc', 'pin', 'Live map'], ['stories', 'book', 'Place stories'], ['steps', 'route', 'Steps'], ['games', 'game', 'Games'], ['exp', 'wallet', 'Expenses'], ['alerts', 'bell', 'Alerts']]
       .map(([k, ic, l]) => `<button class="chip" data-chip="${k}">${icon(ic, 'sm')}${l}</button>`).join('');
     this.renderToday();
     if ((typeof Tickets !== 'undefined')) Tickets.banner();
@@ -5990,7 +5990,7 @@ const Tickets = {
         <label><input type="checkbox" id="tkAll" ${t.forWho === 'all' ? 'checked' : ''}/> Everyone</label>
         ${c.members.map(m => `<label><input type="checkbox" data-who="${m.accountId}" ${t.forWho === 'all' || (t.forWho || []).includes(m.accountId) ? 'checked' : ''}/> ${Util.esc(m.name.split(' ')[0])}</label>`).join('')}</div></div>
       <div class="field"><label for="tkNotes">Notes</label><input class="input" id="tkNotes" value="${Util.esc(t.notes || '')}" placeholder="e.g. Board from gate 2, carry ID"/></div>
-      <div class="field"><label>Ticket screenshot</label>
+      <div class="field" hidden><label>Ticket screenshot</label>
         <label class="btn soft block" for="tkFile">${icon('camera', 'sm')}Add ticket screenshot</label><input type="file" id="tkFile" class="vh-file" accept="image/*"/>
         <p class="hint" style="margin:6px 0 0;font-size:.76rem">One photo or screenshot per ticket, shared with the clan. Got a PDF? Take a screenshot of it.</p>
         <div id="tkFiles" class="tk-files"></div></div>
@@ -6027,7 +6027,7 @@ const Tickets = {
       const who = $('#tkAll', f).checked ? 'all' : $$('[data-who]', f).filter(x => x.checked).map(x => x.dataset.who);
       Object.assign(t, { from: $('#tkFrom', f).value.trim(), to: $('#tkTo', f).value.trim(), place: $('#tkPlace', f).value.trim(), title: $('#tkTitle', f).value.trim(), date: $('#tkDate', f).value, time: $('#tkTime', f).value, ref: $('#tkRef', f).value.trim(), seats: $('#tkSeats', f).value.trim(), notes: $('#tkNotes', f).value.trim(), forWho: who, files });
       if (this.ROUTE.includes(t.type)) t.place = ''; else { t.from = ''; t.to = ''; }
-      if (!files.length && !t.ref && !t.title && !t.from && !t.to && !t.place) { err.textContent = 'Add a ticket file, a PNR/booking number or a name.'; return; }
+      if (!files.length && !t.ref && !t.title && !t.from && !t.to && !t.place) { err.textContent = 'Add a PNR/booking number or a name.'; return; }
       if (who !== 'all' && !who.length) { err.textContent = 'Choose at least one member.'; return; }
       if (!t.date) { err.textContent = 'Pick the date of travel or visit.'; return; }
       const cur = this.clan(); if (!this.canManage(cur)) { err.textContent = 'Only the leader or co-leaders can add tickets.'; return; }
