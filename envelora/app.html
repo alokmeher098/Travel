@@ -4225,8 +4225,7 @@ const Planner = {
       <div class="card guide-sec" id="nearbySec"><h3>${icon('pin')}Famous places within 30 km</h3><p class="hint" style="margin:0">Finding forts, beaches, waterfalls, temples and more near ${Util.esc(g.name)}…</p></div>
       ${sec('attractions', 'Tourist attractions', 'pin')}${sec('food', 'Famous food', 'sun')}${sec('restaurants', 'Restaurants', 'star')}
       ${sec('shopping', 'Shopping', 'bag')}${sec('activities', 'Activities', 'sparkle')}
-      <div class="card guide-sec"><h3>${icon('info')}Travel tips</h3><ul>${g.tips.map(x => `<li>${Util.esc(x)}</li>`).join('')}</ul></div>
-      <p class="hint" style="text-align:center">State outlines from @svg-maps/india by Victor Cazanave (CC BY 4.0), simplified.</p>`;
+      <div class="card guide-sec"><h3>${icon('info')}Travel tips</h3><ul>${g.tips.map(x => `<li>${Util.esc(x)}</li>`).join('')}</ul></div>`;
     Nearby.find(t.destination).then(list => {
       const box = $('#nearbySec', host); if (!box) return;
       box.innerHTML = `<h3>${icon('pin')}Famous places within 30 km</h3>` + (list.length ? `<ul>${list.map(x => `<li>${ed ? `<button class="btn soft sm add" data-add="${Util.esc(x.n)}" data-note="${Util.esc(x.type + ' · ' + x.km + ' km away')}">${icon('plus', 'sm')}Day ${this.day + 1}</button>` : ''}<b>${x.ic} ${Util.esc(x.n)}</b><br/><span class="hint">${Util.esc(x.type)} · ${x.km} km away</span></li>`).join('')}</ul>` : '<p class="hint" style="margin:0">No well-known places found within 30 km.</p>') + '<p class="hint" style="margin:8px 0 0">Live from OpenStreetMap. Distances are straight-line.</p>';
@@ -7645,7 +7644,6 @@ const Explore = {
         <div class="ex-circles">${this.LIST.map(x => `<button class="ex-c" data-dest="${Util.esc(x[1])}" aria-label="Plan a trip to ${Util.esc(x[0])}"><span class="ex-ring">${this.living(x[0], map[x[0]], false)}</span><b>${Util.esc(x[0])}</b></button>`).join('')}</div>
         <div class="section-t" style="margin-top:18px"><h2>Trending getaways</h2></div>
         <div class="ex-cards">${this.CARDS.map(([n, tag]) => { const it = this.item(n); return `<button class="ex-card" data-dest="${Util.esc(it[1])}" aria-label="Plan a trip to ${Util.esc(n)}">${this.living(n, map[n], true)}<span class="ex-tag">${Util.esc(n)}</span><span class="ex-foot"><small>${Util.esc(tag)}</small><b>Clan from ${Util.inr(CONFIG.pricePerPersonPerDay)}/person/day</b></span></button>`; }).join('')}</div>
-        ${Object.keys(map).length ? `<details class="ex-credit"><summary>📷 Photo credits · Wikimedia Commons</summary>${Object.entries(map).map(([k, p]) => `<div>${Util.esc(k)}: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a> (${Util.esc(p.lic)})</div>`).join('')}<div>Motion effects added by Envelora.</div></details>` : ''}`;
       host.onclick = e => { const b = e.target.closest('[data-dest]'); if (b) Planner.open({ fresh: true, dest: b.dataset.dest }); };
       // run the motion only while visible (saves battery)
       if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(en => en.target.classList.toggle('play', en.isIntersecting)), { rootMargin: '60px' }); $$('.lp', host).forEach(l => io.observe(l)); }
@@ -7921,8 +7919,7 @@ Object.assign(OpenTrips, {
         <b>${Util.esc(name)}</b><small>${n[id] ? n[id] + ' trip' + (n[id] > 1 ? 's' : '') : 'Coming soon'}</small></span></button>`).join('')}</div>
       <p class="sp-none" id="spNone" hidden>No state found.</p>
       <p class="sp-hint">Can&#39;t see your state? Search for it above.</p>
-      <button class="sp-all" id="spAll">See all open trips</button>
-      <p class="sp-cr">State outlines: SVG Maps by Victor Cazanave, CC BY 4.0.</p>`;
+      <button class="sp-all" id="spAll">See all open trips</button>`;
     $('#spQ', host).oninput = e => { const q = e.target.value.trim().toLowerCase(); $$('.sp-st', host).forEach(b => b.hidden = q ? !b.dataset.name.includes(q) : !b.dataset.pop); $('#spH', host).textContent = q ? 'Search results' : 'Popular states'; $('#spNone', host).hidden = !q || !!$$('.sp-st', host).find(b => !b.hidden); };
     $('.sp-grid', host).onclick = e => { const b = e.target.closest('[data-st]'); if (b) { this.state = b.dataset.st; $('#openBrowse .ov-body').scrollTop = 0; this.render(); } };
     $('#spAll', host).onclick = () => { this.state = ''; $('#openBrowse .ov-body').scrollTop = 0; this.render(); };
@@ -8088,6 +8085,7 @@ const Home = {
     const row = (p, name) => `<div class="phc"><img src="${Util.esc(p.src)}" alt="" loading="lazy"/><div>${name ? `<b>${Util.esc(name)}</b>` : ''}<span>Photo: <a href="${Util.esc(p.page)}" target="_blank" rel="noopener">${Util.esc(p.author)}</a></span><span>${lic(p)}${/BY-SA/i.test(p.lic) ? ' · resized/cropped' : ''}</span></div></div>`;
     UI.sheet('Credits', `<p class="muted" style="margin:0 0 12px">Photos and place stories come from Wikimedia Commons and Wikipedia, used under their free licences. Envelora isn't affiliated with Wikipedia or the photographers.</p>
       <h4 class="phc-h">Trip photos</h4>${list.length ? list.map(p => row(p, p.place)).join('') : '<p class="muted">No trip photos are showing right now.</p>'}
+      <h4 class="phc-h">Maps</h4><div class="phc-st"><b>State outlines</b><span>From <a href="https://github.com/VictorCazanave/svg-maps" target="_blank" rel="noopener">SVG Maps</a> (@svg-maps/india) by Victor Cazanave, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Simplified for the app.</span></div>
       <h4 class="phc-h">Place stories</h4>${st.length ? st.map(c => `<div class="phc-st"><b>${Util.esc(c.title)}</b><span>Text from the Wikipedia article “<a href="${Util.esc(c.url)}" target="_blank" rel="noopener">${Util.esc(c.title)}</a>” by Wikipedia contributors, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Shortened for the app; read-aloud is computer-generated.</span>${(c.pics || []).map(p => row(p)).join('')}</div>`).join('') : '<p class="muted">Stories you read will be credited here.</p>'}`);
   },
   /** DPDP: see, download or erase your data; contact the Grievance Officer. */
