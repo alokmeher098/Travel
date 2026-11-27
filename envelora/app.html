@@ -1945,6 +1945,9 @@ body.mode-open #openBrowse .ov-head button{color:#0f4c45}
 .splash.breathe .sp-v{animation:vBreathe 2.2s ease-in-out infinite}
 @keyframes vBreathe{0%,100%{filter:drop-shadow(0 0 4px rgba(212,178,106,.45)) drop-shadow(0 0 10px rgba(212,178,106,.2))}50%{filter:drop-shadow(0 0 12px rgba(212,178,106,1)) drop-shadow(0 0 30px rgba(212,178,106,.6))}}
 @media (prefers-reduced-motion: reduce){.stamps .stamp{animation:stampIn .01s forwards}.splash.breathe .sp-v{animation:none}}
+/* no blue/teal flash when tapping on phones */
+html,body,*{-webkit-tap-highlight-color:transparent}
+.intro,.splash{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 </style>
 </head>
 <body class="launch-mode lock">
