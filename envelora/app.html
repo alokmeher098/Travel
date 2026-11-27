@@ -203,7 +203,7 @@ svg.vmark circle{fill:currentColor}
 
 /* Postage stamp (perforated edge) */
 .stamp{
-  --sc:var(--cream);position:absolute;width:78px;height:96px;padding:6px;
+  --sc:var(--cream);position:absolute;width:84px;height:96px;padding:7px;
   background:radial-gradient(circle at 50% 50%, transparent 3.4px, var(--sc) 4px) -6px -6px/12px 12px;
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));
 }
@@ -1948,6 +1948,13 @@ body.mode-open #openBrowse .ov-head button{color:#0f4c45}
 /* no blue/teal flash when tapping on phones */
 html,body,*{-webkit-tap-highlight-color:transparent}
 .intro,.splash{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* V: strong shine once upright, then strong slow breathing */
+.splash.shine .sp-v{filter:brightness(1.35) drop-shadow(0 0 6px rgba(255,236,170,1)) drop-shadow(0 0 18px rgba(232,196,110,1)) drop-shadow(0 0 40px rgba(212,178,106,.85))}
+.splash.shine .sp-shine::before{background:linear-gradient(100deg,transparent,rgba(255,255,245,1),transparent);animation:spShine .6s ease 0s 1 forwards}
+.splash.breathe .sp-v{animation:vBreathe2 2.2s ease-in-out infinite}
+@keyframes vBreathe2{0%,100%{filter:brightness(1.05) drop-shadow(0 0 4px rgba(255,236,170,.7)) drop-shadow(0 0 12px rgba(212,178,106,.45))}50%{filter:brightness(1.45) drop-shadow(0 0 8px rgba(255,240,190,1)) drop-shadow(0 0 22px rgba(232,196,110,1)) drop-shadow(0 0 48px rgba(212,178,106,.9))}}
+@media (prefers-reduced-motion: reduce){.splash.breathe .sp-v{animation:none}}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -8330,7 +8337,7 @@ const Intro = {
     $$('.sp-l', sp).forEach((ch, i, a) => { ch.style.setProperty('--d', ((a.length - 1 - i) * .07) + 's'); ch.style.setProperty('--rot', '-90deg'); });
     $$('.sp-r', sp).forEach((ch, i) => { ch.style.setProperty('--d', (i * .045) + 's'); ch.style.setProperty('--rot', '90deg'); });
     const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1600], ['breathe', 2050], ['done', 4400]];
+    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1750], ['breathe', 2400], ['done', 4800]];
     this.timers = steps.map(([c, t]) => setTimeout(() => c === 'done' ? this.open() : sp.classList.add(...c.split(' ')), t));
   },
   skip() { (this.timers || []).forEach(clearTimeout); const sp = $('#splash'); sp && sp.classList.add('in', 'en', 'elora', 'shine'); this.open(); },
