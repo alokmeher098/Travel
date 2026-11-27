@@ -1962,10 +1962,6 @@ html,body,*{-webkit-tap-highlight-color:transparent}
 .splash.breathe .sp-shine::before{animation:vGlint 2.2s cubic-bezier(.4,0,.2,1) .4s infinite}
 @keyframes vGlint{0%{left:-70%;opacity:1}35%{left:150%;opacity:1}36%,100%{left:150%;opacity:0}}
 .splash.shine .sp-shine::before{animation-duration:2.2s}
-.sp-v::after{content:"";position:absolute;left:50%;bottom:2%;width:.5em;height:.5em;margin-left:-.25em;pointer-events:none;opacity:0;transform:scale(.2) rotate(0deg);
-  background:radial-gradient(circle,#fff 0 6%,transparent 12%),linear-gradient(0deg,transparent 46%,#fff 50%,transparent 54%),linear-gradient(90deg,transparent 46%,#fff 50%,transparent 54%);filter:drop-shadow(0 0 4px #fff)}
-.splash.shine .sp-v::after{animation:vStar 2.2s ease .45s infinite}
-@keyframes vStar{0%{opacity:0;transform:scale(.2) rotate(0deg)}8%{opacity:1;transform:scale(1) rotate(45deg)}20%,100%{opacity:0;transform:scale(.2) rotate(90deg)}}
 @media (prefers-reduced-motion: reduce){.splash .sp-shine::before,.splash .sp-v::after{animation:none!important}}
 </style>
 </head>
@@ -8349,7 +8345,7 @@ const Intro = {
     $$('.sp-l', sp).forEach((ch, i, a) => { ch.style.setProperty('--d', ((a.length - 1 - i) * .07) + 's'); ch.style.setProperty('--rot', '-90deg'); });
     $$('.sp-r', sp).forEach((ch, i) => { ch.style.setProperty('--d', (i * .045) + 's'); ch.style.setProperty('--rot', '90deg'); });
     const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1750], ['breathe', 2400], ['done', 4800]];
+    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1750], ['breathe', 2550], ['done', 3050]];
     this.timers = steps.map(([c, t]) => setTimeout(() => c === 'done' ? this.open() : sp.classList.add(...c.split(' ')), t));
   },
   skip() { (this.timers || []).forEach(clearTimeout); const sp = $('#splash'); sp && sp.classList.add('in', 'en', 'elora', 'shine'); this.open(); },
