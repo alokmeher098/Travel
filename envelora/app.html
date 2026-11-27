@@ -8345,7 +8345,7 @@ const Intro = {
     $$('.sp-l', sp).forEach((ch, i, a) => { ch.style.setProperty('--d', ((a.length - 1 - i) * .07) + 's'); ch.style.setProperty('--rot', '-90deg'); });
     $$('.sp-r', sp).forEach((ch, i) => { ch.style.setProperty('--d', (i * .045) + 's'); ch.style.setProperty('--rot', '90deg'); });
     const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1750], ['breathe', 2550], ['done', 3050]];
+    const steps = fast ? [['in en elora shine', 0], ['done', 900]] : [['in', 20], ['left', 220], ['en', 470], ['right', 760], ['elora', 1060], ['up', 1400], ['shine', 1750], ['breathe', 2520], ['done', 2870]];
     this.timers = steps.map(([c, t]) => setTimeout(() => c === 'done' ? this.open() : sp.classList.add(...c.split(' ')), t));
   },
   skip() { (this.timers || []).forEach(clearTimeout); const sp = $('#splash'); sp && sp.classList.add('in', 'en', 'elora', 'shine'); this.open(); },
