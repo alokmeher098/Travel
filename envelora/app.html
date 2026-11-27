@@ -7808,27 +7808,31 @@ const OpenTrips = {
 const HomeMode = {
   KEY: 'envelora.homeMode',
   get() { try { return localStorage.getItem(this.KEY) === 'open' ? 'open' : 'plan'; } catch (e) { return 'plan'; } },
+  seq: 0,
   set(mode, animate = true) {
     const sw = $('#modeSwitch'), plan = $('#panePlan'), open = $('#paneOpen'); if (!sw || !plan || !open) return;
-    const cur = open.hidden ? 'plan' : 'open';
     try { localStorage.setItem(this.KEY, mode); } catch (e) { }
     sw.dataset.mode = mode;
     document.body.classList.toggle('mode-open', mode === 'open');
     const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.content = mode === 'open' ? '#0f4c45' : '#0D1B2A';
     $$('[data-mode]', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === mode)));
     if (mode === 'open') OpenTrips.renderHome();
-    if (cur === mode && animate) return;
+    // every tap cancels the animation of the tap before it: only the latest tap wins
+    const seq = ++this.seq; clearTimeout(this._t); clearTimeout(this._t2);
     const show = mode === 'open' ? open : plan, hide = mode === 'open' ? plan : open, dir = mode === 'open' ? 1 : -1;
-    if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { hide.hidden = true; show.hidden = false; return; }
-    hide.style.transition = 'opacity .18s ease, transform .18s ease'; hide.style.opacity = '0'; hide.style.transform = `translateX(${-dir * 28}px)`;
-    clearTimeout(this._t);
+    const settle = () => { hide.hidden = true; hide.style.cssText = ''; show.hidden = false; show.style.cssText = ''; };
+    if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return settle();
+    if (!show.hidden && hide.hidden) return settle();          // already on this page (e.g. tapped back mid-animation)
+    show.hidden = true; show.style.cssText = '';
+    hide.style.transition = 'opacity .16s ease, transform .16s ease'; hide.style.opacity = '0'; hide.style.transform = `translateX(${-dir * 28}px)`;
     this._t = setTimeout(() => {
+      if (seq !== this.seq) return;
       hide.hidden = true; hide.style.cssText = '';
       show.style.transition = 'none'; show.style.opacity = '0'; show.style.transform = `translateX(${dir * 28}px)`; show.hidden = false;
-      requestAnimationFrame(() => requestAnimationFrame(() => { show.style.transition = 'opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1)'; show.style.opacity = '1'; show.style.transform = 'none'; }));
-      setTimeout(() => show.style.cssText = '', 400);
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (seq !== this.seq) return; show.style.transition = 'opacity .26s ease, transform .3s cubic-bezier(.2,.8,.2,1)'; show.style.opacity = '1'; show.style.transform = 'none'; }));
+      this._t2 = setTimeout(() => { if (seq === this.seq) settle(); }, 380);
       if (scrollY > 200) scrollTo({ top: 0, behavior: 'smooth' });
-    }, 170);
+    }, 160);
   },
   init() {
     const sw = $('#modeSwitch'); if (!sw) return;
