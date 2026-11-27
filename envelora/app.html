@@ -1897,7 +1897,7 @@ svg.i.ei{width:1.15em;height:1.15em;vertical-align:-.2em;stroke-width:1.8}
 .section-t .link-btn{margin-left:auto;font-size:.85rem;color:#1f7a6f;font-weight:600;background:none;border:none;cursor:pointer}
 
 /* open trips: real place photos */
-.ot-img,.ot-hero,.ol-mini-img{position:relative;overflow:hidden}
+.ot-img,.ot-hero,.ol-mini-img,.ol-req-ic{position:relative;overflow:hidden}
 .ot-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
 .has-photo>.ot-photo{opacity:1}
 .ot-img.has-photo::after,.ot-hero.has-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5));pointer-events:none}
@@ -7744,7 +7744,7 @@ const OpenTrips = {
         <div class="ol-band b"></div>
       </article>
       <div class="section-t"><h2>Your open trips</h2></div>
-      ${reqs.length ? `<div class="ol-reqs">${reqs.map(p => { const r = mine[p.id]; return `<div class="ol-req" data-ot="${p.id}" role="button" tabindex="0"><div class="ol-req-ic" style="background:${(guideFor(p.dest) || {}).grad || 'var(--navy)'}">${icon('compass')}</div><div><b>${Util.esc(p.title)}</b><span>${Util.fmtDate(r.date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${r.seats} seat${r.seats > 1 ? 's' : ''} · ${Util.esc(p.agency)}</span><em>Requested · waiting for the agency</em></div>${icon('arrowR')}</div>`; }).join('')}</div>`
+      ${reqs.length ? `<div class="ol-reqs">${reqs.map(p => { const r = mine[p.id]; return `<div class="ol-req" data-ot="${p.id}" role="button" tabindex="0"><div class="ol-req-ic" data-otimg="${Util.esc(p.dest)}" style="background:${(guideFor(p.dest) || {}).grad || 'var(--navy)'}"><span class="ot-emoji">${icon('compass')}</span></div><div><b>${Util.esc(p.title)}</b><span>${Util.fmtDate(r.date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${r.seats} seat${r.seats > 1 ? 's' : ''} · ${Util.esc(p.agency)}</span><em>Requested · waiting for the agency</em></div>${icon('arrowR')}</div>`; }).join('')}</div>`
         : `<div class="card paper empty ol-empty"><div class="em">${icon('backpack')}</div><h4>No open trips yet</h4><p>Tap <b>Browse open trips</b> to find a group trip and request a seat.</p></div>`}
       <div class="section-t"><h2>Popular this weekend</h2><button class="link-btn" id="obAll">See all</button></div>
       <div class="ol-rail">${weekend.map(p => `<button class="ol-mini" data-ot="${p.id}"><span class="ol-mini-img" data-otimg="${Util.esc(p.dest)}" style="background:${(guideFor(p.dest) || {}).grad || 'var(--navy)'}"></span><b>${Util.esc(p.dest)}</b><small>${p.days}D · ${this.inr(p.price)}</small></button>`).join('')}</div>
