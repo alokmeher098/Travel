@@ -1850,6 +1850,51 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
 .ot-step,.ot-total{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.ot-step div{display:flex;align-items:center;gap:12px}.ot-step b{min-width:20px;text-align:center;font-size:1.1rem}
 .ot-total span{margin-right:10px}.ot-total b{font-size:1.35rem}.ot-total small{color:var(--muted);font-size:.76rem;margin-left:auto;padding-left:8px}
 @media (max-width:360px){.ot-facts{grid-template-columns:1fr 1fr}.ot-inc{grid-template-columns:1fr}}
+
+/* ---------- colour theme per home mode: Plan = cream & gold, Open trips = sea green ---------- */
+body{transition:background-color .5s ease}
+.topbar{transition:background-color .5s ease,border-color .5s ease}
+body.mode-open{--paper:#E3F0EC;--cream:#CFE6DF;--ot:#1f7a6f;--ot-d:#155d54;--ot-l:#9fd3c7;background-color:var(--paper)}
+body.mode-open .topbar{background:rgba(227,240,236,.86);border-bottom-color:rgba(31,122,111,.28)}
+body.mode-open .ms-thumb{background:linear-gradient(135deg,rgba(178,226,214,.95),rgba(31,122,111,.85));border-color:rgba(255,255,255,.7);box-shadow:0 4px 14px rgba(21,93,84,.35),inset 0 1px 0 rgba(255,255,255,.85),inset 0 -2px 6px rgba(21,93,84,.25)}
+body.mode-open .mode-switch button[aria-selected="true"]{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2)}
+body.mode-open .mode-switch{box-shadow:0 10px 30px rgba(21,93,84,.18),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(31,122,111,.25)}
+body.mode-open #paneOpen .btn.gold,body.mode-open #openBrowse .btn.gold{background:linear-gradient(135deg,#2a9d8f,var(--ot-d));color:#fff;border-color:transparent}
+body.mode-open #paneOpen .chip.on,body.mode-open #openBrowse .chip.on{background:var(--ot);color:#fff;border-color:var(--ot)}
+body.mode-open .ot-sample{background:rgba(31,122,111,.1);border-color:var(--ot)}
+body.mode-open .ot-card{border-color:rgba(31,122,111,.3)}
+body.mode-open .ot-agency{background:linear-gradient(135deg,var(--ot-d),#0f4c45)}
+body.mode-open .ot-plan{border-left-color:var(--ot)}body.mode-open .ot-plan li::before{background:var(--ot)}
+body.mode-open .ot-book{border-color:var(--ot);background:rgba(31,122,111,.07)}
+body.mode-open .ot-d .btn.gold{background:linear-gradient(135deg,#2a9d8f,var(--ot-d));color:#fff;border-color:transparent}
+body.mode-open .ot-d .chip.on{background:var(--ot);color:#fff;border-color:var(--ot)}
+body.mode-open .brand-rule{background:linear-gradient(90deg,transparent,var(--ot),transparent)}
+/* emoji replaced by outline icons: size with the text around them */
+svg.i.ei{width:1.15em;height:1.15em;vertical-align:-.2em;stroke-width:1.8}
+.ot-emoji svg.i.ei,.ge svg.i.ei{stroke-width:1.4;color:var(--cream)}
+
+/* ---------- open trips home ---------- */
+.open-letter{position:relative;margin:0 0 18px;padding:26px 22px 22px;border-radius:22px;background:linear-gradient(160deg,#fbfdfc,#eef7f4);box-shadow:var(--shadow);border:1px solid rgba(31,122,111,.25);overflow:hidden}
+.ol-band{position:absolute;left:0;right:0;height:9px;background:repeating-linear-gradient(-45deg,#1f7a6f 0 14px,transparent 14px 22px,#e0a458 22px 36px,transparent 36px 44px)}
+.ol-band.t{top:0}.ol-band.b{bottom:0}
+.ol-stamp{position:absolute;right:18px;top:22px;width:64px;height:64px;border-radius:50%;border:2px dashed rgba(31,122,111,.45);display:grid;place-items:center;color:#1f7a6f;transform:rotate(-12deg)}
+.ol-stamp svg.i{width:30px;height:30px}
+.open-letter .salute{font-family:var(--serif);font-style:italic;color:#1f7a6f;font-size:1.15rem;margin:10px 0 6px}
+.open-letter h1{font-size:1.9rem;line-height:1.15;margin:0 0 10px;color:var(--navy)}
+.open-letter p{color:var(--ink);opacity:.82;margin:0 0 18px}
+.ol-cta{background:linear-gradient(135deg,#2a9d8f,#155d54);color:#fff;border:none;box-shadow:0 10px 24px rgba(21,93,84,.3)}
+.ol-cta svg.i{stroke:#fff}
+.ol-reqs{display:grid;gap:10px;margin-bottom:8px}
+.ol-req{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--paper);border:1px solid rgba(31,122,111,.3);box-shadow:var(--shadow);cursor:pointer}
+.ol-req-ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:#fff;flex:none}
+.ol-req div:nth-child(2){flex:1;min-width:0}.ol-req b{display:block;font-size:.95rem}.ol-req span{display:block;font-size:.78rem;color:var(--muted)}.ol-req em{font-style:normal;font-size:.72rem;color:#1f7a6f;font-weight:700}
+.ol-empty .em svg.i{width:40px;height:40px;color:#1f7a6f}
+.ol-rail{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 12px;margin:0 -2px}.ol-rail::-webkit-scrollbar{display:none}
+.ol-mini{flex:none;width:132px;border:none;padding:0;background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);text-align:left;cursor:pointer}
+.ol-mini-img{display:block;height:92px;background-size:cover;background-position:center}
+.ol-mini b{display:block;padding:8px 10px 0;font-family:var(--serif);font-weight:500}.ol-mini small{display:block;padding:0 10px 10px;color:var(--muted);font-size:.74rem}
+.ol-how .fi{background:linear-gradient(135deg,#2a9d8f,#155d54)!important;color:#fff}
+.section-t .link-btn{margin-left:auto;font-size:.85rem;color:#1f7a6f;font-weight:600;background:none;border:none;cursor:pointer}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1889,8 +1934,8 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
       <button type="button" role="tab" data-mode="plan" aria-selected="true"><span class="ms-ic" data-ic="edit"></span>Plan my trip</button>
       <button type="button" role="tab" data-mode="open" aria-selected="false"><span class="ms-ic" data-ic="backpack"></span>Open trips</button>
     </div>
-    <div class="mode-pane" id="panePlan">
     <section class="now-card" id="nowCard" aria-label="Today's date, time and weather"></section>
+    <div class="mode-pane" id="panePlan">
     <div id="homeToday"></div>
     <article class="hero-letter">
       <div class="air t"></div>
@@ -1924,7 +1969,7 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
     </section>
     <!-- ========================================================================= -->
     </div>
-    <div class="mode-pane" id="paneOpen" hidden><div id="openHost"></div></div>
+    <div class="mode-pane" id="paneOpen" hidden><div id="openHome"></div></div>
 
     <div class="brand-lockup" aria-label="Envelora. Open the envelope, begin the journey.">
       <span class="wordmark" data-brand></span>
@@ -2002,6 +2047,13 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
 <!-- =====================================================================
      OVERLAY: GAMES
      ===================================================================== -->
+<section class="overlay" id="openBrowse" aria-label="Open trips">
+  <div class="ov-head">
+    <button class="icon-btn" data-nav-back aria-label="Back"></button>
+    <div class="tt"><h2>Open trips</h2><small id="obSub">Group trips by travel agencies</small></div>
+  </div>
+  <div class="ov-body"><div id="openHost"></div></div>
+</section>
 <section class="overlay" id="story" aria-label="Place stories">
   <div class="ov-head">
     <button class="icon-btn" data-nav-back aria-label="Back"></button>
@@ -2892,6 +2944,153 @@ const ClanPhotos = {
 ClanPhotos.init();
 // tap a video to download it to this phone
 document.addEventListener('click', e => { const v = e.target.closest('.mvid-dl'); if (v) { e.stopPropagation(); ClanPhotos.downloadVideo(v.closest('[data-vp]')); } }, true);
+/* =============================================================================
+   OUTLINE ICONS instead of emoji.
+   Extra outline icons + a converter that swaps the app's emoji for matching
+   line icons wherever they appear (cards, buttons, weather, places, toasts…).
+   Left alone on purpose: what people type in chat, and game play areas
+   (e.g. Emoji Bounce, where the emoji are the game).
+   ============================================================================= */
+Object.assign(ICON_PATHS, {
+  mountain: '<path d="M3 20l6-11 4 7 2-3 6 7z"/><path d="M7.4 12l1.6 1.4L10.6 12"/>',
+  beach: '<path d="M12 4a9 9 0 019 8H3a9 9 0 019-8z"/><path d="M12 12v8M8 20h8"/>',
+  palace: '<path d="M4 21V9l2-2 2 2v3h2V8l2-3 2 3v4h2V9l2-2 2 2v12z"/><path d="M10 21v-4a2 2 0 014 0v4"/>',
+  temple: '<path d="M12 3l2 3h-4z"/><path d="M8 9h8l1 3H7z"/><path d="M6 12h12v9H6z"/><path d="M10 21v-4h4v4"/>',
+  landmark: '<path d="M3 21h18M5 21V10h14v11M4 10l8-6 8 6"/><path d="M9 21v-6h6v6"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 01-8 0z"/><path d="M8 6H5a3 3 0 003 4M16 6h3a3 3 0 01-3 4"/><path d="M12 13v4M9 20h6M10 17h4"/>',
+  medal: '<circle cx="12" cy="15" r="5"/><path d="M9 3l3 7 3-7"/><path d="M12 13v4"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  gift: '<rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 9h18M12 9v11"/><path d="M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>',
+  heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.5-7 10-7 10z"/>',
+  steps: '<path d="M7 4c2 0 3 2 3 4.5S9 13 7.5 13 5 11 5 8.5 5 4 7 4z"/><path d="M6 15.5h3v2a1.5 1.5 0 01-3 0z"/><path d="M17 8c2 0 2 4.5 1.5 7S16 18 15 17.5 14 14 14.5 12 15 8 17 8z"/>',
+  cloud: '<path d="M7 18a4 4 0 010-8 5 5 0 019.6-1.5A4 4 0 1117 18z"/>',
+  rain: '<path d="M7 15a4 4 0 010-8 5 5 0 019.6-1.5A4 4 0 1117 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>',
+  storm: '<path d="M7 15a4 4 0 010-8 5 5 0 019.6-1.5A4 4 0 1117 15z"/><path d="M12.5 15l-2 3.5h3l-2 3.5"/>',
+  snow: '<path d="M7 15a4 4 0 010-8 5 5 0 019.6-1.5A4 4 0 1117 15z"/><path d="M8 18.5v.01M12 18.5v.01M16 18.5v.01M10 21.5v.01M14 21.5v.01"/>',
+  fog: '<path d="M4 8h16M3 12h18M5 16h14M8 20h8"/>',
+  partly: '<circle cx="9" cy="8" r="3"/><path d="M9 2.5v1M3.5 8h1M5 4l.7.7M13 4l-.7.7"/><path d="M9 20a3.5 3.5 0 010-7 4.5 4.5 0 018.6-1A3.5 3.5 0 1117.5 20z"/>',
+  moon: '<path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 0010.5 10.5z"/>',
+  party: '<path d="M4 20l4-11 7 7z"/><path d="M14 4l1 2M19 5l-2 2M20 10l-2 .5M11 3l-.5 2"/>',
+  receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  alarm: '<circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 2M5 4L3 6M19 4l2 2"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>',
+  palette: '<path d="M12 3a9 9 0 100 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4s.8-1.5 2-1.5H17a4 4 0 004-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+  money: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/>',
+  coin: '<circle cx="12" cy="12" r="8.5"/><path d="M9 8.5h6M9 11.5h6M11 8.5c2.5 0 2.5 3 0 3l3.5 4"/>',
+  robot: '<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 5v3M9 13v.01M15 13v.01M9.5 16h5"/><circle cx="12" cy="4" r="1"/>',
+  hourglass: '<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>',
+  lamp: '<path d="M3 13h18c0 3.5-4 6-9 6s-9-2.5-9-6z"/><path d="M12 13c-2-2-1-4 0-7 1 3 2 5 0 7z"/>',
+  train: '<rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 10h12M9 14v.01M15 14v.01M9 21l1.5-4M15 21l-1.5-4"/>',
+  plane: '<path d="M21 4L3 11l7 2.5L12.5 21z"/><path d="M10 13.5L21 4"/>',
+  leaf: '<path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15"/><path d="M5 19l8-8"/>',
+  tree: '<path d="M12 3l6 8h-3l4 5H5l4-5H6z"/><path d="M12 16v5"/>',
+  waves: '<path d="M3 11c3 0 3-3 6-3s3 3 6 3 3-3 6-3"/><path d="M3 17c3 0 3-3 6-3s3 3 6 3 3-3 6-3"/>',
+  palm: '<path d="M12 21V11"/><path d="M12 11C10 7 6 7 4 9M12 11c2-4 6-4 8-2M12 11c-1-4-4-6-7-6M12 11c1-4 4-6 7-6"/><path d="M5 21h14"/>',
+  coffee: '<path d="M5 9h11v5a5 5 0 01-5 5h-1a5 5 0 01-5-5z"/><path d="M16 11h2a2 2 0 010 4h-2"/><path d="M8 3v3M11 3v3"/>',
+  scissors: '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 7.5L20 18M8 16.5L20 6"/>',
+  film: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+  walk: '<circle cx="13" cy="4" r="2"/><path d="M10 21l2.5-6 2.5 2.5V21M8 12l3-4.5 3.5 2.5 3 1M11 7.5l-1.5 6"/>',
+  balloon: '<path d="M12 3a6 6 0 016 6c0 4-3 7-6 7s-6-3-6-7a6 6 0 016-6z"/><path d="M11 18h2l-1-2zM12 18c0 2-2 2-2 4"/>',
+  snake: '<path d="M4 19c3 0 3-4 6-4s3 4 6 4 4-6 0-8-6-1-6-4 4-3 6-2"/><path d="M17 4.5v.01"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+  food: '<circle cx="12" cy="13" r="6"/><path d="M3 4v6M5 4v6M3 10a1 1 0 002 0M4 10v10M21 4c-2 1-2 4-2 7h2v9"/>',
+  sunrise: '<path d="M3 18h18M7 18a5 5 0 0110 0M12 4v4M5 9l2 2M19 9l-2 2M9 21h6"/>',
+  fire: '<path d="M12 21c-4 0-7-3-7-7 0-4 4-6 4-10 2 1 5 4 5 7 1-1 1.5-2 1.5-3C18 10 19 12 19 14c0 4-3 7-7 7z"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  speaker: '<path d="M3 10v4h3l7 4V6L6 10z"/><path d="M16 9a4 4 0 010 6M19 7a7 7 0 010 10"/>',
+  mute: '<path d="M3 10v4h3l7 4V6L6 10z"/><path d="M17 9.5l5 5M22 9.5l-5 5"/>',
+  megaphone: '<path d="M4 10v4l12 5V5z"/><path d="M8 15v4a1.5 1.5 0 003 0v-3M19 10v4"/>',
+  map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  warning: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+  dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9v.01M15 9v.01M12 12v.01M9 15v.01M15 15v.01"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0012 0M12 17v4M9 21h6"/>',
+  mask: '<path d="M4 5h16v6a8 8 0 01-16 0z"/><path d="M8 10h2M14 10h2M9 15c2 1.5 4 1.5 6 0"/>',
+  cards: '<rect x="8" y="3" width="12" height="16" rx="2"/><path d="M5 6v13a2 2 0 002 2h9"/>',
+  bottle: '<path d="M10 3h4v4l2 3v10a1 1 0 01-1 1H9a1 1 0 01-1-1V10l2-3z"/><path d="M8 13h8"/>',
+  paw: '<circle cx="7" cy="9" r="1.6"/><circle cx="12" cy="6.5" r="1.6"/><circle cx="17" cy="9" r="1.6"/><path d="M12 12c-3 0-5 3-5 5.5 0 2 2 2.5 5 2.5s5-.5 5-2.5c0-2.5-2-5.5-5-5.5z"/>',
+  flower: '<circle cx="12" cy="12" r="2.5"/><path d="M12 9.5C10 6 10 3 12 3s2 3 0 6.5M14.5 12c3.5-2 6.5-2 6.5 0s-3 2-6.5 0M12 14.5c2 3.5 2 6.5 0 6.5s-2-3 0-6.5M9.5 12C6 14 3 14 3 12s3-2 6.5 0"/>',
+  drop: '<path d="M12 3s6 7 6 11a6 6 0 01-12 0c0-4 6-11 6-11z"/>',
+  wheel: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3L6.3 17.7"/>',
+  boat: '<path d="M3 14h18l-3 5H6z"/><path d="M12 14V4l6 7h-6"/>',
+  smile: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c2 2 5 2 7 0M9 9.5v.01M15 9.5v.01"/>',
+  pray: '<path d="M12 4l-3 7v5l-3 4h12l-3-4v-5z"/><path d="M12 4v12"/>',
+  bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/>'
+});
+
+const Emo = {
+  MAP: {
+    '🏔': 'mountain', '⛰': 'mountain', '🗻': 'mountain', '🕳': 'mountain', '🏖': 'beach', '⛱': 'beach', '🏝': 'palm', '🌴': 'palm',
+    '🏰': 'palace', '🏯': 'palace', '🛕': 'temple', '🏛': 'landmark', '🕌': 'landmark', '⛪': 'landmark', '🕍': 'landmark', '🗽': 'landmark', '🏟': 'landmark',
+    '🧭': 'compass', '🏆': 'trophy', '🥇': 'medal', '🥈': 'medal', '🥉': 'medal', '🎖': 'medal', '🏅': 'medal',
+    '💬': 'chat', '🗨': 'chat', '🎁': 'gift', '❤': 'heart', '💛': 'heart', '💙': 'heart', '🧡': 'heart', '💖': 'heart', '💕': 'heart', '🥾': 'steps', '👣': 'steps', '🚶': 'walk', '🏃': 'walk',
+    '☀': 'sun', '🌞': 'sun', '😎': 'sun', '🌤': 'partly', '⛅': 'partly', '🌥': 'partly', '🌦': 'rain', '☁': 'cloud', '🌧': 'rain', '☔': 'rain', '⛈': 'storm', '🌩': 'storm', '🌨': 'snow', '❄': 'snow', '☃': 'snow', '🌫': 'fog', '🌙': 'moon', '🌛': 'moon', '🌜': 'moon',
+    '🌄': 'sunrise', '🌅': 'sunrise', '🌇': 'sunrise', '🎉': 'party', '🎊': 'party', '🥳': 'party', '🎡': 'party', '✨': 'sparkle', '⭐': 'star', '🌟': 'star', '💫': 'sparkle',
+    '🧾': 'receipt', '⏰': 'alarm', '⏱': 'clock', '⏲': 'clock', '🕒': 'clock', '⌛': 'hourglass', '⏳': 'hourglass', '🏁': 'flag', '🚩': 'flag', '🎨': 'palette', '🖌': 'palette',
+    '💰': 'money', '💸': 'money', '💵': 'money', '🪙': 'coin', '🤖': 'robot', '🪔': 'lamp', '🕯': 'lamp', '🚂': 'train', '🚆': 'train', '🚄': 'train', '🚌': 'car', '🚕': 'car', '🚗': 'car', '🛺': 'car', '🚙': 'car', '🏍': 'car', '✈': 'plane', '🛫': 'plane',
+    '🍃': 'leaf', '🌿': 'leaf', '🌾': 'leaf', '🪶': 'leaf', '🍂': 'leaf', '🌳': 'tree', '🌲': 'tree', '🏞': 'tree', '🌊': 'waves', '☕': 'coffee', '🍵': 'coffee', '✂': 'scissors', '🎬': 'film', '🎥': 'film', '📽': 'film',
+    '🎈': 'balloon', '🐍': 'snake', '🔒': 'lock', '🔐': 'lock', '🍽': 'food', '🍛': 'food', '🍲': 'food', '🍜': 'food', '🥘': 'food', '🔥': 'fire', '🌐': 'globe', '🌍': 'globe', '🌏': 'globe',
+    '🔊': 'speaker', '🔈': 'speaker', '🔉': 'speaker', '🔇': 'mute', '📣': 'megaphone', '📢': 'megaphone', '🗺': 'map', '⚠': 'warning', '🎲': 'dice', '🎤': 'mic', '🎭': 'mask', '🃏': 'cards', '🍾': 'bottle',
+    '🦁': 'paw', '🐅': 'paw', '🐯': 'paw', '🐘': 'paw', '🐠': 'paw', '🐢': 'paw', '🐇': 'paw', '🐒': 'paw', '🦚': 'paw', '🌸': 'flower', '🌺': 'flower', '🌼': 'flower', '💧': 'drop', '☸': 'wheel', '🛶': 'boat', '⛵': 'boat', '🚤': 'boat',
+    '🙏': 'pray', '🧘': 'user', '🕵': 'user', '👤': 'user', '👥': 'users', '👨‍👩‍👧': 'users', '👑': 'crown', '💡': 'bulb', '😊': 'smile', '🙂': 'smile', '😄': 'smile',
+    '📍': 'pin', '📌': 'pin', '📸': 'camera', '📷': 'camera', '🖼': 'image', '🎟': 'ticket', '🎫': 'ticket', '🧳': 'bag', '🎒': 'backpack', '🛍': 'bag', '🏨': 'bed', '🛏': 'bed', '🔔': 'bell', '💌': 'mail', '✉': 'mail', '📩': 'mail', '📧': 'mail',
+    '✅': 'check', '✔': 'check', '📖': 'book', '📚': 'book', '📕': 'book', '🎮': 'game', '🕹': 'game', '📅': 'cal', '📆': 'cal', '🗓': 'cal', '📱': 'phone', '📞': 'phone', '🔗': 'link', '⚙': 'settings', '🛡': 'shield', '💼': 'bag', '👛': 'wallet', '💳': 'wallet',
+    '🔎': 'search', '🔍': 'search', '✏': 'edit', '📝': 'edit', '🗑': 'trash', '🏠': 'door', '🚪': 'door'
+  },
+  re: null,
+  build() {
+    const keys = Object.keys(this.MAP).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    this.re = new RegExp('(' + keys.join('|') + ')\\uFE0F?', 'gu');
+  },
+  skip(el) {
+    if (!el || !el.closest) return true;
+    if (el.closest('script,style,textarea,input,[contenteditable],[data-emoji="keep"],#gArea,.bouncer,.ghost-edit')) return true;
+    // what people type in chat stays as they wrote it (app notices, scores and alerts get icons)
+    const bub = el.closest('.bub'); if (bub && !bub.closest('.msg.sys') && !bub.classList.contains('score') && !bub.classList.contains('alert')) return true;
+    return false;
+  },
+  svg(name) {
+    if (!ICON_PATHS[name]) name = 'sparkle';
+    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('class', 'i ei'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = ICON_PATHS[name]; return s;
+  },
+  swapText(t) {
+    const v = t.nodeValue; if (!v || !this.re.test(v)) return; this.re.lastIndex = 0;
+    if (this.skip(t.parentElement)) return;
+    const frag = document.createDocumentFragment(); let last = 0, m;
+    while ((m = this.re.exec(v))) {
+      if (m.index > last) frag.append(v.slice(last, m.index));
+      frag.append(this.svg(this.MAP[m[1]]));
+      last = m.index + m[0].length;
+    }
+    if (last < v.length) frag.append(v.slice(last));
+    t.replaceWith(frag);
+  },
+  scan(root) {
+    if (!root) return;
+    if (root.nodeType === 3) return this.swapText(root);
+    if (root.nodeType !== 1 || this.skip(root)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list = [];
+    while (w.nextNode()) list.push(w.currentNode);
+    list.forEach(t => this.swapText(t));
+  },
+  init() {
+    if (!ICON_PATHS.search) ICON_PATHS.search = '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>';
+    this.build();
+    let q = new Set(), sched = false;
+    const run = () => { sched = false; const l = [...q]; q = new Set(); l.forEach(n => n.isConnected && this.scan(n)); };
+    new MutationObserver(ms => {
+      for (const m of ms) {
+        if (m.type === 'characterData') q.add(m.target);
+        else m.addedNodes.forEach(n => q.add(n));
+      }
+      if (!sched && q.size) { sched = true; queueMicrotask(run); }
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    this.scan(document.body);
+  }
+};
+Emo.init();
 
 /* -----------------------------------------------------------------------------
    DATA — sample Indian destination guides (prototype content)
@@ -7471,7 +7670,7 @@ const OpenTrips = {
     const host = $('#openHost'); if (!host) return;
     const list = this.data().filter(p => this.match(p)), mine = this.interest();
     host.innerHTML = `
-      <div class="ot-head"><h2>Open trips</h2><p>Join a group trip run by a travel agency. Pick a package, choose a date, travel with new friends.</p></div>
+      <div class="ot-head"><p>Pick a package, choose a date, travel with new friends.</p></div>
       <div class="ot-sample">${icon('info', 'sm')}<span><b>Sample packages.</b> Partner agencies are joining soon. Requests are free during beta and nothing is charged.</span></div>
       <div class="ot-search"><input class="input" id="otQ" placeholder="Search place, agency or city" value="${Util.esc(this.q)}" autocomplete="off"/></div>
       <div class="ot-filters" role="tablist">${this.FILTERS.map(([k, l]) => `<button class="chip${k === this.filter ? ' on' : ''}" data-of="${k}">${l}</button>`).join('')}</div>
@@ -7498,6 +7697,43 @@ const OpenTrips = {
     host.querySelector('.ot-list').onkeydown = e => { const c = e.target.closest('[data-ot]'); if (c && e.key === 'Enter') this.open(c.dataset.ot); };
     // real photos of each place (same as trip cards), swapped in when they arrive
     if (typeof Explore !== 'undefined' && Explore.destPhoto) $$('[data-otimg]', host).forEach(el => Explore.destPhoto(el.dataset.otimg).then(p => { if (p && p.src && el.isConnected) { el.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55)),url("${Util.url(p.src)}")`; el.classList.add('has-photo'); } }).catch(() => { }));
+  },
+  /** Open trips home: hero card → Browse, your requests, popular this weekend, how it works. */
+  renderHome() {
+    const host = $('#openHome'); if (!host) return;
+    const all = this.data(), mine = this.interest(), reqs = all.filter(p => mine[p.id]);
+    const low = Math.min(...all.map(p => p.price)), weekend = all.filter(p => p.tags.includes('weekend'));
+    host.innerHTML = `
+      <article class="open-letter">
+        <div class="ol-band t"></div>
+        <div class="ol-stamp" aria-hidden="true">${icon('backpack')}</div>
+        <div class="salute">Hey explorer,</div>
+        <h1>Travel with a group,<br/>even if you go solo.</h1>
+        <p>Pick a ready-made trip run by a travel agency: fixed price, a trip captain, and new friends to travel with. No planning needed.</p>
+        <div class="cta-wrap"><button class="btn xl ol-cta" id="obBtn">${icon('compass')}Browse open trips</button>
+          <span class="hint">${all.length} trips · from ${this.inr(low)} per person</span></div>
+        <div class="ol-band b"></div>
+      </article>
+      <div class="section-t"><h2>Your open trips</h2></div>
+      ${reqs.length ? `<div class="ol-reqs">${reqs.map(p => { const r = mine[p.id]; return `<div class="ol-req" data-ot="${p.id}" role="button" tabindex="0"><div class="ol-req-ic" style="background:${(guideFor(p.dest) || {}).grad || 'var(--navy)'}">${icon('compass')}</div><div><b>${Util.esc(p.title)}</b><span>${Util.fmtDate(r.date, { weekday: 'short', day: 'numeric', month: 'short' })} · ${r.seats} seat${r.seats > 1 ? 's' : ''} · ${Util.esc(p.agency)}</span><em>Requested · waiting for the agency</em></div>${icon('arrowR')}</div>`; }).join('')}</div>`
+        : `<div class="card paper empty ol-empty"><div class="em">${icon('backpack')}</div><h4>No open trips yet</h4><p>Tap <b>Browse open trips</b> to find a group trip and request a seat.</p></div>`}
+      <div class="section-t"><h2>Popular this weekend</h2><button class="link-btn" id="obAll">See all</button></div>
+      <div class="ol-rail">${weekend.map(p => `<button class="ol-mini" data-ot="${p.id}"><span class="ol-mini-img" data-otimg="${Util.esc(p.dest)}" style="background:${(guideFor(p.dest) || {}).grad || 'var(--navy)'}"></span><b>${Util.esc(p.dest)}</b><small>${p.days}D · ${this.inr(p.price)}</small></button>`).join('')}</div>
+      <div class="section-t"><h2>How open trips work</h2></div>
+      <div class="features ol-how">
+        ${[['compass', 'Pick a trip', 'Ready-made plans by travel agencies'], ['users', 'Join a group', 'Travel with like-minded people'], ['shield', 'Trip captain', 'Someone in charge on the road'], ['wallet', 'One fixed price', 'Stay, travel and plan included']].map(([ic, t, d]) => `<div class="feature"><div class="fi">${icon(ic)}</div><b>${t}</b><span>${d}</span></div>`).join('')}
+      </div>`;
+    $('#obBtn', host).onclick = () => this.browse();
+    $('#obAll', host).onclick = () => { this.filter = 'weekend'; this.browse(); };
+    host.onclick = e => { const c = e.target.closest('[data-ot]'); if (c) this.open(c.dataset.ot); };
+    host.onkeydown = e => { const c = e.target.closest('[data-ot]'); if (c && e.key === 'Enter') this.open(c.dataset.ot); };
+    if (typeof Explore !== 'undefined' && Explore.destPhoto) $$('[data-otimg]', host).forEach(el => Explore.destPhoto(el.dataset.otimg).then(p => { if (p && p.src && el.isConnected) { el.style.backgroundImage = `url("${Util.url(p.src)}")`; } }).catch(() => { }));
+  },
+  /** Full-screen list of packages (opened from "Browse open trips"). */
+  browse() {
+    UI.openOverlay('openBrowse', () => { this.filter = 'all'; this.q = ''; this.renderHome(); });
+    $('#openBrowse .ov-body').scrollTop = 0;
+    this.render();
   },
   open(id) {
     const p = this.data().find(x => x.id === id); if (!p) return;
@@ -7530,9 +7766,9 @@ const OpenTrips = {
         if (!Auth.user) return Nav.back(() => AuthUI.openSheet({ sheetTitle: 'Log in', title: 'Log in to request a seat', sub: 'We need your name and contact so the agency can reach you.', dark: false }));
         const m = this.interest(); m[id] = { date: dep, seats: n, at: Date.now(), title: p.title, agency: p.agency };
         Store.set(this.KEY, m);
-        Nav.back(() => { this.render(); UI.toast(p.sample ? `Request saved: ${n} seat${n > 1 ? 's' : ''} on ${Util.fmtDate(dep, { day: 'numeric', month: 'short' })}. This is a sample trip, so we'll let you know when real agencies go live.` : 'Request sent. The agency will contact you to confirm.'); });
+        Nav.back(() => { this.render(); this.renderHome(); UI.toast(p.sample ? `Request saved: ${n} seat${n > 1 ? 's' : ''} on ${Util.fmtDate(dep, { day: 'numeric', month: 'short' })}. This is a sample trip, so we'll let you know when real agencies go live.` : 'Request sent. The agency will contact you to confirm.'); });
       };
-      $('#otCancel', body) && ($('#otCancel', body).onclick = () => { const m = this.interest(); delete m[id]; Store.set(this.KEY, m); Nav.back(() => { this.render(); UI.toast('Request cancelled.'); }); });
+      $('#otCancel', body) && ($('#otCancel', body).onclick = () => { const m = this.interest(); delete m[id]; Store.set(this.KEY, m); Nav.back(() => { this.render(); this.renderHome(); UI.toast('Request cancelled.'); }); });
     });
   }
 };
@@ -7546,8 +7782,10 @@ const HomeMode = {
     const cur = open.hidden ? 'plan' : 'open';
     try { localStorage.setItem(this.KEY, mode); } catch (e) { }
     sw.dataset.mode = mode;
+    document.body.classList.toggle('mode-open', mode === 'open');
+    const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.content = mode === 'open' ? '#0f4c45' : '#0D1B2A';
     $$('[data-mode]', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === mode)));
-    if (mode === 'open') OpenTrips.render();
+    if (mode === 'open') OpenTrips.renderHome();
     if (cur === mode && animate) return;
     const show = mode === 'open' ? open : plan, hide = mode === 'open' ? plan : open, dir = mode === 'open' ? 1 : -1;
     if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { hide.hidden = true; show.hidden = false; return; }
@@ -7566,9 +7804,25 @@ const HomeMode = {
     $$('[data-ic]', sw).forEach(s => s.innerHTML = icon(s.dataset.ic));
     sw.addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) this.set(b.dataset.mode); });
     sw.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const m = e.key === 'ArrowRight' ? 'open' : 'plan'; this.set(m); $(`[data-mode="${m}"]`, sw).focus(); } });
-    // swipe left/right on the switch
-    let x0 = null; sw.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
-    sw.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 30) this.set(dx < 0 ? 'open' : 'plan'); });
+    // swipe on the switch itself: the slider follows your finger, then snaps to a side
+    const th = $('.ms-thumb', sw); let d = null, noClick = 0;
+    sw.addEventListener('touchstart', e => { const r = sw.getBoundingClientRect(); d = { x: e.touches[0].clientX, y: e.touches[0].clientY, w: r.width / 2 - 5, start: sw.dataset.mode === 'open' ? 1 : 0, moved: false }; }, { passive: true });
+    sw.addEventListener('touchmove', e => {
+      if (!d) return; const dx = e.touches[0].clientX - d.x, dy = e.touches[0].clientY - d.y;
+      if (!d.moved && Math.abs(dx) < 6) return;
+      if (!d.moved && Math.abs(dy) > Math.abs(dx)) { d = null; return; }   // vertical scroll, not a swipe
+      d.moved = true; const pos = Math.max(0, Math.min(1, d.start + dx / d.w)); d.pos = pos;
+      th.style.transition = 'none'; th.style.transform = `translateX(${pos * 100}%)`;
+    }, { passive: true });
+    const end = () => {
+      if (!d) return; const was = d; d = null;
+      th.style.transition = ''; th.style.transform = '';
+      if (!was.moved) return;                                          // a plain tap: the click handler does it
+      noClick = Date.now() + 500;                                      // ignore the tap the phone sends after a swipe
+      this.set(was.pos > .5 ? 'open' : 'plan');
+    };
+    sw.addEventListener('touchend', end, { passive: true }); sw.addEventListener('touchcancel', end, { passive: true });
+    sw.addEventListener('click', e => { if (Date.now() < noClick) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
     this.set(this.get(), false);
   }
 };
