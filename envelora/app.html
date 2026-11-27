@@ -8232,6 +8232,7 @@ const Now = {
   CODES: { 0: ['☀️', 'Clear sky'], 1: ['🌤️', 'Mostly clear'], 2: ['⛅', 'Partly cloudy'], 3: ['☁️', 'Cloudy'], 45: ['🌫️', 'Fog'], 48: ['🌫️', 'Fog'],
     51: ['🌦️', 'Light drizzle'], 53: ['🌦️', 'Drizzle'], 55: ['🌧️', 'Heavy drizzle'], 61: ['🌦️', 'Light rain'], 63: ['🌧️', 'Rain'], 65: ['🌧️', 'Heavy rain'],
     71: ['🌨️', 'Light snow'], 73: ['🌨️', 'Snow'], 75: ['❄️', 'Heavy snow'], 80: ['🌦️', 'Rain showers'], 81: ['🌧️', 'Rain showers'], 82: ['⛈️', 'Violent showers'],
+    56: ['🌧️', 'Freezing drizzle'], 57: ['🌧️', 'Freezing drizzle'], 66: ['🌧️', 'Freezing rain'], 67: ['🌧️', 'Freezing rain'], 77: ['🌨️', 'Snow grains'], 85: ['🌨️', 'Snow showers'], 86: ['🌨️', 'Snow showers'],
     95: ['⛈️', 'Thunderstorm'], 96: ['⛈️', 'Thunderstorm, hail'], 99: ['⛈️', 'Thunderstorm, hail'] },
   KEY: 'envelora.v1.weather',
   wx: null, msg: 'Finding your weather…',
@@ -8239,6 +8240,9 @@ const Now = {
     this.render(); clearInterval(this._t);
     this._t = setInterval(() => this.tickClock(), 1000);
     this.load(false);
+    // keep it current: every 10 minutes, and when you come back to the app
+    clearInterval(this._w); this._w = setInterval(() => this.load(false), 10 * 60000);
+    if (!this._vis) { this._vis = true; document.addEventListener('visibilitychange', () => { if (!document.hidden) this.load(false); }); }
   },
   /** Background theme for the card, from the weather code and day/night. */
   theme(w) {
@@ -8268,39 +8272,48 @@ const Now = {
       ${w ? `<div class="wx-grid"><div>Feels like<b>${Math.round(w.feels)}°</b></div><div>High / Low<b>${Math.round(w.hi)}° / ${Math.round(w.lo)}°</b></div><div>Humidity<b>${w.hum}%</b></div><div>Wind<b>${Math.round(w.wind)} km/h</b></div></div>` : ''}`;
     const r = $('#wxRetry'); if (r) r.onclick = () => this.load(true);
   },
+  /** fetch JSON with a time limit, so a slow network never leaves the card stuck */
+  async getJSON(u, ms = 9000) {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), ms);
+    try { const r = await fetch(u, { signal: ac.signal }); if (!r.ok) throw new Error('http'); return await r.json(); } finally { clearTimeout(t); }
+  },
   async load(force) {
+    if (this._busy) return; this._busy = true;
     const cached = Store.get(this.KEY);
-    if (!force && cached && Date.now() - cached.at < 15 * 60000) { this.wx = cached; return this.render(); }
+    // show the last reading at once, then refresh it in the background
+    if (cached && !this.wx) { this.wx = cached; this.render(); }
     try {
       const pos = await this.locate();
-      const place = pos.name || await this.placeName(pos.lat, pos.lon);
-      const u = `https://api.open-meteo.com/v1/forecast?latitude=${pos.lat}&longitude=${pos.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`;
-      const j = await (await fetch(u)).json();
-      const c = j.current;
-      this.wx = { at: Date.now(), temp: c.temperature_2m, feels: c.apparent_temperature, hum: c.relative_humidity_2m, code: c.weather_code, wind: c.wind_speed_10m, day: c.is_day, hi: j.daily.temperature_2m_max[0], lo: j.daily.temperature_2m_min[0], place: place + (pos.fromTrip ? ' (your trip)' : '') };
+      // fresh enough and still in the same place: keep it
+      const near = cached && cached.lat != null && Math.abs(cached.lat - pos.lat) < .05 && Math.abs(cached.lon - pos.lon) < .05;
+      if (!force && near && Date.now() - cached.at < 10 * 60000) { this.wx = cached; return; }
+      const [place, j] = await Promise.all([
+        pos.name ? Promise.resolve(pos.name) : this.placeName(pos.lat, pos.lon),
+        this.getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${pos.lat}&longitude=${pos.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`)]);
+      const c = j && j.current; if (!c || c.temperature_2m == null) throw new Error('bad');
+      this.wx = { at: Date.now(), lat: +pos.lat, lon: +pos.lon, temp: c.temperature_2m, feels: c.apparent_temperature, hum: c.relative_humidity_2m, code: c.weather_code, wind: c.wind_speed_10m, day: c.is_day, hi: j.daily.temperature_2m_max[0], lo: j.daily.temperature_2m_min[0], place: place + (pos.fromTrip ? ' (your trip)' : '') };
       Store.set(this.KEY, this.wx);
     } catch (e) {
-      this.wx = null;
-      this.msg = e && e.message === 'noloc' ? 'Allow location to see the weather where you are.' : 'Weather is unavailable right now (no internet or blocked in this preview).';
-    }
-    this.render();
+      // keep showing the last reading if we have one; otherwise say what to do
+      if (!this.wx) this.msg = e && e.message === 'noloc' ? 'Allow location to see the weather where you are.' : 'Weather is unavailable right now. Check your internet.';
+    } finally { this._busy = false; this.render(); }
   },
   /** Device location first; otherwise the trip's destination. */
   locate() {
     const viaTrip = async () => {
       const t = Trips.loadOwn(); if (!t) throw new Error('noloc');
-      const g = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&countryCode=IN&name=' + encodeURIComponent(t.destination))).json();
+      const g = await this.getJSON('https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&countryCode=IN&name=' + encodeURIComponent(t.destination));
       if (!g.results || !g.results.length) throw new Error('noloc');
       return { lat: g.results[0].latitude, lon: g.results[0].longitude, name: g.results[0].name, fromTrip: true };
     };
     if (!navigator.geolocation) return viaTrip();
     return new Promise((res, rej) => navigator.geolocation.getCurrentPosition(
       p => res({ lat: p.coords.latitude.toFixed(3), lon: p.coords.longitude.toFixed(3) }),
-      () => viaTrip().then(res, rej), { timeout: 8000, maximumAge: 600000 }));
+      () => viaTrip().then(res, rej), { timeout: 10000, maximumAge: 0, enableHighAccuracy: false }));
   },
   async placeName(lat, lon) {
     try {
-      const j = await (await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)).json();
+      const j = await this.getJSON(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`, 6000);
       return [j.city || j.locality, j.principalSubdivision].filter(Boolean).join(', ') || 'Your location';
     } catch (e) { return 'Your location'; }
   }
