@@ -2181,7 +2181,8 @@ const Util = {
   /** Safe address for src/href: base64 image/PDF data, blob:, or https. Anything else becomes ''. */
   url(u) {
     const s = String(u ?? '');
-    if (/^data:(image\/(png|jpe?g|webp|gif)|application\/pdf);base64,[A-Za-z0-9+\/=\s]+$/i.test(s) || /^blob:https?:\/\/[^\s"'<>]+$/i.test(s) || /^blob:null\/[\w-]+$/i.test(s) || /^https:\/\/[^\s"'<>\\]+$/i.test(s)) return this.esc(s);
+    if (/^data:(image\/(png|jpe?g|webp|gif)|application\/pdf);base64,[A-Za-z0-9+\/=\s]+$/i.test(s) || /^blob:https?:\/\/[^\s"'<>]+$/i.test(s) || /^blob:null\/[\w-]+$/i.test(s) || /^https:\/\/[^\s"<>\\]+$/i.test(s)) return this.esc(s);
+    if (/^\/\/[^\s"<>\\]+$/.test(s)) return this.esc('https:' + s);
     return '';
   },
   esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); },
@@ -7678,9 +7679,11 @@ const OpenTrips = {
     $$('[data-otimg]', root).forEach(el => {
       if (el.dataset.otDone) return; el.dataset.otDone = '1';
       Explore.destPhoto(el.dataset.otimg).then(p => {
-        const src = p && Util.url(p.src); if (!src || !el.isConnected) return;
+        let src = p && String(p.src || ''); if (!src || !el.isConnected) return;
+        if (src.startsWith('//')) src = 'https:' + src;
+        if (!/^https:\/\//.test(src) && !/^data:image\//.test(src)) return;
         const im = new Image(); im.className = 'ot-photo'; im.alt = (p.place || el.dataset.otimg) + ''; im.decoding = 'async';
-        im.onload = () => el.classList.add('has-photo'); im.src = p.src;
+        im.onload = () => el.classList.add('has-photo'); im.src = src;
         el.prepend(im);
       }).catch(() => { });
     });
