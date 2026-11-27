@@ -1798,14 +1798,27 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
 .cs-member.tappable{cursor:pointer}.cs-member .m-more{margin-left:auto;font-size:1.3rem;color:rgba(241,230,204,.6);padding:0 4px;transition:transform .2s}.cs-member.open{border-color:rgba(212,178,106,.55);background:rgba(212,178,106,.08)}.cs-member.open .m-more{transform:rotate(90deg)}
 
 /* ---------- home switch: Plan my trip ↔ Open trips ---------- */
-.mode-switch{position:relative;display:grid;grid-template-columns:1fr 1fr;margin:0 0 14px;padding:5px;border-radius:999px;background:var(--navy);box-shadow:0 6px 18px rgba(13,27,42,.18),inset 0 0 0 1px rgba(212,178,106,.35);user-select:none;-webkit-tap-highlight-color:transparent}
-.mode-switch button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:none;background:none;border-radius:999px;color:var(--cream);font:600 .92rem/1 var(--sans);letter-spacing:.02em;cursor:pointer;transition:color .3s ease}
+.mode-switch{position:sticky;top:calc(var(--topbar-h,62px) + 8px);z-index:15;display:grid;grid-template-columns:1fr 1fr;margin:0 0 14px;padding:5px;border-radius:999px;
+  background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.22));
+  backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 10px 30px rgba(13,27,42,.16),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(212,178,106,.25);
+  user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+.mode-switch::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 55%)}
+.mode-switch button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:none;background:none;border-radius:999px;color:rgba(13,27,42,.62);font:600 .92rem/1 var(--sans);letter-spacing:.02em;cursor:pointer;transition:color .3s ease}
 .mode-switch button[aria-selected="true"]{color:var(--navy)}
 .mode-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .ms-ic{font-size:1.05rem;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .mode-switch button[aria-selected="true"] .ms-ic{transform:scale(1.18) rotate(-6deg)}
-.ms-thumb{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;background:linear-gradient(135deg,#f1dfae,var(--gold));box-shadow:0 3px 10px rgba(0,0,0,.25);transition:transform .38s cubic-bezier(.3,1.25,.5,1)}
+.ms-thumb{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;
+  background:linear-gradient(135deg,rgba(246,228,182,.92),rgba(212,178,106,.78));
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:0 4px 14px rgba(156,122,54,.35),inset 0 1px 0 rgba(255,255,255,.85),inset 0 -2px 6px rgba(156,122,54,.25);
+  transition:transform .42s cubic-bezier(.3,1.25,.5,1)}
+.ms-thumb::after{content:'';position:absolute;left:12%;right:12%;top:2px;height:40%;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,0))}
 .mode-switch[data-mode="open"] .ms-thumb{transform:translateX(100%)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.mode-switch{background:rgba(250,246,238,.94)}}
 @media (prefers-reduced-motion:reduce){.ms-thumb,.ms-ic{transition:none}}
 /* ---------- open trips ---------- */
 .ot-head h2{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:4px 0 2px}.ot-head p{margin:0 0 10px;color:var(--muted);font-size:.9rem}
@@ -7544,7 +7557,7 @@ const HomeMode = {
       show.style.transition = 'none'; show.style.opacity = '0'; show.style.transform = `translateX(${dir * 28}px)`; show.hidden = false;
       requestAnimationFrame(() => requestAnimationFrame(() => { show.style.transition = 'opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1)'; show.style.opacity = '1'; show.style.transform = 'none'; }));
       setTimeout(() => show.style.cssText = '', 400);
-      const top = $('#modeSwitch').getBoundingClientRect().top + scrollY - 70; if (scrollY > top) scrollTo({ top, behavior: 'smooth' });
+      if (scrollY > 200) scrollTo({ top: 0, behavior: 'smooth' });
     }, 170);
   },
   init() {
@@ -7557,6 +7570,8 @@ const HomeMode = {
     this.set(this.get(), false);
   }
 };
+// keep the switch just below the top bar while scrolling
+(() => { const tb = document.querySelector('.topbar'); if (!tb) return; const f = () => { const h = tb.getBoundingClientRect().height; if (h) document.documentElement.style.setProperty('--topbar-h', Math.round(h) + 'px'); }; f(); addEventListener('resize', f); addEventListener('scroll', f, { passive: true, once: true }); if (window.ResizeObserver) new ResizeObserver(f).observe(tb); })();
 HomeMode.init();
 
 /* =============================================================================
