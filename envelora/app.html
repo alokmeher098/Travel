@@ -1895,6 +1895,18 @@ svg.i.ei{width:1.15em;height:1.15em;vertical-align:-.2em;stroke-width:1.8}
 .ol-mini b{display:block;padding:8px 10px 0;font-family:var(--serif);font-weight:500}.ol-mini small{display:block;padding:0 10px 10px;color:var(--muted);font-size:.74rem}
 .ol-how .fi{background:linear-gradient(135deg,#2a9d8f,#155d54)!important;color:#fff}
 .section-t .link-btn{margin-left:auto;font-size:.85rem;color:#1f7a6f;font-weight:600;background:none;border:none;cursor:pointer}
+
+/* open trips: real place photos */
+.ot-img,.ot-hero,.ol-mini-img{position:relative;overflow:hidden}
+.ot-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
+.has-photo>.ot-photo{opacity:1}
+.ot-img.has-photo::after,.ot-hero.has-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.5));pointer-events:none}
+.ot-img>span,.ot-hero>span,.ot-hero>b{z-index:1}
+.has-photo>.ot-emoji{display:none}
+.ot-hero{height:190px;border-radius:16px;margin:0 0 12px;display:flex;align-items:center;justify-content:center}
+.ot-hero .ot-emoji svg.i.ei,.ot-hero .ot-emoji svg.i{width:56px;height:56px;color:var(--cream);stroke-width:1.3}
+.ot-hero-t{position:absolute;left:14px;bottom:12px;color:#fff;font-family:var(--serif);font-weight:500;font-size:1.4rem;text-shadow:0 2px 8px rgba(0,0,0,.45);z-index:2}
+.ot-hero .ot-days{left:auto;right:12px;bottom:14px;z-index:2}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -7559,7 +7571,8 @@ const Explore = {
   /** Credits for the photos currently shown on trip cards. */
   credits() {
     const all = Store.get('envelora.v2.tripPhotos', {}) || {}, seen = new Set();
-    return Trips.all().map(t => t.destination && all['d:' + t.destination.trim().toLowerCase()]).filter(x => x && x.p && !seen.has(x.p.src) && seen.add(x.p.src)).map(x => x.p);
+    const dests = Trips.all().map(t => t.destination).concat(typeof OpenTrips !== 'undefined' ? OpenTrips.data().map(p => p.dest) : []);
+    return dests.map(d => d && all['d:' + d.trim().toLowerCase()]).filter(x => x && x.p && !seen.has(x.p.src) && seen.add(x.p.src)).map(x => x.p);
   },
   /** Real photo of a destination's famous place (cached 30 days). */
   async destPhoto(dest) {
@@ -7658,6 +7671,20 @@ const OpenTrips = {
     ]);
   },
   interest() { return Store.get(this.KEY, {}) || {}; },
+  /** Put the real photo of each place's famous sight into every [data-otimg] box under root. */
+  photos(root) {
+    if (typeof Explore === 'undefined' || !Explore.destPhoto) return;
+    try { Explore.defs && Explore.defs(); } catch (e) { }
+    $$('[data-otimg]', root).forEach(el => {
+      if (el.dataset.otDone) return; el.dataset.otDone = '1';
+      Explore.destPhoto(el.dataset.otimg).then(p => {
+        const src = p && Util.url(p.src); if (!src || !el.isConnected) return;
+        const im = new Image(); im.className = 'ot-photo'; im.alt = (p.place || el.dataset.otimg) + ''; im.decoding = 'async';
+        im.onload = () => el.classList.add('has-photo'); im.src = p.src;
+        el.prepend(im);
+      }).catch(() => { });
+    });
+  },
   inr(n) { return '₹' + Number(n).toLocaleString('en-IN'); },
   match(p) {
     const f = this.filter, q = this.q.trim().toLowerCase();
@@ -7695,8 +7722,7 @@ const OpenTrips = {
     host.querySelector('.ot-filters').onclick = e => { const b = e.target.closest('[data-of]'); if (b) { this.filter = b.dataset.of; this.render(); } };
     host.querySelector('.ot-list').onclick = e => { const c = e.target.closest('[data-ot]'); if (c) this.open(c.dataset.ot); };
     host.querySelector('.ot-list').onkeydown = e => { const c = e.target.closest('[data-ot]'); if (c && e.key === 'Enter') this.open(c.dataset.ot); };
-    // real photos of each place (same as trip cards), swapped in when they arrive
-    if (typeof Explore !== 'undefined' && Explore.destPhoto) $$('[data-otimg]', host).forEach(el => Explore.destPhoto(el.dataset.otimg).then(p => { if (p && p.src && el.isConnected) { el.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55)),url("${Util.url(p.src)}")`; el.classList.add('has-photo'); } }).catch(() => { }));
+    this.photos(host);
   },
   /** Open trips home: hero card → Browse, your requests, popular this weekend, how it works. */
   renderHome() {
@@ -7727,7 +7753,7 @@ const OpenTrips = {
     $('#obAll', host).onclick = () => { this.filter = 'weekend'; this.browse(); };
     host.onclick = e => { const c = e.target.closest('[data-ot]'); if (c) this.open(c.dataset.ot); };
     host.onkeydown = e => { const c = e.target.closest('[data-ot]'); if (c && e.key === 'Enter') this.open(c.dataset.ot); };
-    if (typeof Explore !== 'undefined' && Explore.destPhoto) $$('[data-otimg]', host).forEach(el => Explore.destPhoto(el.dataset.otimg).then(p => { if (p && p.src && el.isConnected) { el.style.backgroundImage = `url("${Util.url(p.src)}")`; } }).catch(() => { }));
+    this.photos(host);
   },
   /** Full-screen list of packages (opened from "Browse open trips"). */
   browse() {
@@ -7742,6 +7768,7 @@ const OpenTrips = {
     const total = () => this.inr(p.price * n);
     UI.sheet(p.title, `
       <div class="ot-d">
+        <div class="ot-hero" data-otimg="${Util.esc(p.dest)}" style="background:${(guideFor(p.dest) || {}).grad || 'linear-gradient(135deg,var(--navy),var(--navy-3))'}"><span class="ot-emoji">${icon('mountain')}</span><span class="ot-days">${p.days}D / ${p.days - 1}N</span><b class="ot-hero-t">${Util.esc(p.dest)}</b></div>
         <div class="ot-ag">${Util.esc(p.agency)} · ★ ${p.rating} (${p.reviews} reviews)${p.sample ? ' · <span class="ot-tag in">Sample</span>' : ''}</div>
         <div class="ot-facts"><div><span>Duration</span><b>${p.days} days</b></div><div><span>Starts from</span><b>${Util.esc(p.from)}</b></div><div><span>Group</span><b>${p.seats} seats · ${p.left} left</b></div></div>
         <h4>Pick a departure</h4>
@@ -7758,6 +7785,7 @@ const OpenTrips = {
           <p class="hint" style="text-align:center;margin:8px 0 0;font-size:.76rem">Free beta: nothing is charged. The agency confirms seats before any payment.</p>
         </div>
       </div>`, body => {
+      this.photos(body);
       const draw = () => { $('#otN', body).textContent = n; $('#otN2', body).textContent = n; $('#otTotal', body).textContent = total(); };
       body.querySelector('.ot-dates').onclick = e => { const b = e.target.closest('[data-dd]'); if (!b) return; dep = b.dataset.dd; $$('[data-dd]', body).forEach(x => x.classList.toggle('on', x === b)); };
       $('#otMinus', body).onclick = () => { n = Math.max(1, n - 1); draw(); };
