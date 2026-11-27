@@ -1935,6 +1935,9 @@ body.mode-open #openBrowse .ov-head button{color:#0f4c45}
 .ot-city{display:flex;align-items:center;gap:8px;width:100%;background:rgba(31,122,111,.08);border:1px solid rgba(31,122,111,.25);border-radius:12px;padding:10px 12px;font:inherit;color:var(--ink,#1a1a1a);cursor:pointer;margin-bottom:10px;text-align:left}
 .ot-city span{flex:1}.ot-city em{font-style:normal;font-weight:700;color:#1f7a6f}.ot-city svg.i{color:#1f7a6f}
 .sp-st[data-st="ld"] .sp-in path{stroke-width:5;fill:#1f7a6f}
+.sp-h{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:#6b7b78;margin:14px 2px 0}
+.sp-hint,.sp-none{text-align:center;font-size:.8rem;color:#6b7b78;margin:14px 0 0}
+.sp-none[hidden]{display:none}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -7909,15 +7912,18 @@ Object.assign(OpenTrips, {
     this.state = '';
     $('#openBrowse .ov-head h2').textContent = 'Where to?'; $('#obSub').textContent = 'Pick a state to see open trips';
     const n = {}; this.data().forEach(p => { const s = this.stateOf(p); if (s) n[s] = (n[s] || 0) + 1; });
-    const list = [...STATE_MAP].sort((a, b) => (n[b[0]] ? 1 : 0) - (n[a[0]] ? 1 : 0) || a[1].localeCompare(b[1]));
+    const POP = ['hp', 'ga', 'rj', 'jk', 'kl', 'ut', 'sk', 'an', 'up', 'ml', 'ka', 'tn'], pop = id => n[id] || POP.includes(id);
+    const list = [...STATE_MAP].sort((a, b) => (n[b[0]] ? 1 : 0) - (n[a[0]] ? 1 : 0) || (pop(b[0]) ? 1 : 0) - (pop(a[0]) ? 1 : 0) || (POP.indexOf(a[0]) - POP.indexOf(b[0])) || a[1].localeCompare(b[1]));
     host.innerHTML = `<div class="sp-head"><h3>Where do you want to go?</h3></div>
-      <div class="ot-search"><input class="input" id="spQ" placeholder="Search a state" autocomplete="off"/></div>
-      <div class="sp-grid">${list.map(([id, name, vb, d]) => `<button class="sp-st${n[id] ? ' has' : ''}" data-st="${id}" data-name="${Util.esc(name.toLowerCase())}">
+      <div class="ot-search"><input class="input" id="spQ" placeholder="Search any state" autocomplete="off"/></div>
+      <div class="sp-h" id="spH">Popular states</div><div class="sp-grid">${list.map(([id, name, vb, d]) => `<button class="sp-st${n[id] ? ' has' : ''}" data-st="${id}" data-name="${Util.esc(name.toLowerCase())}"${pop(id) ? " data-pop=\"1\"" : " hidden"}>
         <span class="sp-in"><svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="${d}"/></svg>
         <b>${Util.esc(name)}</b><small>${n[id] ? n[id] + ' trip' + (n[id] > 1 ? 's' : '') : 'Coming soon'}</small></span></button>`).join('')}</div>
+      <p class="sp-none" id="spNone" hidden>No state found.</p>
+      <p class="sp-hint">Can&#39;t see your state? Search for it above.</p>
       <button class="sp-all" id="spAll">See all open trips</button>
       <p class="sp-cr">State outlines: SVG Maps by Victor Cazanave, CC BY 4.0.</p>`;
-    $('#spQ', host).oninput = e => { const q = e.target.value.trim().toLowerCase(); $$('.sp-st', host).forEach(b => b.hidden = !!q && !b.dataset.name.includes(q)); };
+    $('#spQ', host).oninput = e => { const q = e.target.value.trim().toLowerCase(); $$('.sp-st', host).forEach(b => b.hidden = q ? !b.dataset.name.includes(q) : !b.dataset.pop); $('#spH', host).textContent = q ? 'Search results' : 'Popular states'; $('#spNone', host).hidden = !q || !!$$('.sp-st', host).find(b => !b.hidden); };
     $('.sp-grid', host).onclick = e => { const b = e.target.closest('[data-st]'); if (b) { this.state = b.dataset.st; $('#openBrowse .ov-body').scrollTop = 0; this.render(); } };
     $('#spAll', host).onclick = () => { this.state = ''; $('#openBrowse .ov-body').scrollTop = 0; this.render(); };
   },
