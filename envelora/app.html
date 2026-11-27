@@ -1955,6 +1955,18 @@ html,body,*{-webkit-tap-highlight-color:transparent}
 .splash.breathe .sp-v{animation:vBreathe2 2.2s ease-in-out infinite}
 @keyframes vBreathe2{0%,100%{filter:brightness(1.05) drop-shadow(0 0 4px rgba(255,236,170,.7)) drop-shadow(0 0 12px rgba(212,178,106,.45))}50%{filter:brightness(1.45) drop-shadow(0 0 8px rgba(255,240,190,1)) drop-shadow(0 0 22px rgba(232,196,110,1)) drop-shadow(0 0 48px rgba(212,178,106,.9))}}
 @media (prefers-reduced-motion: reduce){.splash.breathe .sp-v{animation:none}}
+
+/* V: sword glint, a thin bright streak running diagonally down the blade */
+.sp-shine::before{width:22%;left:-70%;top:-60%;bottom:-60%;transform:rotate(32deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.35) 30%,#fff 50%,rgba(255,255,255,.35) 70%,transparent)}
+.splash.shine .sp-shine::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.35) 30%,#fff 50%,rgba(255,255,255,.35) 70%,transparent);animation:vGlint .55s cubic-bezier(.4,0,.2,1) 0s 1 forwards}
+.splash.breathe .sp-shine::before{animation:vGlint 2.2s cubic-bezier(.4,0,.2,1) .4s infinite}
+@keyframes vGlint{0%{left:-70%;opacity:1}35%{left:150%;opacity:1}36%,100%{left:150%;opacity:0}}
+.splash.shine .sp-shine::before{animation-duration:2.2s}
+.sp-v::after{content:"";position:absolute;left:50%;bottom:2%;width:.5em;height:.5em;margin-left:-.25em;pointer-events:none;opacity:0;transform:scale(.2) rotate(0deg);
+  background:radial-gradient(circle,#fff 0 6%,transparent 12%),linear-gradient(0deg,transparent 46%,#fff 50%,transparent 54%),linear-gradient(90deg,transparent 46%,#fff 50%,transparent 54%);filter:drop-shadow(0 0 4px #fff)}
+.splash.shine .sp-v::after{animation:vStar 2.2s ease .45s infinite}
+@keyframes vStar{0%{opacity:0;transform:scale(.2) rotate(0deg)}8%{opacity:1;transform:scale(1) rotate(45deg)}20%,100%{opacity:0;transform:scale(.2) rotate(90deg)}}
+@media (prefers-reduced-motion: reduce){.splash .sp-shine::before,.splash .sp-v::after{animation:none!important}}
 </style>
 </head>
 <body class="launch-mode lock">
