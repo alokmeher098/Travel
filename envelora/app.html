@@ -1796,6 +1796,47 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
 #chat .ov-head,#chat .composer{flex:none;position:relative;z-index:4}
 .to-bottom{position:absolute;right:14px;bottom:calc(72px + var(--safe-b,0px));z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(13,27,42,.82);color:#f1e6cc;font-size:1.4rem;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
 .cs-member.tappable{cursor:pointer}.cs-member .m-more{margin-left:auto;font-size:1.3rem;color:rgba(241,230,204,.6);padding:0 4px;transition:transform .2s}.cs-member.open{border-color:rgba(212,178,106,.55);background:rgba(212,178,106,.08)}.cs-member.open .m-more{transform:rotate(90deg)}
+
+/* ---------- home switch: Plan my trip ↔ Open trips ---------- */
+.mode-switch{position:relative;display:grid;grid-template-columns:1fr 1fr;margin:0 0 14px;padding:5px;border-radius:999px;background:var(--navy);box-shadow:0 6px 18px rgba(13,27,42,.18),inset 0 0 0 1px rgba(212,178,106,.35);user-select:none;-webkit-tap-highlight-color:transparent}
+.mode-switch button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:none;background:none;border-radius:999px;color:var(--cream);font:600 .92rem/1 var(--sans);letter-spacing:.02em;cursor:pointer;transition:color .3s ease}
+.mode-switch button[aria-selected="true"]{color:var(--navy)}
+.mode-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ms-ic{font-size:1.05rem;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.mode-switch button[aria-selected="true"] .ms-ic{transform:scale(1.18) rotate(-6deg)}
+.ms-thumb{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;background:linear-gradient(135deg,#f1dfae,var(--gold));box-shadow:0 3px 10px rgba(0,0,0,.25);transition:transform .38s cubic-bezier(.3,1.25,.5,1)}
+.mode-switch[data-mode="open"] .ms-thumb{transform:translateX(100%)}
+@media (prefers-reduced-motion:reduce){.ms-thumb,.ms-ic{transition:none}}
+/* ---------- open trips ---------- */
+.ot-head h2{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:4px 0 2px}.ot-head p{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+.ot-sample{display:flex;gap:8px;align-items:flex-start;padding:9px 12px;border-radius:12px;background:rgba(212,178,106,.16);border:1px dashed var(--gold-d);font-size:.8rem;margin-bottom:10px}
+.ot-search{margin-bottom:8px}
+.ot-filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px;margin:0 -2px}.ot-filters::-webkit-scrollbar{display:none}.ot-filters .chip{flex:none}
+.ot-list{display:grid;gap:14px}
+.ot-card{background:var(--paper);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(212,178,106,.35);cursor:pointer;transition:transform .2s ease}
+.ot-card:active{transform:scale(.985)}
+.ot-img{position:relative;height:150px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
+.ot-emoji{font-size:3rem;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}.ot-img.has-photo .ot-emoji{display:none}
+.ot-days,.ot-tag,.ot-hot{position:absolute;font:700 .7rem/1 var(--sans);letter-spacing:.06em;padding:6px 9px;border-radius:99px}
+.ot-days{left:10px;bottom:10px;background:rgba(13,27,42,.82);color:var(--cream)}
+.ot-tag{right:10px;top:10px;background:var(--cream);color:var(--navy);text-transform:uppercase}.ot-tag.in{position:static;display:inline-block;padding:3px 7px;font-size:.62rem}
+.ot-hot{left:10px;top:10px;background:#c0392b;color:#fff}
+.ot-body{padding:12px 14px 14px}
+.ot-ag{font-size:.76rem;color:var(--muted)}.ot-ag small{opacity:.8}
+.ot-body h3{font-family:var(--serif);font-weight:400;font-size:1.2rem;margin:3px 0 4px}
+.ot-meta{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:4px}.ot-meta .i{width:13px;height:13px}
+.ot-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:10px}
+.ot-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}.ot-price b{font-size:1.25rem}.ot-price s{color:var(--muted);font-size:.8rem}.ot-price span{color:#1e8e5a;font-weight:700;font-size:.78rem}.ot-price small{width:100%;color:var(--muted);font-size:.72rem;margin-top:-4px}
+.ot-agency{margin:18px 0 6px;padding:16px;border-radius:16px;background:var(--navy);color:var(--cream);text-align:center}.ot-agency p{margin:4px 0 10px;font-size:.84rem;opacity:.85}
+.ot-d h4{margin:16px 0 6px;font-size:.95rem}
+.ot-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.ot-facts div{background:rgba(13,27,42,.05);border-radius:12px;padding:8px 10px}.ot-facts span{display:block;font-size:.7rem;color:var(--muted)}.ot-facts b{font-size:.86rem}
+.ot-dates{display:flex;gap:6px;flex-wrap:wrap}
+.ot-plan{margin:0;padding-left:0;list-style:none;border-left:2px solid var(--gold);margin-left:6px}.ot-plan li{position:relative;padding:0 0 12px 16px}.ot-plan li::before{content:'';position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--gold);border:2px solid var(--paper)}.ot-plan b{display:block;font-size:.9rem}.ot-plan span{font-size:.84rem;color:var(--muted)}
+.ot-inc{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ot-inc ul{margin:0;padding:0;list-style:none;font-size:.82rem}.ot-inc li{margin:0 0 5px}
+.ot-book{margin-top:16px;padding:14px;border-radius:16px;border:1px solid var(--gold);background:rgba(212,178,106,.08)}
+.ot-step,.ot-total{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.ot-step div{display:flex;align-items:center;gap:12px}.ot-step b{min-width:20px;text-align:center;font-size:1.1rem}
+.ot-total span{margin-right:10px}.ot-total b{font-size:1.35rem}.ot-total small{color:var(--muted);font-size:.76rem;margin-left:auto;padding-left:8px}
+@media (max-width:360px){.ot-facts{grid-template-columns:1fr 1fr}.ot-inc{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -1830,6 +1871,12 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
   </header>
 
   <main class="home" id="home">
+    <div class="mode-switch" id="modeSwitch" data-mode="plan" role="tablist" aria-label="Plan your own trip or join an open trip">
+      <span class="ms-thumb" aria-hidden="true"></span>
+      <button type="button" role="tab" data-mode="plan" aria-selected="true"><span class="ms-ic">✏️</span>Plan my trip</button>
+      <button type="button" role="tab" data-mode="open" aria-selected="false"><span class="ms-ic">🎒</span>Open trips</button>
+    </div>
+    <div class="mode-pane" id="panePlan">
     <section class="now-card" id="nowCard" aria-label="Today's date, time and weather"></section>
     <div id="homeToday"></div>
     <article class="hero-letter">
@@ -1863,6 +1910,8 @@ html.chat-open,html.chat-open body{overflow:hidden;height:100%;overscroll-behavi
       <div class="card">Envelora trip managers — coming after launch.</div>
     </section>
     <!-- ========================================================================= -->
+    </div>
+    <div class="mode-pane" id="paneOpen" hidden><div id="openHost"></div></div>
 
     <div class="brand-lockup" aria-label="Envelora. Open the envelope, begin the journey.">
       <span class="wordmark" data-brand></span>
@@ -7348,6 +7397,167 @@ const Explore = {
     this.photos().then(map => { if (Object.keys(map).length) { host.dataset.done = '1'; draw(map); } }).catch(() => { });
   }
 };
+/* =============================================================================
+   OPEN TRIPS — group packages posted by partner travel agencies.
+   Home has a two-way switch: "Plan my trip" (your own trip) ↔ "Open trips".
+   Until agencies join, SAMPLE packages are shown (clearly marked). Real listings
+   will later come from the server (table `open_trips`, posted by agency accounts).
+   Beta: no payment. "Request to join" records your interest and the seats you want.
+   ============================================================================= */
+const OpenTrips = {
+  KEY: 'envelora.v1.openTripsInterest',
+  filter: 'all', q: '',
+  FILTERS: [['all', 'All'], ['mountains', '🏔️ Mountains'], ['beach', '🏖️ Beaches'], ['heritage', '🏰 Heritage'], ['spiritual', '🪔 Spiritual'], ['weekend', '⏱️ Weekend'], ['budget', '💸 Under ₹8k']],
+  /** next departure dates: every 7 days starting from the next given weekday */
+  dates(weekday, n = 4) {
+    const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + 3);
+    while (d.getDay() !== weekday) d.setDate(d.getDate() + 1);
+    return Array.from({ length: n }, (_, i) => { const x = new Date(d); x.setDate(d.getDate() + i * 7); return Util.ymd(x); });
+  },
+  data() {
+    if (this._d) return this._d;
+    const P = (o) => ({ sample: true, ...o });
+    return (this._d = [
+      P({ id: 'ot_manali', dest: 'Manali', title: 'Manali & Kasol Backpacking', tags: ['mountains'], days: 5, from: 'Delhi', price: 8999, was: 10999, seats: 18, left: 7, rating: 4.7, reviews: 214,
+        agency: 'Peak Trails Holidays', dep: this.dates(5), pickup: 'Majnu Ka Tilla, Delhi · 7:00 PM (Volvo)',
+        inc: ['Volvo bus both ways', '4 nights stay (hotel + camps)', '8 meals', 'Trip captain', 'Solang Valley & Kasol sightseeing'], exc: ['Paragliding & snow activities', 'Lunch', 'Personal expenses'],
+        plan: [['Delhi → Manali', 'Overnight Volvo from Delhi.'], ['Manali local', 'Hadimba Temple, Old Manali cafés, Mall Road.'], ['Solang Valley', 'Snow point, optional paragliding.'], ['Kasol & Manikaran', 'Riverside camps, Manikaran Sahib.'], ['Return', 'Overnight Volvo back to Delhi.']] }),
+      P({ id: 'ot_goa', dest: 'Goa', title: 'Goa Beach Weekend', tags: ['beach', 'weekend'], days: 3, from: 'Goa (Madgaon)', price: 6499, was: 7999, seats: 20, left: 12, rating: 4.5, reviews: 168,
+        agency: 'Coastline Getaways', dep: this.dates(5), pickup: 'Madgaon Railway Station · 9:00 AM',
+        inc: ['2 nights beach stay', 'Breakfast', 'North & South Goa tour', 'Sunset cruise', 'Trip captain'], exc: ['Train / flight to Goa', 'Water sports', 'Lunch & dinner'],
+        plan: [['North Goa', 'Fort Aguada, Baga & Anjuna beach, sunset at Chapora.'], ['South Goa', 'Old Goa churches, Colva beach, Mandovi sunset cruise.'], ['Departure', 'Morning at leisure, drop at Madgaon.']] }),
+      P({ id: 'ot_rishikesh', dest: 'Rishikesh', title: 'Rishikesh Rafting & Camping', tags: ['mountains', 'weekend', 'budget'], days: 3, from: 'Delhi', price: 4999, was: 5999, seats: 24, left: 9, rating: 4.6, reviews: 302,
+        agency: 'Ganga Adventures', dep: this.dates(5), pickup: 'Kashmere Gate, Delhi · 10:00 PM',
+        inc: ['AC transport both ways', '1 night riverside camp', '16 km river rafting', 'Bonfire & music', '4 meals'], exc: ['Bungee jumping', 'Personal expenses'],
+        plan: [['Delhi → Rishikesh', 'Overnight drive to the camp.'], ['Rafting day', '16 km rafting, Laxman Jhula, Ganga aarti at Triveni Ghat, bonfire.'], ['Return', 'Beatles Ashram, drive back to Delhi.']] }),
+      P({ id: 'ot_rajasthan', dest: 'Jaipur', title: 'Jaipur & Udaipur Royal Trail', tags: ['heritage'], days: 5, from: 'Jaipur', price: 12499, was: 14999, seats: 16, left: 5, rating: 4.8, reviews: 97,
+        agency: 'Rajputana Journeys', dep: this.dates(4), pickup: 'Jaipur Junction · 10:00 AM',
+        inc: ['4 nights heritage hotels', 'Breakfast & 2 dinners', 'AC tempo traveller', 'Monument guide', 'Lake Pichola boat ride'], exc: ['Monument tickets', 'Lunch', 'Train to Jaipur'],
+        plan: [['Pink City', 'Hawa Mahal, City Palace, Jantar Mantar.'], ['Amber & Nahargarh', 'Amber Fort, Nahargarh sunset.'], ['Drive to Udaipur', 'Stop at Chittorgarh Fort on the way.'], ['City of Lakes', 'City Palace, Lake Pichola boat ride.'], ['Departure', 'Drop at Udaipur station or airport.']] }),
+      P({ id: 'ot_varanasi', dest: 'Varanasi', title: 'Varanasi Ghats & Aarti', tags: ['spiritual', 'heritage', 'weekend', 'budget'], days: 3, from: 'Varanasi', price: 5499, was: 6499, seats: 15, left: 11, rating: 4.6, reviews: 141,
+        agency: 'Kashi Yatra Tours', dep: this.dates(6), pickup: 'Varanasi Junction · 11:00 AM',
+        inc: ['2 nights stay near the ghats', 'Breakfast', 'Sunrise boat ride', 'Ganga aarti seats', 'Sarnath tour'], exc: ['Train to Varanasi', 'Lunch & dinner'],
+        plan: [['Ghats walk', 'Dashashwamedh Ghat, evening Ganga aarti.'], ['Sunrise & Sarnath', 'Boat ride at dawn, Kashi Vishwanath, Sarnath.'], ['Departure', 'Banaras silk lanes, drop at the station.']] }),
+      P({ id: 'ot_udaipur', dest: 'Udaipur', title: 'Udaipur Lakes Weekend', tags: ['heritage', 'weekend'], days: 3, from: 'Udaipur', price: 7299, was: 8499, seats: 14, left: 3, rating: 4.7, reviews: 76,
+        agency: 'Lakeview Escapes', dep: this.dates(5), pickup: 'Udaipur City Station · 10:00 AM',
+        inc: ['2 nights lake-view stay', 'Breakfast', 'Sunset boat ride', 'Sajjangarh visit', 'Trip captain'], exc: ['Travel to Udaipur', 'Lunch & dinner'],
+        plan: [['Old City', 'City Palace, Jagdish Temple, sunset on Lake Pichola.'], ['Lakes & Monsoon Palace', 'Fateh Sagar, Saheliyon ki Bari, Sajjangarh at sunset.'], ['Departure', 'Bagore ki Haveli, drop at the station.']] })
+    ]);
+  },
+  interest() { return Store.get(this.KEY, {}) || {}; },
+  inr(n) { return '₹' + Number(n).toLocaleString('en-IN'); },
+  match(p) {
+    const f = this.filter, q = this.q.trim().toLowerCase();
+    if (q && !(p.title + ' ' + p.dest + ' ' + p.from + ' ' + p.agency).toLowerCase().includes(q)) return false;
+    if (f === 'all') return true;
+    if (f === 'budget') return p.price < 8000;
+    return p.tags.includes(f);
+  },
+  render() {
+    const host = $('#openHost'); if (!host) return;
+    const list = this.data().filter(p => this.match(p)), mine = this.interest();
+    host.innerHTML = `
+      <div class="ot-head"><h2>Open trips</h2><p>Join a group trip run by a travel agency. Pick a package, choose a date, travel with new friends.</p></div>
+      <div class="ot-sample">${icon('info', 'sm')}<span><b>Sample packages.</b> Partner agencies are joining soon. Requests are free during beta and nothing is charged.</span></div>
+      <div class="ot-search"><input class="input" id="otQ" placeholder="Search place, agency or city" value="${Util.esc(this.q)}" autocomplete="off"/></div>
+      <div class="ot-filters" role="tablist">${this.FILTERS.map(([k, l]) => `<button class="chip${k === this.filter ? ' on' : ''}" data-of="${k}">${l}</button>`).join('')}</div>
+      <div class="ot-list">${list.map(p => {
+        const g = guideFor(p.dest), off = Math.round((1 - p.price / p.was) * 100), req = mine[p.id];
+        return `<article class="ot-card" data-ot="${p.id}" role="button" tabindex="0" aria-label="${Util.esc(p.title)}">
+          <div class="ot-img" data-otimg="${Util.esc(p.dest)}" style="background:${g ? g.grad : 'linear-gradient(135deg,var(--navy),var(--navy-3))'}">
+            <span class="ot-emoji">${g ? g.emoji : '🧭'}</span>
+            <span class="ot-days">${p.days}D / ${p.days - 1}N</span>${p.sample ? '<span class="ot-tag">Sample</span>' : ''}
+            ${p.left <= 5 ? `<span class="ot-hot">Only ${p.left} seats left</span>` : ''}
+          </div>
+          <div class="ot-body">
+            <div class="ot-ag">${Util.esc(p.agency)} · ★ ${p.rating} <small>(${p.reviews})</small></div>
+            <h3>${Util.esc(p.title)}</h3>
+            <div class="ot-meta">${icon('pin', 'sm')} from ${Util.esc(p.from)} · next ${Util.fmtDate(p.dep[0], { day: 'numeric', month: 'short' })}</div>
+            <div class="ot-row"><div class="ot-price"><b>${this.inr(p.price)}</b><s>${this.inr(p.was)}</s><span>${off}% off</span><small>per person</small></div>
+              <span class="btn ${req ? 'soft' : 'gold'} sm">${req ? '✓ Requested' : 'View'}</span></div>
+          </div></article>`;
+      }).join('') || '<div class="card paper empty"><div class="em">🔎</div><h4>No trips match</h4><p>Try another place or filter.</p></div>'}</div>
+      <div class="ot-agency"><b>Are you a travel agency?</b><p>List your group trips on Envelora and reach travellers planning together.</p><a class="btn soft sm" href="${LEGAL}#contact" target="_blank" rel="noopener">Partner with us</a></div>`;
+    const qi = $('#otQ', host); qi.oninput = () => { this.q = qi.value; clearTimeout(this._qt); this._qt = setTimeout(() => { const pos = qi.selectionStart; this.render(); const n = $('#otQ'); n.focus(); n.setSelectionRange(pos, pos); }, 250); };
+    host.querySelector('.ot-filters').onclick = e => { const b = e.target.closest('[data-of]'); if (b) { this.filter = b.dataset.of; this.render(); } };
+    host.querySelector('.ot-list').onclick = e => { const c = e.target.closest('[data-ot]'); if (c) this.open(c.dataset.ot); };
+    host.querySelector('.ot-list').onkeydown = e => { const c = e.target.closest('[data-ot]'); if (c && e.key === 'Enter') this.open(c.dataset.ot); };
+    // real photos of each place (same as trip cards), swapped in when they arrive
+    if (typeof Explore !== 'undefined' && Explore.destPhoto) $$('[data-otimg]', host).forEach(el => Explore.destPhoto(el.dataset.otimg).then(p => { if (p && p.src && el.isConnected) { el.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55)),url("${Util.url(p.src)}")`; el.classList.add('has-photo'); } }).catch(() => { }));
+  },
+  open(id) {
+    const p = this.data().find(x => x.id === id); if (!p) return;
+    const mine = this.interest(), req = mine[id];
+    let dep = req ? req.date : p.dep[0], n = req ? req.seats : 1;
+    const total = () => this.inr(p.price * n);
+    UI.sheet(p.title, `
+      <div class="ot-d">
+        <div class="ot-ag">${Util.esc(p.agency)} · ★ ${p.rating} (${p.reviews} reviews)${p.sample ? ' · <span class="ot-tag in">Sample</span>' : ''}</div>
+        <div class="ot-facts"><div><span>Duration</span><b>${p.days} days</b></div><div><span>Starts from</span><b>${Util.esc(p.from)}</b></div><div><span>Group</span><b>${p.seats} seats · ${p.left} left</b></div></div>
+        <h4>Pick a departure</h4>
+        <div class="ot-dates">${p.dep.map(d => `<button class="chip${d === dep ? ' on' : ''}" data-dd="${d}">${Util.fmtDate(d, { weekday: 'short', day: 'numeric', month: 'short' })}</button>`).join('')}</div>
+        <p class="hint" style="margin:6px 0 0">${icon('pin', 'sm')} Pickup: ${Util.esc(p.pickup)}</p>
+        <h4>Day by day</h4>
+        <ol class="ot-plan">${p.plan.map(([t, d], i) => `<li><b>Day ${i + 1} · ${Util.esc(t)}</b><span>${Util.esc(d)}</span></li>`).join('')}</ol>
+        <div class="ot-inc"><div><h4>Included</h4><ul>${p.inc.map(x => `<li>✓ ${Util.esc(x)}</li>`).join('')}</ul></div><div><h4>Not included</h4><ul>${p.exc.map(x => `<li>✗ ${Util.esc(x)}</li>`).join('')}</ul></div></div>
+        <div class="ot-book">
+          <div class="ot-step"><span>Travellers</span><div><button class="icon-btn sm" id="otMinus" aria-label="Fewer">−</button><b id="otN">${n}</b><button class="icon-btn sm" id="otPlus" aria-label="More">+</button></div></div>
+          <div class="ot-total"><span>Total</span><b id="otTotal">${total()}</b><small>${this.inr(p.price)} × <span id="otN2">${n}</span></small></div>
+          <button class="btn gold block" id="otReq">${req ? 'Update my request' : 'Request to join'}</button>
+          ${req ? `<button class="btn ghost block" id="otCancel" style="margin-top:6px">Cancel my request</button>` : ''}
+          <p class="hint" style="text-align:center;margin:8px 0 0;font-size:.76rem">Free beta: nothing is charged. The agency confirms seats before any payment.</p>
+        </div>
+      </div>`, body => {
+      const draw = () => { $('#otN', body).textContent = n; $('#otN2', body).textContent = n; $('#otTotal', body).textContent = total(); };
+      body.querySelector('.ot-dates').onclick = e => { const b = e.target.closest('[data-dd]'); if (!b) return; dep = b.dataset.dd; $$('[data-dd]', body).forEach(x => x.classList.toggle('on', x === b)); };
+      $('#otMinus', body).onclick = () => { n = Math.max(1, n - 1); draw(); };
+      $('#otPlus', body).onclick = () => { n = Math.min(p.left, n + 1); draw(); if (n === p.left) UI.toast(`Only ${p.left} seats left on this trip.`, 'info'); };
+      $('#otReq', body).onclick = () => {
+        if (!Auth.user) return Nav.back(() => AuthUI.openSheet({ sheetTitle: 'Log in', title: 'Log in to request a seat', sub: 'We need your name and contact so the agency can reach you.', dark: false }));
+        const m = this.interest(); m[id] = { date: dep, seats: n, at: Date.now(), title: p.title, agency: p.agency };
+        Store.set(this.KEY, m);
+        Nav.back(() => { this.render(); UI.toast(p.sample ? `Request saved: ${n} seat${n > 1 ? 's' : ''} on ${Util.fmtDate(dep, { day: 'numeric', month: 'short' })}. This is a sample trip, so we'll let you know when real agencies go live.` : 'Request sent. The agency will contact you to confirm.'); });
+      };
+      $('#otCancel', body) && ($('#otCancel', body).onclick = () => { const m = this.interest(); delete m[id]; Store.set(this.KEY, m); Nav.back(() => { this.render(); UI.toast('Request cancelled.'); }); });
+    });
+  }
+};
+
+/* ---------- home switch: Plan my trip ↔ Open trips ---------- */
+const HomeMode = {
+  KEY: 'envelora.homeMode',
+  get() { try { return localStorage.getItem(this.KEY) === 'open' ? 'open' : 'plan'; } catch (e) { return 'plan'; } },
+  set(mode, animate = true) {
+    const sw = $('#modeSwitch'), plan = $('#panePlan'), open = $('#paneOpen'); if (!sw || !plan || !open) return;
+    const cur = open.hidden ? 'plan' : 'open';
+    try { localStorage.setItem(this.KEY, mode); } catch (e) { }
+    sw.dataset.mode = mode;
+    $$('[data-mode]', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === mode)));
+    if (mode === 'open') OpenTrips.render();
+    if (cur === mode && animate) return;
+    const show = mode === 'open' ? open : plan, hide = mode === 'open' ? plan : open, dir = mode === 'open' ? 1 : -1;
+    if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { hide.hidden = true; show.hidden = false; return; }
+    hide.style.transition = 'opacity .18s ease, transform .18s ease'; hide.style.opacity = '0'; hide.style.transform = `translateX(${-dir * 28}px)`;
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      hide.hidden = true; hide.style.cssText = '';
+      show.style.transition = 'none'; show.style.opacity = '0'; show.style.transform = `translateX(${dir * 28}px)`; show.hidden = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => { show.style.transition = 'opacity .28s ease, transform .32s cubic-bezier(.2,.8,.2,1)'; show.style.opacity = '1'; show.style.transform = 'none'; }));
+      setTimeout(() => show.style.cssText = '', 400);
+      const top = $('#modeSwitch').getBoundingClientRect().top + scrollY - 70; if (scrollY > top) scrollTo({ top, behavior: 'smooth' });
+    }, 170);
+  },
+  init() {
+    const sw = $('#modeSwitch'); if (!sw) return;
+    sw.addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) this.set(b.dataset.mode); });
+    sw.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const m = e.key === 'ArrowRight' ? 'open' : 'plan'; this.set(m); $(`[data-mode="${m}"]`, sw).focus(); } });
+    // swipe left/right on the switch
+    let x0 = null; sw.addEventListener('touchstart', e => x0 = e.touches[0].clientX, { passive: true });
+    sw.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 30) this.set(dx < 0 ? 'open' : 'plan'); });
+    this.set(this.get(), false);
+  }
+};
+HomeMode.init();
 
 /* =============================================================================
    HOME + HEADER + ACCOUNT MENU
