@@ -1975,8 +1975,8 @@ html,body,*{-webkit-tap-highlight-color:transparent}
 /* ===== Sealed trip: black charcoal ===== */
 body.mode-sealed{background:#1b1c1f var(--grain)}
 body.mode-sealed>.app{color:#e7e2d7}
-body.mode-sealed .topbar{background:rgba(27,28,31,.9);border-bottom-color:rgba(212,178,106,.18);color:#f1e6cc}
-body.mode-sealed .topbar .wordmark,body.mode-sealed .topbar .icon-btn,body.mode-sealed .topbar .acct-btn{color:#f1e6cc}
+body.mode-sealed .topbar{background:rgba(27,28,31,.9);border-bottom-color:rgba(212,178,106,.18)}
+body.mode-sealed .topbar .logo .wordmark{color:#f1e6cc}
 body.mode-sealed .mode-switch{background:rgba(44,45,50,.92);border-color:rgba(255,255,255,.08);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08)}
 body.mode-sealed .mode-switch::before{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 55%)}
 body.mode-sealed .mode-switch button{color:rgba(241,230,204,.6)}
@@ -2081,6 +2081,24 @@ body.mode-sealed .mode-switch button[aria-selected="true"]{color:#fff}
 .sheet.sl-dark .sl-hintline,.sheet.sl-dark .sl-you{color:#f1e6cc}
 .sheet.sl-dark .btn.ghost{background:transparent;color:#f1e6cc;border-color:rgba(255,255,255,.2)}
 .sheet.sl-dark .btn.armed{background:#5c0000;color:#fff;border-color:#5c0000}
+
+/* sealed mode: header buttons and account menu in charcoal */
+body.mode-sealed #clanBtn{background:#26262a;border-color:rgba(255,255,255,.16);color:#f1e6cc}
+body.mode-sealed #acctBtn{background:#26262a;border-color:rgba(138,3,3,.7);color:#f1e6cc}
+body.mode-sealed #acctMenu{background:#1c1c1f;border-color:rgba(255,255,255,.1);color:#e7e2d7;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+body.mode-sealed #acctMenu .mh{border-bottom-color:rgba(255,255,255,.1)}
+body.mode-sealed #acctMenu .mh b{color:#f1e6cc}
+body.mode-sealed #acctMenu .mh span{color:#a49e91}
+body.mode-sealed #acctMenu button{color:#e7e2d7}
+body.mode-sealed #acctMenu button svg.i{color:#d43a3a}
+body.mode-sealed #acctMenu button:hover,body.mode-sealed #acctMenu button:focus-visible{background:rgba(138,3,3,.22)}
+
+body.mode-sealed #acctMenu a,body.mode-sealed #acctMenu a svg.i,body.mode-sealed #acctMenu svg.i{color:#e7e2d7}
+body.mode-sealed #acctMenu svg.i{color:#d43a3a}
+/* sealed mode: frosted smoked glass toggle */
+body.mode-sealed .mode-switch{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.35)}
+body.mode-sealed .mode-switch::before{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 55%)}
+body.mode-sealed .ms-thumb{background:linear-gradient(135deg,rgba(176,28,28,.85),rgba(92,0,0,.85));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,170,170,.35);box-shadow:0 4px 14px rgba(92,0,0,.55),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 6px rgba(40,0,0,.4)}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -3922,7 +3940,7 @@ const Planner = {
   open(opts = {}) {
     this.ctx = { clanId: opts.clanId || null, readOnly: !!opts.readOnly };
     if (opts.tripId) Trips.setActive(opts.tripId);
-    this.prefill = opts.dest || '';
+    this.prefill = opts.dest || ''; this.kind = opts.kind || 'plan';
     this.trip = this.ctx.clanId ? Util.clone(Clans.syncSeats(Clans.get(this.ctx.clanId)).trip) : opts.fresh ? null : this.loadOwn();
     this.tab = opts.tab || 0; this.day = 0; this.editingSetup = false;
     UI.openOverlay('planner', () => Home.render());
@@ -4110,6 +4128,7 @@ const Planner = {
       const nm = $$('#sf-names input').map((i, k) => i.value.trim() || (k === 0 ? '' : 'Traveller ' + (k + 1)));
       if (!nm[0]) { err.textContent = 'Please enter the trip leader\'s name.'; $('#sf-names input').focus(); return; }
       this.trip = Trips.create({ destination: dest, from, start: s, end: en, names: nm });
+      if (this.kind && this.kind !== 'plan') { this.trip.kind = this.kind; }
       this.persist(); this.tab = 0; this.day = 0; this.render();
       UI.toast('Your trip letter is drafted. Add your day plan!');
     });
@@ -4549,7 +4568,7 @@ const Clans = {
   create({ trip, name, desc, payment }) {
     const u = Auth.user;
     const c = {
-      id: Util.uid('clan'), token: Util.token(12), name, desc: desc || `Our ${trip.destination} trip, made with love.`, photo: null,
+      id: Util.uid('clan'), kind: trip.kind || 'plan', token: Util.token(12), name, desc: desc || `Our ${trip.destination} trip, made with love.`, photo: null,
       createdAt: Date.now(), createdBy: u.id, capacity: trip.travellers.length, paidTravellers: trip.travellers.length, paidDays: Trips.dayCount(trip),
       members: [{ accountId: u.id, name: u.name, contact: Auth.contactOf(u), role: 'leader', joinedAt: Date.now() }],
       messages: [], photos: [], payments: [{ ...payment, purpose: 'Clan creation', ts: Date.now(), by: u.id }], trip: null
@@ -8002,6 +8021,7 @@ const HomeMode = {
     $$('[data-mode]', sw).forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === mode)));
     if (mode === 'open') OpenTrips.renderHome();
     if (mode === 'sealed') Sealed.renderHome();
+    try { $('#clanBtn').hidden = !Home.clansFor(mode).length; } catch (e) { }   // Home loads later on first start
     // every tap cancels the animation of the tap before it: only the latest tap wins
     const seq = ++this.seq; clearTimeout(this._t); clearTimeout(this._t2);
     const show = $(this.PANES[mode]), others = this.MODES.filter(m => m !== mode).map(m => $(this.PANES[m])).filter(Boolean);
@@ -8240,7 +8260,7 @@ const Sealed = {
       };
       if (t.opened) reveal();
       else $('#slOpen', body).onclick = () => { const o = $('#slOpen', body); if (o.classList.contains('breaking')) return; o.classList.add('breaking'); setTimeout(() => { o.classList.add('done'); reveal(); }, 900); };
-      $('#slPlan', body).onclick = () => UI.closeSheet(() => Planner.open({ fresh: true, dest }));
+      $('#slPlan', body).onclick = () => UI.closeSheet(() => Planner.open({ fresh: true, dest, kind: 'sealed' }));
       $('#slDel', body).onclick = e => UI.armed(e.currentTarget, () => { this.save(this.all().filter(x => x.id !== id)); UI.closeSheet(() => { this.renderHome(); UI.toast('Envelope deleted.'); }); }, 'Tap again to delete');
     });
   },
@@ -8302,8 +8322,8 @@ const Home = {
     } else {
       $('#homeTrip').innerHTML = `<div class="section-t"><h2>Your journey</h2></div><div class="card paper empty"><div class="em">💌</div><h4>No trip yet</h4><p>Your first letter is waiting to be written. Tap <b>Plan My Own Trip</b> to begin.</p></div>`;
     }
-    // Clans
-    const clans = u ? Clans.listFor(u.id) : [];
+    // Clans (this page shows only clans of planned trips)
+    const clans = this.clansFor('plan');
     $('#homeClans').innerHTML = clans.length ? `<div class="section-t"><h2>Your clan${clans.length > 1 ? 's' : ''}</h2></div>` + clans.map(c => {
       const m = Clans.member(c, u.id), last = c.messages[c.messages.length - 1];
       return `<div class="clan-card" data-clan="${c.id}" role="button" tabindex="0"><div class="grp-photo">${c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : (guideFor(c.trip.destination) || { emoji: '🧭' }).emoji}</div>
@@ -8312,10 +8332,13 @@ const Home = {
     }).join('') : '';
     $$('[data-clan]').forEach(el => el.onclick = () => Chat.open(el.dataset.clan));
   },
+  /** clans for one home page: plan / open / sealed (clans made in the planner are 'plan') */
+  clansFor(mode) { const u = Auth.user; return u ? Clans.listFor(u.id).filter(c => (c.kind || 'plan') === mode) : []; },
+  mode() { return typeof HomeMode !== 'undefined' ? HomeMode.get() : 'plan'; },
   header() {
     const u = Auth.user, btn = $('#acctBtn');
     btn.innerHTML = u ? `${Util.avatar(u.name, 'sm')}<span class="nm">${Util.esc(u.name.split(' ')[0])}</span>` : `<span class="avatar sm" style="background:var(--navy)">${icon('user', 'sm')}</span><span class="nm">Log in</span>`;
-    const clans = u ? Clans.listFor(u.id) : [];
+    const clans = this.clansFor(this.mode());
     const cb = $('#clanBtn'); cb.hidden = !clans.length;            // clan icon only when the account has a paid clan
     cb.innerHTML = icon('shield') + '<span class="clan-dot"></span>';
     this.closeMenu();
@@ -8507,7 +8530,7 @@ document.addEventListener('click', e => { if (!$('#acctMenu').hidden && !e.targe
 $('#planBtn').addEventListener('click', () => Planner.open({ fresh: true })); // always a new trip; others stay as drafts
 $('#logoBtn').addEventListener('click', () => Nav.home(() => window.scrollTo({ top: 0, behavior: 'smooth' })));
 $('#clanBtn').addEventListener('click', () => {
-  const cl = Auth.user ? Clans.listFor(Auth.user.id) : [];
+  const cl = Home.clansFor(Home.mode());
   if (cl.length === 1) return Chat.open(cl[0].id);
   UI.sheet('Your clans', cl.map(c => `<div class="clan-card" data-pick="${c.id}"><div class="grp-photo">${c.photo ? `<img src="${Util.url(c.photo)}" alt="">` : '🧭'}</div><div style="flex:1"><h3>${Util.esc(c.name)}</h3><div class="m">${c.members.length}/${c.capacity} · ${Util.esc(c.trip.destination)}</div></div></div>`).join(''), body => {
     $$('[data-pick]', body).forEach(el => el.onclick = () => UI.closeSheet(() => Chat.open(el.dataset.pick)));
