@@ -2041,6 +2041,9 @@ body.mode-sealed .brand-lockup .wordmark{color:#f1e6cc}
 .sl-you{font-family:var(--serif);font-size:1.25rem;margin:4px 0 0}
 .sl-reveal{animation:slRise .5s ease}
 @keyframes slRise{from{opacity:0;transform:translateY(12px)}}
+.sl-hero{overflow:hidden;padding-top:34px;padding-bottom:30px}
+.sl-band{position:absolute;left:0;right:0;height:9px;background:repeating-linear-gradient(-45deg,#b8322a 0 14px,transparent 14px 22px,#e8b84a 22px 36px,transparent 36px 44px)}
+.sl-band.t{top:0}.sl-band.b{bottom:0}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -8095,6 +8098,7 @@ const Sealed = {
     const list = this.all().sort((a, b) => a.reveal.localeCompare(b.reveal));
     host.innerHTML = `
       <article class="sl-hero">
+        <div class="sl-band t"></div><div class="sl-band b"></div>
         <div class="sl-env" aria-hidden="true"><span class="sl-flap"></span><span class="seal sl-seal" data-vmark></span></div>
         <h2>A trip you won't see coming</h2>
         <p>Pick your mood, budget and dates. We choose the place and seal it in an envelope. It opens on the day you choose.</p>
