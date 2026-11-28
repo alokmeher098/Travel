@@ -2606,7 +2606,7 @@ const UI = {
   },
   /** Bottom sheet (modal). Re-opening while open replaces its content. */
   sheet(title, html, onMount, onClose) {
-    const sh = $('#sheet');
+    const sh = $('#sheet'); sh.classList.remove('sl-dark');   // a sealed-trip sheet adds it back in onMount
     $('#sheetTitle').textContent = title;
     const body = $('#sheetBody');
     body.innerHTML = html;
@@ -8130,7 +8130,7 @@ const Sealed = {
     ['Alleppey', 'nature', 'mid', 'the south'], ['Coorg', 'nature', 'mid', 'the south'], ['Shillong', 'nature', 'mid', 'the north-east'], ['Spiti Valley', 'nature', 'high', 'the far north'],
   ],
   sheet(title, html, mount) {
-    UI.sheet(title, html, body => { $('#sheet').classList.add('sl-dark'); mount && mount(body); }, () => $('#sheet').classList.remove('sl-dark'));
+    UI.sheet(title, html, body => { this._dk = 0; $('#sheet').classList.add('sl-dark'); mount && mount(body); }, () => { const sh = $('#sheet'), t = this._dk = Date.now(); setTimeout(() => { if (this._dk === t && !sh.classList.contains('open')) sh.classList.remove('sl-dark'); }, 600); });   // stay dark while it slides away
   },
   all() { const l = Store.get(this.KEY, []); return Array.isArray(l) ? l : []; },
   save(l) { Store.set(this.KEY, l); },
