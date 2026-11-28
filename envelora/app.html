@@ -2044,6 +2044,43 @@ body.mode-sealed .brand-lockup .wordmark{color:#f1e6cc}
 .sl-hero{overflow:hidden;padding-top:34px;padding-bottom:30px}
 .sl-band{position:absolute;left:0;right:0;height:9px;background:repeating-linear-gradient(-45deg,#b8322a 0 14px,transparent 14px 22px,#e8b84a 22px 36px,transparent 36px 44px)}
 .sl-band.t{top:0}.sl-band.b{bottom:0}
+
+/* ===== Sealed trip: red + black ===== */
+body.mode-sealed{background:#121214 var(--grain)}
+body.mode-sealed .topbar{background:rgba(18,18,20,.92);border-bottom-color:rgba(192,57,43,.35)}
+body.mode-sealed .ms-thumb{background:linear-gradient(135deg,#e0483a,#9b1f16);border-color:rgba(255,160,150,.45);box-shadow:0 4px 14px rgba(155,31,22,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+body.mode-sealed .mode-switch button[aria-selected="true"]{color:#fff}
+.sl-btn,.btn.sl-red{background:linear-gradient(135deg,#e0483a,#a3241a);color:#fff;border:none;font-weight:700;box-shadow:0 8px 20px rgba(163,36,26,.45)}
+.btn.sl-red:active,.sl-btn:active{transform:scale(.98)}
+.sl-hero{background:radial-gradient(120% 90% at 50% 0%,#2a1a1a 0%,#1b1516 50%,#111112 100%);border-color:rgba(192,57,43,.35)}
+.sl-env{border-color:rgba(192,57,43,.45)}
+.sl-env::after{background:linear-gradient(to top right,transparent 49.5%,rgba(192,57,43,.28) 50%,transparent 51%),linear-gradient(to top left,transparent 49.5%,rgba(192,57,43,.28) 50%,transparent 51%)}
+.sl-mini{border-color:rgba(192,57,43,.45)}
+.sl-card{background:#1c1c1f;border-color:rgba(255,255,255,.06)}
+.sl-info em{color:#e8675a}
+.sl-card.ready{border-color:rgba(224,72,58,.7);box-shadow:0 0 0 1px rgba(224,72,58,.25),0 0 22px rgba(224,72,58,.22)}
+@keyframes slPulse{50%{box-shadow:0 0 0 3px rgba(224,72,58,.35),0 0 14px rgba(224,72,58,.7)}}
+.sl-steps>div{background:#1c1c1f}
+.sl-steps span{background:rgba(224,72,58,.18);color:#ff8a7d}
+
+/* sealed-trip sheets: charcoal */
+.sheet.sl-dark{background:#1a1a1d;color:#e7e2d7;border-top:2px solid #c0392b;--navy:#f1e6cc;--ink:#e7e2d7;--muted:#a49e91;--line:rgba(255,255,255,.12)}
+.sheet.sl-dark .grab{background:rgba(255,255,255,.25)}
+.sheet.sl-dark .sh-head{border-bottom-color:rgba(255,255,255,.08)}
+.sheet.sl-dark h3,.sheet.sl-dark #sheetTitle{color:#f1e6cc}
+.sheet.sl-dark .icon-btn{color:#f1e6cc;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.sheet.sl-dark .muted,.sheet.sl-dark .hint{color:#a49e91}
+.sheet.sl-dark .chip{background:#26262a;color:#e7e2d7;border-color:rgba(255,255,255,.12)}
+.sheet.sl-dark .sl-chips .chip.on{background:#c0392b;color:#fff;border-color:#c0392b}
+.sheet.sl-dark .input{background:#26262a;color:#f1e6cc;border-color:rgba(255,255,255,.14);color-scheme:dark}
+.sheet.sl-dark .sl-stp{background:#26262a;border-color:rgba(255,255,255,.12)}
+.sheet.sl-dark .sl-stp button{background:rgba(255,255,255,.08);color:#f1e6cc}
+.sheet.sl-dark .sl-stp b{color:#f1e6cc}
+.sheet.sl-dark .sl-facts>div{background:#24242a;color:#a49e91}
+.sheet.sl-dark .sl-facts b{color:#f1e6cc}
+.sheet.sl-dark .sl-hintline,.sheet.sl-dark .sl-you{color:#f1e6cc}
+.sheet.sl-dark .btn.ghost{background:transparent;color:#f1e6cc;border-color:rgba(255,255,255,.2)}
+.sheet.sl-dark .btn.armed{background:#a3241a;color:#fff;border-color:#a3241a}
 </style>
 </head>
 <body class="launch-mode lock">
@@ -8072,6 +8109,9 @@ const Sealed = {
     ['Varanasi', 'spiritual', 'low', 'the north'], ['Amritsar', 'spiritual', 'low', 'the north'], ['Pushkar', 'spiritual', 'low', 'the west'], ['Bodh Gaya', 'spiritual', 'mid', 'the east'],
     ['Alleppey', 'nature', 'mid', 'the south'], ['Coorg', 'nature', 'mid', 'the south'], ['Shillong', 'nature', 'mid', 'the north-east'], ['Spiti Valley', 'nature', 'high', 'the far north'],
   ],
+  sheet(title, html, mount) {
+    UI.sheet(title, html, body => { $('#sheet').classList.add('sl-dark'); mount && mount(body); }, () => $('#sheet').classList.remove('sl-dark'));
+  },
   all() { const l = Store.get(this.KEY, []); return Array.isArray(l) ? l : []; },
   save(l) { Store.set(this.KEY, l); },
   // the place is stored lightly scrambled so it is not shown by accident before the day
@@ -8127,7 +8167,7 @@ const Sealed = {
   form() {
     const t0 = this.today(), start0 = this.addDays(t0, 14);
     let mood = 'any', budget = 'mid', days = 4, people = 2;
-    UI.sheet('Seal a trip', `
+    this.sheet('Seal a trip', `
       <div class="sl-f">
         <label class="sl-lbl">Mood</label>
         <div class="sl-chips" id="slMood">${this.MOODS.map(([k, l, ic]) => `<button type="button" class="chip${k === mood ? ' on' : ''}" data-v="${k}">${icon(ic, 'sm')} ${l}</button>`).join('')}</div>
@@ -8142,7 +8182,7 @@ const Sealed = {
           <div><label class="sl-lbl">Travellers</label><div class="sl-stp"><button type="button" data-st="p-">−</button><b id="slPpl">${people}</b><button type="button" data-st="p+">+</button></div></div>
         </div>
         <p class="hint">The place stays hidden until your reveal date, even from you.</p>
-        <button class="btn gold block" id="slGo">Seal it</button>
+        <button class="btn sl-red block" id="slGo">Seal it</button>
       </div>`, body => {
       const one = (id, set) => $(id, body).onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; $$('.chip', $(id, body)).forEach(c => c.classList.toggle('on', c === b)); set(b.dataset.v); };
       one('#slMood', v => mood = v); one('#slBud', v => budget = v);
@@ -8171,7 +8211,7 @@ const Sealed = {
     const m = this.mood(t.mood), bud = (this.BUDGETS.find(b => b[0] === t.budget) || [, ''])[1];
     const facts = `<div class="sl-facts"><div>Mood<b>${Util.esc(m[1])}</b></div><div>Budget<b>${Util.esc(bud)}</b></div><div>Dates<b>${Util.fmtDate(t.start)} · ${t.days} days</b></div><div>Travellers<b>${t.people}</b></div></div>`;
     if (!this.ready(t)) {
-      return UI.sheet('Sealed envelope', `
+      return this.sheet('Sealed envelope', `
         <div class="sl-view"><div class="sl-env big" aria-hidden="true"><span class="sl-flap"></span><span class="seal sl-seal" data-vmark></span></div>
         <h3>${Util.esc(this.when(t))}</h3><p class="muted">On ${Util.fmtDate(t.reveal, { weekday: 'long', day: 'numeric', month: 'long' })} you can break the seal.</p>
         <p class="sl-hintline">Hint: it's somewhere in ${Util.esc(t.hint || 'India')}.</p>${facts}
@@ -8180,7 +8220,7 @@ const Sealed = {
       });
     }
     const dest = this.show(t.dest);
-    UI.sheet(t.opened ? dest : 'Break the seal', `
+    this.sheet(t.opened ? dest : 'Break the seal', `
       <div class="sl-view">
         <div class="sl-open${t.opened ? ' done' : ''}" id="slOpen">
           <div class="sl-env big" aria-hidden="true"><span class="sl-flap"></span><span class="seal sl-seal" data-vmark></span></div>
@@ -8189,7 +8229,7 @@ const Sealed = {
         <div class="sl-reveal" id="slRevealBox"${t.opened ? '' : ' hidden'}>
           <div class="ot-hero" data-otimg="${Util.esc(dest)}" style="background:linear-gradient(135deg,#2a2b30,#111214)"><span class="ot-emoji">${icon(m[2])}</span><b class="ot-hero-t">${Util.esc(dest)}</b></div>
           <p class="sl-you">You're going to <b>${Util.esc(dest)}</b>!</p>${facts}
-          <button class="btn gold block" id="slPlan">Plan this trip</button>
+          <button class="btn sl-red block" id="slPlan">Plan this trip</button>
           <button class="btn ghost block" id="slDel">Delete this envelope</button>
         </div>
       </div>`, body => {
